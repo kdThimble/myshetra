@@ -36,8 +36,9 @@ class _LoginPageState extends State<LoginPage> {
           context: context,
           isScrollControlled: true,
           builder: (BuildContext context) {
-            return OtpScreen(
-              mobileNumber: '',
+            return OtpVerificationScreen(
+              otp: "",
+              mobileNumber: '', onOtpVerification: (String ) {  },
             );
           },
         );
@@ -147,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: Container(
                               padding: EdgeInsets.only(
                                   bottom: MediaQuery.of(context).viewInsets.bottom),
-                              child: OtpScreen(mobileNumber: ''),
+                              child: OtpVerificationScreen(mobileNumber: '', otp: "",onOtpVerification: (String ) {  },),
                             ),
                           );
                         },
@@ -210,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                       // Add your login logic here
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => CheckMobileScreen()),
+                        MaterialPageRoute(builder: (context) => SignUpPage()),
                       );
                     },
                     style: ButtonStyle(

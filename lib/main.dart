@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:myshetra/Pages/SplashScreen.dart';
+import 'package:myshetra/Providers/AuthProvider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

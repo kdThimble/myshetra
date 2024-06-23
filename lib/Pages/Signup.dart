@@ -1,29 +1,37 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print, non_constant_identifier_names
+
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:myshetra/Models/Authmodel.dart';
 import 'package:myshetra/Pages/LoginScreen.dart';
+import 'package:myshetra/Pages/Otpscreen.dart';
+import 'package:myshetra/Providers/AuthProvider.dart';
 import 'package:myshetra/helpers/colors.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Oranisation.dart';
 
-
 class SignUpPage extends StatefulWidget {
-  final String mobileNumber;
-  final String otp;
-
-  SignUpPage({required this.mobileNumber, required this.otp});
-
+  SignUpPage({super.key});
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  TextEditingController mobileNumberController = TextEditingController();
+  TextEditingController _mobileNumberController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController dateOfBirthController = TextEditingController();
   TextEditingController otpcontroller = TextEditingController();
+
+  var numberText = "";
+  bool isAvailable = false;
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showCupertinoModalPopup(
       context: context,
@@ -38,7 +46,7 @@ class _SignUpPageState extends State<SignUpPage> {
             maximumDate: DateTime.now(),
             onDateTimeChanged: (DateTime newDateTime) {
               setState(() {
-               dateOfBirthController.text =
+                dateOfBirthController.text =
                     DateFormat('yyyy-MM-dd').format(newDateTime);
               });
             },
@@ -55,6 +63,124 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
+  String _mobileNumber = '';
+  @override
+  void initState() {
+    super.initState();
+    _mobileNumberController.addListener(_checkMobileNumber);
+  }
+
+  void _checkMobileNumber() {
+    if (_mobileNumberController.text.length == 10) {
+      _checkMobileNumberAvailability();
+    } else {
+      print("not fullfilled length = ${_mobileNumberController.text.length}");
+    }
+  }
+
+  void _checkMobileNumberAvailability() async {
+    print("in function");
+    String mobileNumber = _mobileNumberController.text;
+    var request = http.Request(
+      'GET',
+      Uri.parse(
+          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/checkMobileAlreadyRegistered?mobile_number=$mobileNumber'),
+    );
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var responseData = json.decode(await response.stream.bytesToString());
+      bool status = responseData['statusDetails']['status'];
+      String message = responseData['message'];
+      print("response ${responseData}");
+      if (status) {
+        setState(() {
+          numberText = "Mobile number available";
+          isAvailable = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Number is  available',
+              style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.green,
+        ));
+      } else {
+        setState(() {
+          numberText = "Mobile number is not available";
+          isAvailable = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Number is not available',
+                style: TextStyle(color: Colors.red)),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Failed to check number availability. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> generateSignupOTP(String mobileNumber) async {
+    print("OTP number $mobileNumber");
+    var request = http.Request(
+      'POST',
+      Uri.parse(
+          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/generateSignupOTP?mobile_number=$mobileNumber'),
+    );
+
+    http.StreamedResponse response = await request.send();
+    print("response otp $response");
+
+    if (response.statusCode == 200) {
+      var responseData = await response.stream.bytesToString();
+      var otpData = json.decode(responseData);
+      print("OTP DATA $otpData");
+
+      // Assuming the OTP is part of the response, extract it
+      String otp = otpData['otp'] ?? '';
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: OtpVerificationScreen(
+                mobileNumber: _mobileNumberController.text,
+                otp: otp,
+                onOtpVerification: (otp2) {
+                  verifySignupOTP(
+                      mobileNumber: mobileNumber,
+                      otp: otp2,
+                      name: nameController.text,
+                      gender: gender,
+                      dateOfBirth: dateOfBirthController.text);
+                },
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to generate OTP. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> verifySignupOTP({
     required String mobileNumber,
     required String otp,
@@ -65,48 +191,58 @@ class _SignUpPageState extends State<SignUpPage> {
     var headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
-    var request = http.Request('POST', Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifySignupOTP'));
+    var request = http.Request(
+        'POST',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifySignupOTP'));
     request.bodyFields = {
       'mobile_number': mobileNumber,
       'otp': otp,
       'name': name,
-      'gender': gender,
+      'gender': gender.toLowerCase(),
       'date_of_birth': dateOfBirth,
     };
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
+    String responseBody = await response.stream.bytesToString();
+    var jsonData = json.decode(responseBody);
+    print("Response code: ${jsonData}");
+    final authResponse = AuthResponse.fromJson(jsonData['data']);
 
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
+      print(responseBody);
+      if (authResponse.refreshToken != null && authResponse.token != null) {
+        // Save the tokens to secure storage or a state management solution
+        Provider.of<AuthProvider>(context, listen: false)
+            .setAuthResponse(authResponse);
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', authResponse.token);
+        await prefs.setString('refreshToken', authResponse.refreshToken);
+      } else {
+        print('Failed to authenticate');
+      }
+
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OrganizationProofScreen(
-          ),
+          builder: (context) => OrganizationProofScreen(),
         ),
       );
-      // Navigate to the next screen or show success message
     } else {
+      print("ERROR");
       print(response.reasonPhrase);
-      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to verify OTP. Please try again.')),
+        SnackBar(
+          content: Text('Failed to verify OTP. Please try again.'),
+        ),
       );
     }
   }
 
   var gender = "Male";
   var DateOfBirth = "";
-  @override
-  void initState() {
-    // TODO: implement initState
-    setState(() {
-      mobileNumberController.text = widget.mobileNumber;
-      otpcontroller.text = widget.otp;
-    });
-    super.initState();
-  }
+
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -141,7 +277,9 @@ class _SignUpPageState extends State<SignUpPage> {
                           color: Colors.black),
                     ),
                   ),
-                  SizedBox(height: 30,),
+                  const SizedBox(
+                    height: 30,
+                  ),
                   Container(
                     margin: const EdgeInsets.all(10.0),
                     decoration: BoxDecoration(
@@ -173,8 +311,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           width: 10,
                         ),
                         const Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 12),
                           child: Text(
                             '+91',
                             style: TextStyle(
@@ -183,7 +321,8 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                         Expanded(
                           child: TextField(
-                            controller: mobileNumberController,
+                            controller: _mobileNumberController,
+                            onEditingComplete: _checkMobileNumber,
                             decoration: const InputDecoration(
                               hintText: 'Enter mobile number',
                               hintStyle: TextStyle(
@@ -196,27 +335,17 @@ class _SignUpPageState extends State<SignUpPage> {
                       ],
                     ),
                   ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      numberText,
+                      style: TextStyle(
+                          color: isAvailable ? Colors.green : Colors.red,
+                          fontSize: 12),
+                    ),
+                  ),
                   SizedBox(
                     height: height * 0.02,
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(10.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      border: Border.all(color: Colors.grey),
-                    ),
-                    child: TextField(
-                      controller: otpcontroller,
-                      decoration: const InputDecoration(
-                        contentPadding:
-                        EdgeInsets.only(left: 15, top: 5, bottom: 5),
-                        hintText: 'Otp',
-                        hintStyle: TextStyle(
-                            fontSize: 18.0, fontWeight: FontWeight.w200),
-                        border: InputBorder.none,
-                      ),
-                      keyboardType: TextInputType.name,
-                    ),
                   ),
                   Container(
                     margin: const EdgeInsets.all(10.0),
@@ -231,7 +360,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       isExpanded: true,
                       underline: Container(),
                       value: gender,
-                      hint: Text("Gender"),
+                      hint: const Text("Gender"),
                       onChanged: (value) {
                         setState(() {
                           gender = value!;
@@ -257,19 +386,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: Row(
                       children: [
                         const SizedBox(width: 10),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
-                          child: Text(
-                            'DOB',
-                            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w100),
-                          ),
-                        ),
                         Expanded(
                           child: TextField(
                             controller: dateOfBirthController,
                             decoration: const InputDecoration(
                               hintText: 'Enter date of birth',
-                              hintStyle: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w200),
+                              hintStyle: TextStyle(
+                                  fontSize: 18.0, fontWeight: FontWeight.w200),
                               border: InputBorder.none,
                             ),
                             readOnly: true,
@@ -281,8 +404,8 @@ class _SignUpPageState extends State<SignUpPage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 180),
-                  Align(
+                  const SizedBox(height: 180),
+                  const Align(
                     alignment: Alignment.bottomCenter,
                     child: Divider(
                       color: Colors.grey,
@@ -293,17 +416,18 @@ class _SignUpPageState extends State<SignUpPage> {
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Color(0xFFFF5252), // Background color
+                        primary: const Color(0xFFFF5252), // Background color
                       ),
                       onPressed: () {
+                        generateSignupOTP(_mobileNumberController.text);
+
                         // OrganizationProofScreen
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OrganizationProofScreen(
-                            ),
-                          ),
-                        );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => OrganizationProofScreen(),
+                        //   ),
+                        // );
                         // verifySignupOTP(
                         //   mobileNumber: mobileNumberController.text,
                         //   otp: otpcontroller.text,
@@ -312,9 +436,13 @@ class _SignUpPageState extends State<SignUpPage> {
                         //   dateOfBirth: dateOfBirthController.text,
                         // );
                       },
-                      child: Text(
-                        'Next',
-                        style: TextStyle(color: Colors.white), // Text color
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          'Next',
+                          style: TextStyle(
+                              color: Colors.white, fontSize: 22), // Text color
+                        ),
                       ),
                     ),
                   ),

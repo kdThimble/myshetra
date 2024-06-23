@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
+import 'package:myshetra/Pages/Oranisation.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LanguageSelectionPage()),
+        MaterialPageRoute(builder: (context) => OrganizationProofScreen()),
       );
     });
   }

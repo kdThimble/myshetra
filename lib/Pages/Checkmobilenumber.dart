@@ -77,8 +77,8 @@ class _CheckMobileScreenState extends State<CheckMobileScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => SignUpPage(
-            mobileNumber: mobileNumber,
-            otp: otp,
+            // mobileNumber: mobileNumber,
+            // otp: otp,
           ),
         ),
       );

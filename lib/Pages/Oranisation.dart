@@ -1,34 +1,61 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:myshetra/Models/OrganisationModel.dart';
 
 import 'Positionproof.dart';
 
 class OrganizationProofScreen extends StatefulWidget {
   @override
-  State<OrganizationProofScreen> createState() => _OrganizationProofScreenState();
+  State<OrganizationProofScreen> createState() =>
+      _OrganizationProofScreenState();
 }
 
 class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
+  Future<OrganisationModel> getPostApi() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getAllOrganization'),
+        headers: {
+          'Authorization':
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI3MDExODk5ODI2IiwidXNlcl9pZCI6IjY2Nzg1NDViNTdiMWE0YmE0ZDk4MTJjZiIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTI0ODM0N30.q6IyfAq1aagaUvA3xz-H39DApJrMdhL06DOdpp8mFLg',
+          'Content-Type': 'application/json',
+        },
+      );
+      final body = json.decode(response.body);
+      print("body $body");
+      if (response.statusCode == 200) {
+        final organisationModel =
+            OrganisationModel.fromJson(jsonDecode(response.body));
+        return organisationModel;
+      }
+    } catch (error) {}
+    throw Exception('error fetching data');
+  }
 
   Future<void> _openCamera(BuildContext context) async {
     final imagePicker = ImagePicker();
     final image = await imagePicker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
-
-        try {
-          // Call uploadImage function with the selected image
-          // await uploadImage(context, XFile(croppedImage.path));
-        } catch (error) {
-          // Handle errors during upload
-          print("Error during upload: $error");
-        } finally {
-          // Dismiss the loading overlay
-          // await uploadImage(context, XFile(croppedImage.path));
-        }
+      try {
+        // Call uploadImage function with the selected image
+        // await uploadImage(context, XFile(croppedImage.path));
+      } catch (error) {
+        // Handle errors during upload
+        print("Error during upload: $error");
+      } finally {
+        // Dismiss the loading overlay
+        // await uploadImage(context, XFile(croppedImage.path));
       }
     }
+  }
+
   Future<void> _openFilePicker(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image, // Specify the allowed file type as an image
@@ -37,25 +64,27 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
     if (result != null && result.files.isNotEmpty) {
       final filePath = result.files.single.path!;
 
-        try {
-          // Call uploadImage function with the selected image
-          // await uploadImage(context, XFile(croppedImage.path));
-        } catch (error) {
-          // Handle errors during upload
-          print("Error during upload: $error");
-        } finally {
-          // Dismiss the loading overlay
-          print("fiunal");
-          // await uploadImage(context, XFile(croppedImage.path));
-        }
+      try {
+        // Call uploadImage function with the selected image
+        // await uploadImage(context, XFile(croppedImage.path));
+      } catch (error) {
+        // Handle errors during upload
+        print("Error during upload: $error");
+      } finally {
+        // Dismiss the loading overlay
+        print("fiunal");
+        // await uploadImage(context, XFile(croppedImage.path));
       }
     }
+  }
+
+  var newData;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back), // iOS style back button
+          icon: const Icon(Icons.arrow_back), // iOS style back button
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -65,10 +94,10 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
             onPressed: () {
               // Implement skip logic
             },
-            child: Text('Skip', style: TextStyle(color: Colors.black)),
+            child: const Text('Skip', style: TextStyle(color: Colors.black)),
           ),
         ],
-        title: Text(''),
+        title: const Text(''),
         centerTitle: true,
       ),
       body: Padding(
@@ -76,46 +105,76 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
-            Align(
+            const SizedBox(height: 20),
+            const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'If you belong to any organization,',
                 style: TextStyle(fontSize: 18),
               ),
             ),
-            Align(
+            const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'please select and upload the proof',
                 style: TextStyle(fontSize: 18),
               ),
             ),
-            Align(
+            const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'for the same.',
                 style: TextStyle(fontSize: 18),
               ),
             ),
-            SizedBox(height: 20),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                hintText: 'Organization',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              ),
-              items: [
-                DropdownMenuItem(child: Text('Porter'), value: 'Porter'),
-                DropdownMenuItem(child: Text('Zomato'), value: 'Zomato'),
-                DropdownMenuItem(child: Text('Swiggy'), value: 'Swiggy'),
-                // Add more items as needed
-              ],
-              onChanged: (value) {
-                // Handle dropdown value change
+            const SizedBox(height: 20),
+            FutureBuilder<OrganisationModel>(
+              future: getPostApi(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return DropdownButton(
+                    // Initial Value
+                    value: newData,
+                    hint: Text('Select value'),
+                    isExpanded: true,
+                    // Down Arrow Icon
+                    icon: const Icon(Icons.keyboard_arrow_down),
+
+                    // Array list of items
+                    items: snapshot.data!.organizations?.map((item) {
+                      return DropdownMenuItem(
+                        value: item.id,
+                        child: Text(item!.name!),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      newData = value;
+                      setState(() {});
+                    },
+                  );
+                } else {
+                  return Center(child: const CircularProgressIndicator());
+                }
               },
             ),
-            SizedBox(height: 20),
+            // DropdownButtonFormField<String>(
+            //   decoration: const InputDecoration(
+            //     hintText: 'Organization',
+            //     border: OutlineInputBorder(),
+            //     contentPadding: EdgeInsets.symmetric(horizontal: 10),
+            //   ),
+            //   items: const [
+            //     DropdownMenuItem(child: Text('Porter'), value: 'Porter'),
+            //     DropdownMenuItem(child: Text('Zomato'), value: 'Zomato'),
+            //     DropdownMenuItem(child: Text('Swiggy'), value: 'Swiggy'),
+            //     // Add more items as needed
+            //   ],
+            //   onChanged: (value) {
+            //     // Handle dropdown value change
+            //   },
+            // ),
+
+            const SizedBox(height: 20),
             GestureDetector(
               onTap: () async {
                 _openFilePicker(context);
@@ -133,12 +192,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               child: Container(
                 width: double.infinity,
                 height: 200,
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.green, width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Center(
+                child: const Center(
                   child: Text(
                     'Select file',
                     style: TextStyle(fontSize: 18, color: Colors.black),
@@ -146,10 +205,10 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
+              padding: const EdgeInsets.all(8.0),
+              child: const Row(
                 children: [
                   Expanded(
                     child: Divider(
@@ -174,7 +233,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             GestureDetector(
               onTap: () {
                 // Implement file picker logic
@@ -182,12 +241,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               },
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.green, width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Center(
+                child: const Center(
                   child: Text(
                     'Open camera & take Photo',
                     style: TextStyle(fontSize: 18, color: Colors.black),
@@ -195,8 +254,8 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 80),
-            Align(
+            const SizedBox(height: 80),
+            const Align(
               alignment: Alignment.bottomCenter,
               child: Divider(
                 color: Colors.grey,
@@ -207,15 +266,14 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               alignment: Alignment.bottomRight,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Color(0xFFFF5252), // Background color
+                  primary: const Color(0xFFFF5252), // Background color
                 ),
                 onPressed: () {
                   // OrganizationProofScreen
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PositionProofScreen(
-                      ),
+                      builder: (context) => PositionProofScreen(),
                     ),
                   );
                   // verifySignupOTP(
@@ -226,7 +284,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                   //   dateOfBirth: dateOfBirthController.text,
                   // );
                 },
-                child: Text(
+                child: const Text(
                   'Next',
                   style: TextStyle(color: Colors.white), // Text color
                 ),
