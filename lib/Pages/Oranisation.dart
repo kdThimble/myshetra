@@ -10,12 +10,22 @@ import 'package:myshetra/Models/OrganisationModel.dart';
 import 'Positionproof.dart';
 
 class OrganizationProofScreen extends StatefulWidget {
+
   @override
   State<OrganizationProofScreen> createState() =>
       _OrganizationProofScreenState();
 }
 
 class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
+  String? _selectedValue;
+  late Future<OrganisationModel> _futureOrganisationModel;
+  OrganisationModel? _organisationModel;
+  @override
+  void initState() {
+    super.initState();
+    fetchOrganisationData();
+  }
+
   Future<OrganisationModel> getPostApi() async {
     try {
       final response = await http.get(
@@ -23,20 +33,24 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
             'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getAllOrganization'),
         headers: {
           'Authorization':
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI3MDExODk5ODI2IiwidXNlcl9pZCI6IjY2Nzg1NDViNTdiMWE0YmE0ZDk4MTJjZiIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTI0ODM0N30.q6IyfAq1aagaUvA3xz-H39DApJrMdhL06DOdpp8mFLg',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI5MjA1MTU0MzM2IiwidXNlcl9pZCI6IjY2NzliOTA5NTdiMWE0YmE0ZDk4MTJkMCIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTMzOTY1N30.zT2PDrQAhZBe0X_HUyM5DdhY8o0OBi_69GqIgIZk7j0',
           'Content-Type': 'application/json',
         },
       );
-      final body = json.decode(response.body);
-      print("body $body");
       if (response.statusCode == 200) {
-        final organisationModel =
-            OrganisationModel.fromJson(jsonDecode(response.body));
-        return organisationModel;
+        return OrganisationModel.fromJson(jsonDecode(response.body)['data']);
       }
-    } catch (error) {}
+    } catch (error) {
+      throw Exception('error fetching data');
+    }
     throw Exception('error fetching data');
   }
+
+  void fetchOrganisationData() async {
+    _organisationModel = await getPostApi();
+    setState(() {});
+  }
+
 
   Future<void> _openCamera(BuildContext context) async {
     final imagePicker = ImagePicker();
@@ -102,195 +116,187 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'If you belong to any organization,',
-                style: TextStyle(fontSize: 18),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'If you belong to any organization,',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-            ),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'please select and upload the proof',
-                style: TextStyle(fontSize: 18),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'please select and upload the proof',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-            ),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'for the same.',
-                style: TextStyle(fontSize: 18),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'for the same.',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            FutureBuilder<OrganisationModel>(
-              future: getPostApi(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return DropdownButton(
-                    // Initial Value
-                    value: newData,
-                    hint: Text('Select value'),
-                    isExpanded: true,
-                    // Down Arrow Icon
-                    icon: const Icon(Icons.keyboard_arrow_down),
-
-                    // Array list of items
-                    items: snapshot.data!.organizations?.map((item) {
-                      return DropdownMenuItem(
-                        value: item.id,
-                        child: Text(item!.name!),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      newData = value;
-                      setState(() {});
-                    },
+              const SizedBox(height: 20),
+              _organisationModel == null
+                  ? Center(child: CircularProgressIndicator())
+                  : DropdownButton(
+                value: _selectedValue,
+                hint: Text('Select value'),
+                isExpanded: true,
+                icon: const Icon(Icons.keyboard_arrow_down),
+                items: _organisationModel!.organizations!.map((item) {
+                  return DropdownMenuItem(
+                    value: item.id,
+                    child: Text(item.name!),
                   );
-                } else {
-                  return Center(child: const CircularProgressIndicator());
-                }
-              },
-            ),
-            // DropdownButtonFormField<String>(
-            //   decoration: const InputDecoration(
-            //     hintText: 'Organization',
-            //     border: OutlineInputBorder(),
-            //     contentPadding: EdgeInsets.symmetric(horizontal: 10),
-            //   ),
-            //   items: const [
-            //     DropdownMenuItem(child: Text('Porter'), value: 'Porter'),
-            //     DropdownMenuItem(child: Text('Zomato'), value: 'Zomato'),
-            //     DropdownMenuItem(child: Text('Swiggy'), value: 'Swiggy'),
-            //     // Add more items as needed
-            //   ],
-            //   onChanged: (value) {
-            //     // Handle dropdown value change
-            //   },
-            // ),
-
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: () async {
-                _openFilePicker(context);
-                // FilePickerResult? result =
-                // await FilePicker.platform.pickFiles();
-                //
-                // if (result != null) {
-                //   // Handle file picked
-                //   print('File picked: ${result.files.first.path}');
-                // } else {
-                //   // User canceled the picker
-                //   print('User canceled file picker');
-                // }
-              },
-              child: Container(
-                width: double.infinity,
-                height: 200,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.green, width: 2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Center(
-                  child: Text(
-                    'Select file',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                ),
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedValue = value;
+                  });
+                },
               ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(8.0),
-              child: const Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      color: Colors.grey, // Use the color #3F1444
-                      thickness: 1,
+              // DropdownButtonFormField<String>(
+              //   decoration: const InputDecoration(
+              //     hintText: 'Organization',
+              //     border: OutlineInputBorder(),
+              //     contentPadding: EdgeInsets.symmetric(horizontal: 10),
+              //   ),
+              //   items: const [
+              //     DropdownMenuItem(child: Text('Porter'), value: 'Porter'),
+              //     DropdownMenuItem(child: Text('Zomato'), value: 'Zomato'),
+              //     DropdownMenuItem(child: Text('Swiggy'), value: 'Swiggy'),
+              //     // Add more items as needed
+              //   ],
+              //   onChanged: (value) {
+              //     // Handle dropdown value change
+              //   },
+              // ),
+          
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () async {
+                  _openFilePicker(context);
+                  // FilePickerResult? result =
+                  // await FilePicker.platform.pickFiles();
+                  //
+                  // if (result != null) {
+                  //   // Handle file picked
+                  //   print('File picked: ${result.files.first.path}');
+                  // } else {
+                  //   // User canceled the picker
+                  //   print('User canceled file picker');
+                  // }
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.green, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Select file',
+                      style: TextStyle(fontSize: 18, color: Colors.black),
                     ),
                   ),
-                  Center(
-                    child: Text(
-                      '  or  ',
-                      style: TextStyle(
-                        color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                child: const Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        color: Colors.grey, // Use the color #3F1444
+                        thickness: 1,
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      color: Colors.grey, // Use the color #3F1444
-                      thickness: 1,
+                    Center(
+                      child: Text(
+                        '  or  ',
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: () {
-                // Implement file picker logic
-                _openCamera(context);
-              },
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.green, width: 2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Center(
-                  child: Text(
-                    'Open camera & take Photo',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 80),
-            const Align(
-              alignment: Alignment.bottomCenter,
-              child: Divider(
-                color: Colors.grey,
-                thickness: 1,
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: const Color(0xFFFF5252), // Background color
-                ),
-                onPressed: () {
-                  // OrganizationProofScreen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PositionProofScreen(),
+                    Expanded(
+                      child: Divider(
+                        color: Colors.grey, // Use the color #3F1444
+                        thickness: 1,
+                      ),
                     ),
-                  );
-                  // verifySignupOTP(
-                  //   mobileNumber: mobileNumberController.text,
-                  //   otp: otpcontroller.text,
-                  //   name: nameController.text,
-                  //   gender: gender,
-                  //   dateOfBirth: dateOfBirthController.text,
-                  // );
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () {
+                  // Implement file picker logic
+                  _openCamera(context);
                 },
-                child: const Text(
-                  'Next',
-                  style: TextStyle(color: Colors.white), // Text color
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.green, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Open camera & take Photo',
+                      style: TextStyle(fontSize: 18, color: Colors.black),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 80),
+              const Align(
+                alignment: Alignment.bottomCenter,
+                child: Divider(
+                  color: Colors.grey,
+                  thickness: 1,
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: const Color(0xFFFF5252), // Background color
+                  ),
+                  onPressed: () {
+                    // OrganizationProofScreen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PositionProofScreen(),
+                      ),
+                    );
+                    // verifySignupOTP(
+                    //   mobileNumber: mobileNumberController.text,
+                    //   otp: otpcontroller.text,
+                    //   name: nameController.text,
+                    //   gender: gender,
+                    //   dateOfBirth: dateOfBirthController.text,
+                    // );
+                  },
+                  child: const Text(
+                    'Next',
+                    style: TextStyle(color: Colors.white), // Text color
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

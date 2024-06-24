@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
           builder: (BuildContext context) {
             return OtpVerificationScreen(
               otp: "",
-              mobileNumber: '', onOtpVerification: (String ) {  },
+              mobileNumber: mobileNumberController.text, onOtpVerification: (String ) {  },
             );
           },
         );
@@ -139,20 +139,8 @@ class _LoginPageState extends State<LoginPage> {
                   width: double.infinity,
                   child: TextButton(
                     onPressed: () {
-                      // generateLoginOTP(mobileNumberController.text ,  context);
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (BuildContext context) {
-                          return SingleChildScrollView(
-                            child: Container(
-                              padding: EdgeInsets.only(
-                                  bottom: MediaQuery.of(context).viewInsets.bottom),
-                              child: OtpVerificationScreen(mobileNumber: '', otp: "",onOtpVerification: (String ) {  },),
-                            ),
-                          );
-                        },
-                      );
+                      generateLoginOTP(mobileNumberController.text ,  context);
+
                     },
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
