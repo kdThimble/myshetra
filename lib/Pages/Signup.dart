@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:myshetra/Models/Authmodel.dart';
 import 'package:myshetra/Pages/LoginScreen.dart';
-import 'package:myshetra/Pages/Otpscreen.dart';
+import 'package:myshetra/Pages/Otpscreen.dart' ;
 import 'package:myshetra/Providers/AuthProvider.dart';
 import 'package:myshetra/helpers/colors.dart';
 import 'package:intl/intl.dart';
@@ -155,7 +155,7 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Container(
               padding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: OtpVerificationScreen(
+              child: OtpScreen(
                 mobileNumber: _mobileNumberController.text,
                 otp: otp,
                 onOtpVerification: (otp2) {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class OtpVerificationScreen extends StatefulWidget {
+class OtpScreen extends StatefulWidget {
   final String mobileNumber;
   final Function(String) onOtpVerification;
   final String otp;
 
-  OtpVerificationScreen(
+  OtpScreen(
       {required this.mobileNumber,
       required this.onOtpVerification,
       required this.otp});
@@ -14,7 +14,7 @@ class OtpVerificationScreen extends StatefulWidget {
   _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
 }
 
-class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
+class _OtpVerificationScreenState extends State<OtpScreen> {
   final List<TextEditingController> _controllers =
       List.generate(6, (index) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
