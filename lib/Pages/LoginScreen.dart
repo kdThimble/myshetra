@@ -9,396 +9,396 @@ import 'package:http/http.dart' as http;
 import 'Checkmobilenumber.dart';
 import 'Otpscreen.dart';
 
-// class LoginPage extends StatefulWidget {
-//   const LoginPage({super.key});
+class LoginScreen extends StatefulWidget {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
-//   @override
-//   State<LoginPage> createState() => _LoginPageState();
-// }
+class _LoginScreenState extends State<LoginScreen> {
+  late LoginBloc _loginBlocs;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loginBlocs = LoginBloc();
+  }
 
-// class _LoginPageState extends State<LoginPage> {
-//   TextEditingController mobileNumberController = TextEditingController();
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _loginBlocs.close();
+    super.dispose();
+  }
 
-//   Future<void> generateLoginOTP(String mobile, BuildContext context) async {
-//     try {
-//       var url = Uri.parse(
-//           'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/generateLoginOTP?mobile_number=$mobile');
-//       var request = http.Request('POST', url);
-
-//       http.StreamedResponse response = await request.send();
-
-//       if (response.statusCode == 200) {
-//         print(await response.stream.bytesToString());
-
-//         // Navigate to OTP screen as modal bottom sheet
-//         showModalBottomSheet(
-//           context: context,
-//           isScrollControlled: true,
-//           builder: (BuildContext context) {
-//             return OtpVerificationScreen(
-//               otp: "",
-//               mobileNumber: mobileNumberController.text,
-//               onOtpVerification: (String) {},
-//             );
-//           },
-//         );
-//       } else {
-//         print(response.reasonPhrase);
-//         // Handle error (e.g., show a snackbar with an error message)
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(
-//             content: Text('Failed to generate OTP. Please try again.'),
-//             backgroundColor: Colors.red,
-//           ),
-//         );
-//       }
-//     } catch (e) {
-//       print('Exception: $e');
-//       // Handle exception (e.g., show a snackbar with an exception message)
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Text('Error: $e'),
-//           backgroundColor: Colors.red,
-//         ),
-//       );
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     var width = MediaQuery.of(context).size.width;
-//     var height = MediaQuery.of(context).size.height;
-//     return BlocProvider(
-//       create: (context) => LoginBloc(),
-//       child: Scaffold(
-//         appBar: AppBar(
-//           centerTitle: true,
-//           title: Text(
-//             "My Shetra",
-//             style: TextStyle(
-//               color: blueColor,
-//               fontWeight: FontWeight.bold,
-//               fontSize: width * 0.07,
-//             ),
-//           ),
-//         ),
-//         body: SingleChildScrollView(
-//           child: Container(
-//             margin: const EdgeInsets.all(15.0),
-//             child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 crossAxisAlignment: CrossAxisAlignment.center,
-//                 children: [
-//                   Container(
-//                     margin: const EdgeInsets.all(20.0),
-//                     child: Text(
-//                       "Drive with Confidence \n Your Local Car Repair   Expert at Your Fingertips!",
-//                       textAlign: TextAlign.center,
-//                       style: TextStyle(
-//                           fontSize: height * 0.035,
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black),
-//                     ),
-//                   ),
-//                   Container(
-//                     margin: const EdgeInsets.all(10.0),
-//                     decoration: BoxDecoration(
-//                       borderRadius: BorderRadius.circular(10.0),
-//                       border: Border.all(color: Colors.grey),
-//                     ),
-//                     child: Row(
-//                       children: [
-//                         const SizedBox(
-//                           width: 10,
-//                         ),
-//                         const Padding(
-//                           padding: EdgeInsets.symmetric(
-//                               horizontal: 8.0, vertical: 12),
-//                           child: Text(
-//                             '+91',
-//                             style: TextStyle(
-//                                 fontSize: 18.0, fontWeight: FontWeight.w100),
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: TextField(
-//                             controller: mobileNumberController,
-//                             decoration: const InputDecoration(
-//                               hintText: 'Enter mobile number',
-//                               hintStyle: TextStyle(
-//                                   fontSize: 18.0, fontWeight: FontWeight.w200),
-//                               border: InputBorder.none,
-//                             ),
-//                             keyboardType: TextInputType.phone,
-//                             onChanged: (value) {
-//                               context.read<LoginBloc>().add(
-//                                     NumberChanged(
-//                                       number: value,
-//                                     ),
-//                                   );
-//                             },
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   SizedBox(
-//                     height: height * 0.02,
-//                   ),
-//                   SizedBox(
-//                     width: double.infinity,
-//                     child: TextButton(
-//                       onPressed: () {
-//                         generateLoginOTP(mobileNumberController.text, context);
-//                       },
-//                       style: ButtonStyle(
-//                         shape:
-//                             MaterialStateProperty.all<RoundedRectangleBorder>(
-//                           RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(10.0),
-//                             side: const BorderSide(color: Colors.black),
-//                           ),
-//                         ),
-//                         backgroundColor:
-//                             MaterialStateProperty.all<Color>(Colors.white),
-//                       ),
-//                       child: const Padding(
-//                         padding: EdgeInsets.all(6.0),
-//                         child: Text(
-//                           'Login',
-//                           style: TextStyle(
-//                               color: Colors.black,
-//                               fontWeight: FontWeight.bold,
-//                               fontSize: 19),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                   SizedBox(
-//                     height: height * 0.02,
-//                   ),
-//                   const Row(
-//                     children: [
-//                       Expanded(
-//                           child: Divider(
-//                         color: Color(0xFFD9D9D9),
-//                       )),
-//                       Padding(
-//                         padding: EdgeInsets.all(8.0),
-//                         child: Text(
-//                           "or",
-//                           style: TextStyle(
-//                               color: Colors.black,
-//                               fontWeight: FontWeight.w400,
-//                               fontSize: 19),
-//                         ),
-//                       ),
-//                       Expanded(
-//                           child: Divider(
-//                         color: Color(0xFFD9D9D9),
-//                       )),
-//                     ],
-//                   ),
-//                   SizedBox(
-//                     height: height * 0.02,
-//                   ),
-//                   SizedBox(
-//                     width: double.infinity,
-//                     child: TextButton(
-//                       onPressed: () {
-//                         // Add your login logic here
-//                         Navigator.pushReplacement(
-//                           context,
-//                           MaterialPageRoute(builder: (context) => SignUpPage()),
-//                         );
-//                       },
-//                       style: ButtonStyle(
-//                         shape:
-//                             MaterialStateProperty.all<RoundedRectangleBorder>(
-//                           RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(10.0),
-//                             // side: BorderSide(color: Colors.black),
-//                           ),
-//                         ),
-//                         backgroundColor: MaterialStateProperty.all<Color>(
-//                             const Color(0xFFFF5252)),
-//                       ),
-//                       child: const Padding(
-//                         padding: EdgeInsets.all(6.0),
-//                         child: Text(
-//                           'Create Account',
-//                           style: TextStyle(
-//                               color: Colors.white,
-//                               fontWeight: FontWeight.bold,
-//                               fontSize: 19),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                   SizedBox(
-//                     height: height * 0.02,
-//                   ),
-//                   Column(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     crossAxisAlignment: CrossAxisAlignment.center,
-//                     children: [
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.start,
-//                         children: [
-//                           const Text("By signing up, you agree to our "),
-//                           LinkText(
-//                               link:
-//                                   "https://pub.dev/packages/url_launcher/example",
-//                               text: "Terms"),
-//                           const Text(","),
-//                           LinkText(
-//                               link:
-//                                   "https://pub.dev/packages/url_launcher/example",
-//                               text: " Privacy Policy"),
-//                         ],
-//                       ),
-//                       SizedBox(
-//                         height: height * 0.004,
-//                       ),
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.start,
-//                         children: [
-//                           const Text("and "),
-//                           LinkText(
-//                               link:
-//                                   "https://pub.dev/packages/url_launcher/example",
-//                               text: "Cookie Use"),
-//                         ],
-//                       )
-//                     ],
-//                   )
-//                 ]),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Shetra'),
+        centerTitle: true,
+        title: Text(
+          "My Shetra",
+          style: TextStyle(
+            color: blueColor,
+            fontWeight: FontWeight.bold,
+            fontSize: width * 0.07,
+          ),
+        ),
       ),
       body: BlocProvider(
-        create: (context) => LoginBloc(),
+        create: (context) => _loginBlocs,
         child: LoginForm(),
       ),
     );
   }
 }
 
-class LoginForm extends StatelessWidget {
-  final TextEditingController _numberController = TextEditingController();
-  final TextEditingController _otpController = TextEditingController();
-
+class LoginForm extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: <Widget>[
-          TextField(
-            controller: _numberController,
-            decoration: InputDecoration(labelText: 'Enter mobile number'),
-            keyboardType: TextInputType.phone,
-            onChanged: (value) =>
-                context.read<LoginBloc>().add(NumberChanged(number: value)),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () => context.read<LoginBloc>().add(GenerateOtp()),
-            child: Text('Generate OTP'),
-          ),
-          BlocBuilder<LoginBloc, LoginState>(
-            builder: (context, state) {
-              if (state.loginStatus == LoginStatus.loading) {
-                return CircularProgressIndicator();
-              } else if (state.loginStatus == LoginStatus.success) {
-                return Column(
-                  children: [
-                    TextField(
-                      controller: _otpController,
-                      decoration: InputDecoration(labelText: 'Enter OTP'),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) =>
-                          context.read<LoginBloc>().add(OTPChanged(otp: value)),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final TextEditingController _numberController = TextEditingController();
+  final List<TextEditingController> _controllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
+  String _otp = '';
+
+  bool _isOtpBottomSheetShown = false;
+  // Track if the bottom sheet is shown
+  void _showOtpBottomSheet(BuildContext context) {
+    void _onTextFieldChanged(int index, String value) {
+      if (value.isNotEmpty && index < 5) {
+        FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+      } else if (value.isEmpty && index > 0) {
+        FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+      }
+      _otp = _controllers.map((controller) => controller.text).join();
+      context.read<LoginBloc>().add(OTPChanged(otp: _otp));
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 12),
+                Center(
+                  child: Text(
+                    'Verify login details',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Center(child: Text('We have sent a verification code to')),
+                Center(
+                  child: Text(
+                    '+91-${context.read<LoginBloc>().state.number}',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Center(
+                  child: Text(
+                    'change number?',
+                    style: TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(6, (index) {
+                    return Container(
+                      width: 53,
+                      child: TextFormField(
+                        controller: _controllers[index],
+                        focusNode: _focusNodes[index],
+                        textCapitalization: TextCapitalization.characters,
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          counterText: "",
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onChanged: (value) => _onTextFieldChanged(index, value),
+                      ),
+                    );
+                  }),
+                ),
+                SizedBox(height: 10),
+                Center(
+                  child: Text(
+                    'Valid up to 25 seconds',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ),
+                Center(
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text('Resend OTP'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
                       onPressed: () =>
                           context.read<LoginBloc>().add(VerifyOtp()),
-                      child: Text('Verify OTP'),
+                      style: ButtonStyle(
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            const Color(0xFFFF5252)),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          'Submit',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 19),
+                        ),
+                      ),
                     ),
-                  ],
-                );
-              } else if (state.loginStatus == LoginStatus.error) {
-                return Text('Login Failed here',
-                    style: TextStyle(color: Colors.red));
-              }
-              return Container();
-            },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
-}
-
-class OtpVerificationScreen extends StatefulWidget {
-  const OtpVerificationScreen({Key? key}) : super(key: key);
 
   @override
-  _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
-}
-
-class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final TextEditingController _otpController = TextEditingController();
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _numberController.dispose();
+    _controllers.map((e) => e.dispose());
+    _focusNodes.map((e) => e.dispose());
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: context.read<LoginBloc>(),
-      child: BlocBuilder<LoginBloc, LoginState>(
-        builder: (context, state) {
-          return Scaffold(
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextField(
-                  controller: _otpController,
-                  onChanged: (value) {
-                    context.read<LoginBloc>().add(
-                          OTPChanged(otp: value),
-                        );
-                  },
-                  // Rest of the TextField properties
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    return BlocListener<LoginBloc, LoginState>(
+      listener: (context, state) {
+        if (state.loginStatus == LoginStatus.error && !_isOtpBottomSheetShown) {
+          _isOtpBottomSheetShown = true;
+          _showOtpBottomSheet(context);
+        }
+      },
+      child: BlocListener<LoginBloc, LoginState>(
+        listenWhen: (previous, current) =>
+            current.loginStatus != previous.loginStatus,
+        listener: (context, state) {
+          // TODO: implement listener
+        },
+        child: Container(
+          padding: const EdgeInsets.all(20.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.all(20.0),
+                  child: Text(
+                    "Drive with Confidence \n Your Local Car Repair Expert at Your Fingertips!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: height * 0.035,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<LoginBloc>().add(
-                          VerifyOtp(),
-                        );
-                  },
-                  child: const Text('Verify OTP'),
+                Container(
+                  margin: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 10),
+                      const Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+                        child: Text(
+                          '+91',
+                          style: TextStyle(
+                              fontSize: 18.0, fontWeight: FontWeight.w100),
+                        ),
+                      ),
+                      BlocBuilder<LoginBloc, LoginState>(
+                        buildWhen: (current, previous) =>
+                            current.number == previous.number,
+                        builder: (context, state) {
+                          return Expanded(
+                            child: TextField(
+                                controller: _numberController,
+                                decoration: const InputDecoration(
+                                  hintText: 'Enter mobile number',
+                                  hintStyle: TextStyle(
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.w200),
+                                  border: InputBorder.none,
+                                ),
+                                keyboardType: TextInputType.phone,
+                                key: Key("value"),
+                                onChanged: (value) => {
+                                      context
+                                          .read<LoginBloc>()
+                                          .add(NumberChanged(number: value)),
+                                    }),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                if (state.loginStatus == LoginStatus.loading)
-                  const CircularProgressIndicator(),
-                if (state.loginStatus == LoginStatus.success)
-                  Text('Logged in with token: ${state.token}'),
-                if (state.loginStatus == LoginStatus.error)
-                  Text('Error: ${state.message}'),
+                SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          side: const BorderSide(color: Colors.black),
+                        ),
+                      ),
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          Color.fromARGB(255, 255, 255, 255)),
+                    ),
+                    onPressed: () =>
+                        context.read<LoginBloc>().add(GenerateOtp()),
+                    child: const Padding(
+                      padding: EdgeInsets.all(6.0),
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 19),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: height * 0.02),
+                const Row(
+                  children: [
+                    Expanded(
+                        child: Divider(
+                      color: Color(0xFFD9D9D9),
+                    )),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "or",
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 19),
+                      ),
+                    ),
+                    Expanded(
+                        child: Divider(
+                      color: Color(0xFFD9D9D9),
+                    )),
+                  ],
+                ),
+                SizedBox(height: height * 0.02),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                      );
+                    },
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFFFF5252)),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(6.0),
+                      child: Text(
+                        'Create Account',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 19),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: height * 0.02),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Text("By signing up, you agree to our "),
+                        LinkText(
+                            link:
+                                "https://pub.dev/packages/url_launcher/example",
+                            text: "Terms"),
+                        const Text(","),
+                        LinkText(
+                            link:
+                                "https://pub.dev/packages/url_launcher/example",
+                            text: " Privacy Policy"),
+                      ],
+                    ),
+                    SizedBox(height: height * 0.004),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Text("and "),
+                        LinkText(
+                            link:
+                                "https://pub.dev/packages/url_launcher/example",
+                            text: "Cookie Use"),
+                      ],
+                    ),
+                  ],
+                ),
+                BlocBuilder<LoginBloc, LoginState>(
+                  builder: (context, state) {
+                    if (state.loginStatus == LoginStatus.loading) {
+                      return CircularProgressIndicator();
+                    }
+                    return Container();
+                  },
+                ),
               ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }

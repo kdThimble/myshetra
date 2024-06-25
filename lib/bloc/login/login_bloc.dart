@@ -13,6 +13,7 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
     on<OTPChanged>(_onOTPChanged);
     on<LoginApi>(_loginApi);
     on<GenerateOtp>(_generateLoginOTP);
+    on<VerifyOtp>(_verifyOtp);
   }
 
   void _onNumberChanged(NumberChanged event, Emitter<LoginState> emit) {
@@ -56,6 +57,7 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
   }
 
   Future<void> _verifyOtp(VerifyOtp event, Emitter<LoginState> emit) async {
+    print("OTP ${state.otp}");
     try {
       emit(state.copyWith(loginStatus: LoginStatus.loading));
 
@@ -90,11 +92,10 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
 
   Future<void> _generateLoginOTP(
       GenerateOtp event, Emitter<LoginState> emit) async {
- 
     try {
       emit(state.copyWith(loginStatus: LoginStatus.loading));
       print(state.number);
-   
+
       final response = await http.post(
         Uri.parse(
           'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/generateLoginOTP?mobile_number=${state.number}',
