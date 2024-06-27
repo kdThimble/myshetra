@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
@@ -24,7 +25,9 @@ class SignupBloc extends HydratedBloc<SignupEvent, SignupState> {
   }
 
   void _onOTPChanged(OTPChanged event, Emitter<SignupState> emit) {
+    print("OTP OTP OTP ${event.otp}");
     emit(state.copyWith(otp: event.otp));
+    print("OTP*4 ${state.otp}");
   }
 
   void _onDOBChanged(DOBChanged event, Emitter<SignupState> emit) {
@@ -50,20 +53,19 @@ class SignupBloc extends HydratedBloc<SignupEvent, SignupState> {
           'mobile_number': state.number,
         },
       );
-       final response = await http.get(
+      final response = await http.get(
         uri,
         headers: {'Content-Type': 'application/json'},
       );
       final data = jsonDecode(response.body);
-       if (response.statusCode == 200){
-        
+      if (response.statusCode == 200) {
         final message = data['message'];
-         emit(state.copyWith(
-            signUpStatus: SignUpStatus.numberAvailable,
-            
-            message: message));
-       } else {
-        emit(state.copyWith(signUpStatus: SignUpStatus.numberNotAvailable,message: data['message']));
+        emit(state.copyWith(
+            signUpStatus: SignUpStatus.numberAvailable, message: message));
+      } else {
+        emit(state.copyWith(
+            signUpStatus: SignUpStatus.numberNotAvailable,
+            message: data['message']));
       }
     } catch (e) {
       emit(state.copyWith(
@@ -74,7 +76,7 @@ class SignupBloc extends HydratedBloc<SignupEvent, SignupState> {
 
   Future<void> _generateLoginOTP(
       GenerateOtp event, Emitter<SignupState> emit) async {
-         try {
+    try {
       emit(state.copyWith(signUpStatus: SignUpStatus.loading));
       print(state.number);
 
@@ -90,19 +92,64 @@ class SignupBloc extends HydratedBloc<SignupEvent, SignupState> {
         print("data is ${data.toString()}");
 
         emit(state.copyWith(
-          signUpStatus: SignUpStatus.success,
+          otpStatus: OTPStatus.otpSent,
         ));
       } else {
-        emit(state.copyWith(signUpStatus: SignUpStatus.error));
+        emit(state.copyWith(otpStatus: OTPStatus.otpNotSent));
       }
     } catch (e) {
-      emit(state.copyWith(signUpStatus: SignUpStatus.error));
+      emit(state.copyWith(otpStatus: OTPStatus.otpNotSent));
     }
   }
 
-      
+  Future<void> _verifyOtp(VerifyOtp event, Emitter<SignupState> emit) async {
+    print("OTP ${state.otp.toString()}");
+    print("Nam ${state.name}");
+    print("Num ${state.number}");
+    try {
+      emit(state.copyWith(signUpStatus: SignUpStatus.loading));
 
-  Future<void> _verifyOtp(VerifyOtp event, Emitter<SignupState> emit) async {}
+      var headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      };
+      var request = http.Request(
+          'POST',
+          Uri.parse(
+              'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifySignupOTP'));
+      request.bodyFields = {
+        'mobile_number': state.number,
+        'otp': state.otp,
+        'name': state.name,
+        'gender': state.gender.toLowerCase(),
+        'date_of_birth': state.dateOfBirth,
+      };
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+      String responseBody = await response.stream.bytesToString();
+      var jsonData = json.decode(responseBody);
+
+      print("Data ${jsonData.toString()}");
+      if (response.statusCode == 200) {
+        final token = jsonData['token'];
+        final refreshToken = jsonData['refreshToken'];
+        emit(state.copyWith(
+            signUpStatus: SignUpStatus.halfDone,
+            otpStatus: OTPStatus.otpVerified,
+            token: token,
+            refreshToken: refreshToken));
+      } else {
+        emit(state.copyWith(
+            signUpStatus: SignUpStatus.error,
+            otpStatus: OTPStatus.otpNotVerfied,
+            message: jsonData['message'] ?? "Wrong OTP"));
+      }
+    } catch (e) {
+      print(e.toString());
+      emit(state.copyWith(
+          signUpStatus: SignUpStatus.error, message: "Error while sign up"));
+    }
+  }
 
   @override
   SignupState? fromJson(Map<String, dynamic> json) {

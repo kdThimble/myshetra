@@ -200,7 +200,7 @@ class _LoginFormState extends State<LoginForm> {
     var height = MediaQuery.of(context).size.height;
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
-        if (state.loginStatus == LoginStatus.success &&
+        if (state.loginStatus == LoginStatus.success  &&
             !_isOtpBottomSheetShown) {
           _isOtpBottomSheetShown = true;
           _showOtpBottomSheet(context);

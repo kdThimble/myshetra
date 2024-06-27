@@ -17,10 +17,11 @@ class _MapPageState extends State<MapPage> {
   location.Location _locationController = location.Location();
 
   final Completer<GoogleMapController> _mapController =
-  Completer<GoogleMapController>();
+      Completer<GoogleMapController>();
 
   LatLng? _currentP;
-  String _currentAddress = 'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
+  String _currentAddress =
+      'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
 
   @override
   void initState() {
@@ -66,13 +67,13 @@ class _MapPageState extends State<MapPage> {
         markers: _currentP == null
             ? {}
             : {
-          Marker(
-            markerId: MarkerId("_currentLocation"),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueAzure), // Set marker color to black
-            position: _currentP!,
-          ),
-        },
+                Marker(
+                  markerId: MarkerId("_currentLocation"),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueAzure), // Set marker color to black
+                  position: _currentP!,
+                ),
+              },
       ),
       bottomSheet: LocationDetailsBottomSheet(
         address: _currentAddress,
@@ -93,7 +94,7 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> getLocationUpdates() async {
     _locationController.onLocationChanged.listen(
-          (location.LocationData currentLocation) async {
+      (location.LocationData currentLocation) async {
         if (currentLocation.latitude != null &&
             currentLocation.longitude != null) {
           setState(() {
@@ -118,7 +119,8 @@ class _MapPageState extends State<MapPage> {
     }
 
     try {
-      List<geocoding.Placemark> placemarks = await geocoding.placemarkFromCoordinates(
+      List<geocoding.Placemark> placemarks =
+          await geocoding.placemarkFromCoordinates(
         coordinates.latitude,
         coordinates.longitude,
       );
@@ -127,13 +129,14 @@ class _MapPageState extends State<MapPage> {
         geocoding.Placemark firstPlacemark = placemarks.first;
         setState(() {
           _currentAddress =
-          '${firstPlacemark.subThoroughfare} ${firstPlacemark.thoroughfare}, ${firstPlacemark.locality}';
+              '${firstPlacemark.subThoroughfare} ${firstPlacemark.thoroughfare}, ${firstPlacemark.locality}';
         });
       }
     } catch (e) {
       print('Error fetching address: $e');
       setState(() {
-        _currentAddress = 'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
+        _currentAddress =
+            'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
       });
     }
   }
@@ -187,10 +190,12 @@ class LocationSelectionBottomSheet extends StatefulWidget {
 
   LocationSelectionBottomSheet({required this.onStateChanged});
   @override
-  State<LocationSelectionBottomSheet> createState() => _LocationSelectionBottomSheetState();
+  State<LocationSelectionBottomSheet> createState() =>
+      _LocationSelectionBottomSheetState();
 }
 
-class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSheet> {
+class _LocationSelectionBottomSheetState
+    extends State<LocationSelectionBottomSheet> {
   String? _selectedState;
   String? _selected1;
   String? _selected2;
@@ -235,27 +240,28 @@ class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSh
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                    child:
-                    Text(
-                      'Nearby locations',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontFamily: 'Okra',
-                        fontWeight: FontWeight.w500,
-                        height: 0,
-                        letterSpacing: -0.30,
-                      ),
+                  child: Text(
+                    'Nearby locations',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontFamily: 'Okra',
+                      fontWeight: FontWeight.w500,
+                      height: 0,
+                      letterSpacing: -0.30,
                     ),
+                  ),
                 ),
-              Padding(
+                Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
                       Column(
                         children: [
                           Icon(Icons.location_on),
-                          SizedBox(height: 12,),
+                          SizedBox(
+                            height: 12,
+                          ),
                           Text(
                             '135m',
                             style: TextStyle(fontSize: 16),
@@ -280,7 +286,9 @@ class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSh
                       Column(
                         children: [
                           Icon(Icons.location_on),
-                          SizedBox(height: 12,),
+                          SizedBox(
+                            height: 12,
+                          ),
                           Text(
                             '135m',
                             style: TextStyle(fontSize: 16),
@@ -305,7 +313,9 @@ class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSh
                       Column(
                         children: [
                           Icon(Icons.location_on),
-                          SizedBox(height: 12,),
+                          SizedBox(
+                            height: 12,
+                          ),
                           Text(
                             '135m',
                             style: TextStyle(fontSize: 16),
@@ -357,23 +367,29 @@ class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSh
                       child: Text("State"),
                     )),
                 _buildDropdown('Select State', states),
-                SizedBox(height: 8,),
+                SizedBox(
+                  height: 8,
+                ),
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text("Zone"),
                     )),
-                _buildDropdown1('Select Zone ' , Zone),
-                SizedBox(height: 8,),
+                _buildDropdown1('Select Zone ', Zone),
+                SizedBox(
+                  height: 8,
+                ),
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text("District"),
                     )),
-                _buildDropdown2('Select District' , District),
-                SizedBox(height: 8,),
+                _buildDropdown2('Select District', District),
+                SizedBox(
+                  height: 8,
+                ),
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
@@ -381,12 +397,14 @@ class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSh
                       child: Text("Sector Number"),
                     )),
                 _buildDropdown3('Select Sector Number', Sector),
-                SizedBox(height: 8,),
+                SizedBox(
+                  height: 8,
+                ),
                 Container(
                   width: 303,
                   height: 43,
                   decoration: ShapeDecoration(
-                    color:  Color(0xFFFF5252),
+                    color: Color(0xFFFF5252),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -441,6 +459,7 @@ class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSh
       ),
     );
   }
+
   Widget _buildDropdown1(String hintText, List<Map<String, String>> items) {
     return Container(
       width: double.infinity,
@@ -468,6 +487,7 @@ class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSh
       ),
     );
   }
+
   Widget _buildDropdown2(String hintText, List<Map<String, String>> items) {
     return Container(
       width: double.infinity,
@@ -495,6 +515,7 @@ class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSh
       ),
     );
   }
+
   Widget _buildDropdown3(String hintText, List<Map<String, String>> items) {
     return Container(
       width: double.infinity,
@@ -522,8 +543,6 @@ class _LocationSelectionBottomSheetState extends State<LocationSelectionBottomSh
       ),
     );
   }
-
-
 }
 
 class LocationDetailsBottomSheet extends StatelessWidget {
@@ -608,19 +627,21 @@ class LocationDetailsBottomSheet extends StatelessWidget {
                               children: [
                                 Text(
                                   'Manoj Bajaj',
-                                  style:
-                                  TextStyle(fontSize: 14),
+                                  style: TextStyle(fontSize: 14),
                                 ),
-                                SizedBox(width: 5,),
-                                Image.asset("assets/Bharatiya_Janata_Party_logo 1.png"),
-
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                // Image.asset(
+                                //     "assets/Bharatiya_Janata_Party_logo 1.png"),
                               ],
                             ),
                             SizedBox(height: 8),
                             // Replace with your text
                             Text(
                               'Exterior Mechanic',
-                              style: TextStyle(fontSize: 14, color: Colors.grey),
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey),
                             ),
                             // Image.asset("assets/Bharatiya_Janata_Party_logo 1.png"),
                           ],
@@ -628,7 +649,9 @@ class LocationDetailsBottomSheet extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(width: 20,),
+                  SizedBox(
+                    width: 20,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -656,19 +679,21 @@ class LocationDetailsBottomSheet extends StatelessWidget {
                               children: [
                                 Text(
                                   'Manoj Bajaj',
-                                  style:
-                                  TextStyle(fontSize: 14),
+                                  style: TextStyle(fontSize: 14),
                                 ),
-                                SizedBox(width: 5,),
-                                Image.asset("assets/Bharatiya_Janata_Party_logo 1.png"),
-
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                // Image.asset(
+                                //     "assets/Bharatiya_Janata_Party_logo 1.png"),
                               ],
                             ),
                             SizedBox(height: 8),
                             // Replace with your text
                             Text(
                               'Exterior Mechanic',
-                              style: TextStyle(fontSize: 14, color: Colors.grey),
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey),
                             ),
                             // Image.asset("assets/Bharatiya_Janata_Party_logo 1.png"),
                           ],
@@ -678,7 +703,9 @@ class LocationDetailsBottomSheet extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 20,),
+              SizedBox(
+                height: 20,
+              ),
               Container(
                 padding: EdgeInsets.all(8.0),
                 child: Row(
@@ -707,31 +734,29 @@ class LocationDetailsBottomSheet extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16),
-                      GestureDetector(
-                        onTap:()
-                {
+              GestureDetector(
+                onTap: () {
                   _showLocationSelectionBottomSheet(context);
                 },
                 child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                // width: 381,
-                // height: 31,
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    // width: 381,
+                    // height: 31,
                     decoration: ShapeDecoration(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                    side: BorderSide(width: 1, color: Color(0xFF4A4A4A)),
-                    borderRadius: BorderRadius.circular(5),
-                    ),
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1, color: Color(0xFF4A4A4A)),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
                     child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                    child: Text(
-                    'Enter manually',
-                    style: TextStyle(
-                    color: Color(0xFF4A4A4A
-                    ),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: Text(
+                          'Enter manually',
+                          style: TextStyle(
+                            color: Color(0xFF4A4A4A),
                             fontSize: 16,
                             fontFamily: 'Okra',
                             fontWeight: FontWeight.w600,
@@ -755,8 +780,7 @@ class LocationDetailsBottomSheet extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EditProfileScreen(
-                        ),
+                        builder: (context) => EditProfileScreen(),
                       ),
                     );
                     // verifySignupOTP(

@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:myshetra/Pages/LoginScreen.dart';
+import 'package:myshetra/Pages/Oranisation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myshetra/helpers/colors.dart';
 
@@ -33,7 +34,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
     // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) =>  LoginScreen()),
+      MaterialPageRoute(builder: (context) => LoginScreen()),
     );
   }
 

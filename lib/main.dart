@@ -4,6 +4,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:myshetra/Pages/SplashScreen.dart';
 import 'package:myshetra/Providers/AuthProvider.dart';
 import 'package:myshetra/bloc/login/login_bloc.dart';
+import 'package:myshetra/bloc/signup/signup_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         BlocProvider(create: (_) => LoginBloc()),
+        BlocProvider(create: (_) => SignupBloc()),
       ],
       child: MyApp(),
     ),

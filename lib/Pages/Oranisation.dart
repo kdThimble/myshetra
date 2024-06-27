@@ -10,7 +10,6 @@ import 'package:myshetra/Models/OrganisationModel.dart';
 import 'Positionproof.dart';
 
 class OrganizationProofScreen extends StatefulWidget {
-
   @override
   State<OrganizationProofScreen> createState() =>
       _OrganizationProofScreenState();
@@ -18,12 +17,58 @@ class OrganizationProofScreen extends StatefulWidget {
 
 class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
   String? _selectedValue;
+  String? id;
   late Future<OrganisationModel> _futureOrganisationModel;
   OrganisationModel? _organisationModel;
   @override
   void initState() {
     super.initState();
     fetchOrganisationData();
+  }
+
+  var selectedFilePath = "";
+  Future<void> _submitData() async {
+    if (_selectedValue != null) {
+      try {
+        var request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+              'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/updateUserOrganization'), // Replace with your API endpoint
+        );
+        request.headers['Authorization'] =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI5ODExNzI1MDg0IiwidXNlcl9pZCI6IjY2N2Q1OGUxNTdiMWE0YmE0ZDk4MTJkMSIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTU3NzE4NX0.FFgVa7EKkEBSj-kkfybtKbi4Vc9QTBbUMbFr7-eT6Ds'; // Replace with your auth token
+        request.fields['organisationId'] = "666fbf4732f3a7260f529b53";
+        final file = await http.MultipartFile.fromPath(
+          'file',
+          selectedFilePath,
+          filename: 'file_name.jpg', // Set the desired file name
+        );
+
+        request.files.add(file);
+        request.fields['supporting_documents'] = 'file_name.jpg';
+
+        var response = await request.send();
+        final responseData = await response.stream.bytesToString();
+        print(responseData);
+        if (response.statusCode == 200) {
+          // Handle successful response
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PositionProofScreen(),
+            ),
+          );
+        } else {
+          // Handle error response
+          print('Error: ${response.statusCode}');
+        }
+      } catch (error) {
+        print('Error: $error');
+      }
+    } else {
+      // Handle validation error
+      print('Please select an organization and an image');
+    }
   }
 
   Future<OrganisationModel> getPostApi() async {
@@ -33,7 +78,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
             'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getAllOrganization'),
         headers: {
           'Authorization':
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI5MjA1MTU0MzM2IiwidXNlcl9pZCI6IjY2NzliOTA5NTdiMWE0YmE0ZDk4MTJkMCIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTMzOTY1N30.zT2PDrQAhZBe0X_HUyM5DdhY8o0OBi_69GqIgIZk7j0',
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI5ODExNzI1MDg0IiwidXNlcl9pZCI6IjY2N2Q1OGUxNTdiMWE0YmE0ZDk4MTJkMSIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTU3NzE4NX0.FFgVa7EKkEBSj-kkfybtKbi4Vc9QTBbUMbFr7-eT6Ds',
           'Content-Type': 'application/json',
         },
       );
@@ -51,13 +96,16 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
     setState(() {});
   }
 
-
   Future<void> _openCamera(BuildContext context) async {
     final imagePicker = ImagePicker();
     final image = await imagePicker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
       try {
+        setState(() {
+          selectedFilePath = image.path;
+        });
+
         // Call uploadImage function with the selected image
         // await uploadImage(context, XFile(croppedImage.path));
       } catch (error) {
@@ -78,6 +126,9 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
     if (result != null && result.files.isNotEmpty) {
       final filePath = result.files.single.path!;
 
+      setState(() {
+        selectedFilePath = result.files.single.path!;
+      });
       try {
         // Call uploadImage function with the selected image
         // await uploadImage(context, XFile(croppedImage.path));
@@ -146,39 +197,24 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               _organisationModel == null
                   ? Center(child: CircularProgressIndicator())
                   : DropdownButton(
-                value: _selectedValue,
-                hint: Text('Select value'),
-                isExpanded: true,
-                icon: const Icon(Icons.keyboard_arrow_down),
-                items: _organisationModel!.organizations!.map((item) {
-                  return DropdownMenuItem(
-                    value: item.id,
-                    child: Text(item.name!),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedValue = value;
-                  });
-                },
-              ),
+                      value: _selectedValue,
+                      hint: Text('Select value'),
+                      isExpanded: true,
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      items: _organisationModel!.organizations!.map((item) {
+                        return DropdownMenuItem(
+                          value: item.id,
+                          child: Text(item.name!),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedValue = value?.toString();
+                        });
+                      },
+                    ),
               // DropdownButtonFormField<String>(
-              //   decoration: const InputDecoration(
-              //     hintText: 'Organization',
-              //     border: OutlineInputBorder(),
-              //     contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              //   ),
-              //   items: const [
-              //     DropdownMenuItem(child: Text('Porter'), value: 'Porter'),
-              //     DropdownMenuItem(child: Text('Zomato'), value: 'Zomato'),
-              //     DropdownMenuItem(child: Text('Swiggy'), value: 'Swiggy'),
-              //     // Add more items as needed
-              //   ],
-              //   onChanged: (value) {
-              //     // Handle dropdown value change
-              //   },
-              // ),
-          
+
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () async {
@@ -275,6 +311,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                   ),
                   onPressed: () {
                     // OrganizationProofScreen
+                    _submitData();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
