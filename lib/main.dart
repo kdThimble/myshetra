@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:myshetra/Pages/SplashScreen.dart';
 import 'package:myshetra/Providers/AuthProvider.dart';
@@ -8,8 +10,11 @@ import 'package:myshetra/bloc/signup/signup_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'Services/Authservices.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initServices();
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: await getTemporaryDirectory(),
   );
@@ -25,6 +30,10 @@ void main() async {
   );
 }
 
+Future<void> initServices() async {
+  Get.put(AuthService());
+  await Get.find<AuthService>().loadTokensFromStorage();
+}
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

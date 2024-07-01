@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:myshetra/Models/OrganisationModel.dart';
+import 'package:myshetra/Services/Authservices.dart';
 
 import 'Positionproof.dart';
 
@@ -20,6 +23,8 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
   String? id;
   late Future<OrganisationModel> _futureOrganisationModel;
   OrganisationModel? _organisationModel;
+  final authService = Get.find<AuthService>();
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +32,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
   }
 
   var selectedFilePath = "";
+  var selectedFilePath1 = "";
   Future<void> _submitData() async {
     if (_selectedValue != null) {
       try {
@@ -36,19 +42,20 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/updateUserOrganization'), // Replace with your API endpoint
         );
         request.headers['Authorization'] =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI5ODExNzI1MDg0IiwidXNlcl9pZCI6IjY2N2Q1OGUxNTdiMWE0YmE0ZDk4MTJkMSIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTU3NzE4NX0.FFgVa7EKkEBSj-kkfybtKbi4Vc9QTBbUMbFr7-eT6Ds'; // Replace with your auth token
-        request.fields['organisationId'] = "666fbf4732f3a7260f529b53";
-        final file = await http.MultipartFile.fromPath(
-          'file',
-          selectedFilePath,
-          filename: 'file_name.jpg', // Set the desired file name
-        );
+            '${authService.token}'; // Replace with your auth token
+        request.fields['organization_id'] = organisationid!;
 
+        // Adding the file
+        final file = await http.MultipartFile.fromPath(
+          'supporting_documents', // Ensure this matches the server's expected field name
+          selectedFilePath,
+          filename: selectedFilePath,
+        );
         request.files.add(file);
-        request.fields['supporting_documents'] = 'file_name.jpg';
 
         var response = await request.send();
         final responseData = await response.stream.bytesToString();
+        print("responseData");
         print(responseData);
         if (response.statusCode == 200) {
           // Handle successful response
@@ -58,8 +65,21 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               builder: (context) => PositionProofScreen(),
             ),
           );
+        } else if (response.statusCode == 400) {
+          // Parse the response data to get the error message
+          var jsonResponse = json.decode(responseData);
+          String errorMessage = jsonResponse['message'];
+
+          // Show SnackBar with the error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+            ),
+          );
+
+          print('Error: $errorMessage');
         } else {
-          // Handle error response
+          // Handle other error responses
           print('Error: ${response.statusCode}');
         }
       } catch (error) {
@@ -67,7 +87,11 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
       }
     } else {
       // Handle validation error
-      print('Please select an organization and an image');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select an organization and an image'),
+        ),
+      );
     }
   }
 
@@ -78,10 +102,11 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
             'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getAllOrganization'),
         headers: {
           'Authorization':
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI5ODExNzI1MDg0IiwidXNlcl9pZCI6IjY2N2Q1OGUxNTdiMWE0YmE0ZDk4MTJkMSIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTU3NzE4NX0.FFgVa7EKkEBSj-kkfybtKbi4Vc9QTBbUMbFr7-eT6Ds',
+              '${authService.token}',
           'Content-Type': 'application/json',
         },
       );
+      print(authService.token);
       if (response.statusCode == 200) {
         return OrganisationModel.fromJson(jsonDecode(response.body)['data']);
       }
@@ -105,7 +130,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         setState(() {
           selectedFilePath = image.path;
         });
-
+        print(selectedFilePath);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Image captured successfully'),
+          ),
+        );
         // Call uploadImage function with the selected image
         // await uploadImage(context, XFile(croppedImage.path));
       } catch (error) {
@@ -138,14 +168,24 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
       } finally {
         // Dismiss the loading overlay
         print("fiunal");
+        print(selectedFilePath);
         // await uploadImage(context, XFile(croppedImage.path));
       }
     }
   }
 
   var newData;
+  String organisationid ='';
+  @override
+  void dispose() {
+    // Reset the state variables
+    selectedFilePath = "";
+    selectedFilePath1 = "";
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
+    // fetchOrganisationData();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -210,6 +250,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                       onChanged: (value) {
                         setState(() {
                           _selectedValue = value?.toString();
+                          organisationid = _selectedValue!;
                         });
                       },
                     ),
@@ -219,16 +260,6 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               GestureDetector(
                 onTap: () async {
                   _openFilePicker(context);
-                  // FilePickerResult? result =
-                  // await FilePicker.platform.pickFiles();
-                  //
-                  // if (result != null) {
-                  //   // Handle file picked
-                  //   print('File picked: ${result.files.first.path}');
-                  // } else {
-                  //   // User canceled the picker
-                  //   print('User canceled file picker');
-                  // }
                 },
                 child: Container(
                   width: double.infinity,
@@ -238,11 +269,16 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                     border: Border.all(color: Colors.green, width: 2),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Center(
+                  child: selectedFilePath == null
+                      ? const Center(
                     child: Text(
                       'Select file',
                       style: TextStyle(fontSize: 18, color: Colors.black),
                     ),
+                  )
+                      : Image.file(
+                    File(selectedFilePath!),
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -287,12 +323,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                     border: Border.all(color: Colors.green, width: 2),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Center(
+                  child:  const Center(
                     child: Text(
                       'Open camera & take Photo',
                       style: TextStyle(fontSize: 18, color: Colors.black),
                     ),
-                  ),
+                  )
                 ),
               ),
               const SizedBox(height: 80),
@@ -312,12 +348,6 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                   onPressed: () {
                     // OrganizationProofScreen
                     _submitData();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PositionProofScreen(),
-                      ),
-                    );
                     // verifySignupOTP(
                     //   mobileNumber: mobileNumberController.text,
                     //   otp: otpcontroller.text,

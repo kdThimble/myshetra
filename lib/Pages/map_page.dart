@@ -5,6 +5,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:myshetra/Pages/Editprofile.dart';
+import 'package:myshetra/Services/Authservices.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -15,6 +18,7 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   location.Location _locationController = location.Location();
+  final authService = Get.find<AuthService>();
 
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
@@ -26,7 +30,9 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+    print(authService.token);
     getLocationUpdates();
+
   }
 
   @override

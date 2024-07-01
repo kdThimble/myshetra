@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:myshetra/Models/Authmodel.dart';
 
 import 'package:myshetra/Pages/Otpscreen.dart';
@@ -18,6 +20,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Services/Authservices.dart';
 import 'Oranisation.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -414,6 +417,7 @@ class _SignUpFormState extends State<SignUpForm> {
         // Save the tokens to secure storage or a state management solution
         Provider.of<AuthProvider>(context, listen: false)
             .setAuthResponse(authResponse);
+        Get.find<AuthService>().setAuthResponse(authResponse.token, authResponse.refreshToken);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', authResponse.token);
         await prefs.setString('refreshToken', authResponse.refreshToken);
@@ -658,23 +662,8 @@ class _SignUpFormState extends State<SignUpForm> {
                           primary: const Color(0xFFFF5252), // Background color
                         ),
                         onPressed: () {
-                          context.read<SignupBloc>().add(GenerateOtp());
-                          // generateSignupOTP(_mobileNumberController.text);
-
-                          // OrganizationProofScreen
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => OrganizationProofScreen(),
-                          //   ),
-                          // );
-                          // verifySignupOTP(
-                          //   mobileNumber: mobileNumberController.text,
-                          //   otp: otpcontroller.text,
-                          //   name: nameController.text,
-                          //   gender: gender,
-                          //   dateOfBirth: dateOfBirthController.text,
-                          // );
+                          // context.read<SignupBloc>().add(GenerateOtp());
+                          generateSignupOTP(_mobileNumberController.text);
                         },
                         child: const Padding(
                           padding: EdgeInsets.all(8.0),
