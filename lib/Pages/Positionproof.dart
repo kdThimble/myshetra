@@ -28,7 +28,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
             'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/updateUserPosition'), // Replace with your API endpoint
       );
       request.headers['Authorization'] =
-      '${authService.token}'; // Replace with your auth token
+          '${authService.token}'; // Replace with your auth token
       request.fields['position_name'] = positioncontroller.text;
 
       // Adding the file
@@ -48,8 +48,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MapPage(
-            ),
+            builder: (context) => MapPage(),
           ),
         );
       } else if (response.statusCode == 400) {
@@ -140,7 +139,12 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              // Implement skip logic
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MapPage(),
+                ),
+              );
             },
             child: Text('Skip', style: TextStyle(color: Colors.black)),
           ),
@@ -180,10 +184,10 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                   controller: positioncontroller,
                   decoration: const InputDecoration(
                     contentPadding:
-                    EdgeInsets.only(left: 15, top: 5, bottom: 5),
+                        EdgeInsets.only(left: 15, top: 5, bottom: 5),
                     hintText: 'Type the position name here',
-                    hintStyle: TextStyle(
-                        fontSize: 18.0, fontWeight: FontWeight.w200),
+                    hintStyle:
+                        TextStyle(fontSize: 18.0, fontWeight: FontWeight.w200),
                     border: InputBorder.none,
                   ),
                   keyboardType: TextInputType.name,
@@ -214,15 +218,15 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                   ),
                   child: selectedFilePath == ""
                       ? const Center(
-                    child: Text(
-                      'Select file',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
-                    ),
-                  )
+                          child: Text(
+                            'Select file',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                          ),
+                        )
                       : Image.file(
-                    File(selectedFilePath!),
-                    fit: BoxFit.cover,
-                  ),
+                          File(selectedFilePath!),
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
               SizedBox(height: 20),

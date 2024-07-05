@@ -1,5 +1,6 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:myshetra/Pages/LoginScreen.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,6 +15,7 @@ class LanguageSelectionPage extends StatefulWidget {
 
 class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
   String _selectedLanguage = 'en';
+  String _selectedCountryCode = 'US';
 
   @override
   void initState() {
@@ -24,18 +26,17 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
   Future<void> _loadSelectedLanguage() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _selectedLanguage = prefs.getString('language') ?? 'en';
+      _selectedLanguage = prefs.getString('locale') ?? 'en';
+      _selectedCountryCode = prefs.getString('countryCode') ?? 'US';
     });
   }
 
   Future<void> _saveSelectedLanguage() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('language', _selectedLanguage);
+    await prefs.setString('locale', _selectedLanguage);
+    await prefs.setString('countryCode', _selectedCountryCode);
+    Get.updateLocale(Locale(_selectedLanguage, _selectedCountryCode));
     // ignore: use_build_context_synchronously
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-    );
   }
 
   @override
@@ -60,7 +61,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Choose your preferred language',
+              'language title'.tr,
               style: TextStyle(
                 fontSize: width * 0.057,
                 fontWeight: FontWeight.bold,
@@ -91,6 +92,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                   onChanged: (value) {
                     setState(() {
                       _selectedLanguage = value as String;
+                      _selectedCountryCode = 'US';
                       _saveSelectedLanguage();
                     });
                   },
@@ -113,6 +115,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                 onChanged: (value) {
                   setState(() {
                     _selectedLanguage = value as String;
+                    _selectedCountryCode = 'IN';
                     _saveSelectedLanguage();
                   });
                 },
@@ -125,11 +128,30 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                 selectedTileColor: blueColor.withOpacity(0.2),
               ),
             ),
+            SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Text(
+                'language subtitle'.tr,
+                style: TextStyle(
+                  fontSize: width * 0.04,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
             SizedBox(height: height * 0.1),
             Container(
               margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: ElevatedButton(
-                onPressed: _saveSelectedLanguage,
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
                       const Color(0xFFFF5252)), // Change button color

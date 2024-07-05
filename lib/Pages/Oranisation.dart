@@ -101,8 +101,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         Uri.parse(
             'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getAllOrganization'),
         headers: {
-          'Authorization':
-              '${authService.token}',
+          'Authorization': '${authService.token}',
           'Content-Type': 'application/json',
         },
       );
@@ -175,7 +174,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
   }
 
   var newData;
-  String organisationid ='';
+  String organisationid = '';
   @override
   void dispose() {
     // Reset the state variables
@@ -183,6 +182,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
     selectedFilePath1 = "";
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     // fetchOrganisationData();
@@ -197,7 +197,13 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              // Implement skip logic
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PositionProofScreen(),
+                ),
+              );
+              // Navigator.push(context, MaterialPageRoute(builder: (context)=>PositionProofScreen()
             },
             child: const Text('Skip', style: TextStyle(color: Colors.black)),
           ),
@@ -271,15 +277,15 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                   ),
                   child: selectedFilePath == null
                       ? const Center(
-                    child: Text(
-                      'Select file',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
-                    ),
-                  )
+                          child: Text(
+                            'Select file',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                          ),
+                        )
                       : Image.file(
-                    File(selectedFilePath!),
-                    fit: BoxFit.cover,
-                  ),
+                          File(selectedFilePath!),
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -317,19 +323,18 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                   _openCamera(context);
                 },
                 child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child:  const Center(
-                    child: Text(
-                      'Open camera & take Photo',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.green, width: 2),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  )
-                ),
+                    child: const Center(
+                      child: Text(
+                        'Open camera & take Photo',
+                        style: TextStyle(fontSize: 18, color: Colors.black),
+                      ),
+                    )),
               ),
               const SizedBox(height: 80),
               const Align(
