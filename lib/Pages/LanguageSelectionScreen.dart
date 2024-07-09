@@ -45,143 +45,189 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
     var height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          "My Shetra",
-          style: TextStyle(
-            color: blueColor,
-            fontWeight: FontWeight.bold,
-            fontSize: width * 0.07,
-          ),
-        ),
-      ),
+      backgroundColor: bgColor,
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'language title'.tr,
-              style: TextStyle(
-                fontSize: width * 0.057,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+            Container(
+              height: height * 0.46,
+              width: width,
+              decoration: BoxDecoration(
+                color: bgColor,
+                image: DecorationImage(
+                  image: AssetImage('assets/images/Group1.png'),
+                  fit: BoxFit.fitWidth,
+                ),
               ),
             ),
-            const SizedBox(height: 20),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: RadioListTile(
-                  title: Text(
-                    'English',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: width * 0.05,
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 20,
                     ),
-                  ),
-                  value: 'en',
-                  groupValue: _selectedLanguage,
-                  contentPadding: const EdgeInsets.all(8),
-                  tileColor: _selectedLanguage == 'en'
-                      ? const Color(0xFFAFD9FF)
-                      : const Color(0xFFEFEFEF),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedLanguage = value as String;
-                      _selectedCountryCode = 'US';
-                      _saveSelectedLanguage();
-                    });
-                  },
-                  selectedTileColor: blueColor),
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: RadioListTile(
-                title: Text(
-                  'हिंदी',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: width * 0.05,
-                  ),
-                ),
-                value: 'hi',
-                groupValue: _selectedLanguage,
-                contentPadding: const EdgeInsets.all(8),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedLanguage = value as String;
-                    _selectedCountryCode = 'IN';
-                    _saveSelectedLanguage();
-                  });
-                },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                tileColor: _selectedLanguage == 'hi'
-                    ? const Color(0xFFAFD9FF)
-                    : const Color(0xFFEFEFEF),
-                selectedTileColor: blueColor.withOpacity(0.2),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Text(
-                'language subtitle'.tr,
-                style: TextStyle(
-                  fontSize: width * 0.04,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            SizedBox(height: height * 0.1),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      const Color(0xFFFF5252)), // Change button color
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10), // Make the button rounded
+                    Text(
+                      'language title'.tr,
+                      style: TextStyle(
+                        fontSize: width * 0.057,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                  elevation:
-                      MaterialStateProperty.resolveWith<double>((states) {
-                    if (states.contains(MaterialState.pressed)) {
-                      return 10; // Increase elevation when pressed
-                    }
-                    return 5; // Default elevation
-                  }),
-                  padding: MaterialStateProperty.all<EdgeInsets>(
-                      const EdgeInsets.all(1)), // Add padding
-                  minimumSize: MaterialStateProperty.all<Size>(
-                      const Size(double.infinity, 50)), // Set width to full
-                  // side: MaterialStateProperty.all<BorderSide>(
-                  //     BorderSide(color: Colors.blue)), // Add border
-                ),
-                child: Text(
-                  'Select',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: width * 0.06,
-                  ),
+                    const SizedBox(height: 0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        'language subtitle'.tr,
+                        style: TextStyle(
+                          fontSize: width * 0.04,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF858585),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: RadioListTile(
+                          title: Text(
+                            'English',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: width * 0.05,
+                            ),
+                          ),
+                          value: 'en',
+                          groupValue: _selectedLanguage,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          tileColor: _selectedLanguage == 'en'
+                              ? const Color(0xFFAFD9FF)
+                              : const Color(0xFFEFEFEF),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(
+                                color: Colors
+                                    .grey), // Set the border color to gray
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedLanguage = value as String;
+                              _selectedCountryCode = 'US';
+                              _saveSelectedLanguage();
+                            });
+                          },
+                          selectedTileColor: blueColor),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: RadioListTile(
+                        title: Text(
+                          'हिंदी',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: width * 0.05,
+                          ),
+                        ),
+                        value: 'hi',
+                        groupValue: _selectedLanguage,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedLanguage = value as String;
+                            _selectedCountryCode = 'IN';
+                            _saveSelectedLanguage();
+                          });
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        tileColor: _selectedLanguage == 'hi'
+                            ? const Color(0xFFAFD9FF)
+                            : const Color(0xFFEFEFEF),
+                        selectedTileColor: blueColor.withOpacity(0.2),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Spacer(),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginScreen()),
+                          );
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              const Color(0xFFFF5252)), // Change button color
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  10), // Make the button rounded
+                            ),
+                          ),
+                          elevation: MaterialStateProperty.resolveWith<double>(
+                              (states) {
+                            if (states.contains(MaterialState.pressed)) {
+                              return 10; // Increase elevation when pressed
+                            }
+                            return 5; // Default elevation
+                          }),
+                          padding: MaterialStateProperty.all<EdgeInsets>(
+                              const EdgeInsets.all(1)), // Add padding
+                          minimumSize: MaterialStateProperty.all<Size>(
+                              const Size(
+                                  double.infinity, 50)), // Set width to full
+                          // side: MaterialStateProperty.all<BorderSide>(
+                          //     BorderSide(color: Colors.blue)), // Add border
+                        ),
+                        child: Text(
+                          'Select',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: width * 0.06,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    )
+                  ],
                 ),
               ),
             ),

@@ -27,24 +27,40 @@ class _SplashScreenState extends State<SplashScreen> {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return Scaffold(
-        backgroundColor: Color(0xFFFF2B2B),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text('My Shetra',
-                  style: TextStyle(
-                      fontSize: width * 0.12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-              SizedBox(height: 10),
-              Text('Some text here',
-                  style: TextStyle(
-                      fontSize: width * 0.09,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white)),
-            ],
-          ),
+        backgroundColor: Color(0xFF0D3D8B),
+        body: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text('My Shetra',
+                      style: TextStyle(
+                          fontSize: width * 0.12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
+                  SizedBox(height: 10),
+                  Text('Together we shape fututre',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: width * 0.05,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
+                ],
+              ),
+            ),
+            Positioned(
+              top: height * 0.22,
+              left: width * 0.1,
+              child: Image.asset("assets/images/splashmap.png"),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset("assets/images/splashbg.png"),
+            ),
+          ],
         ));
   }
 }

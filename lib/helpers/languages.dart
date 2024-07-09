@@ -5,8 +5,8 @@ class Langugae extends Translations {
   Map<String, Map<String, String>> get keys => {
     'en_US': {
       'title' : 'My Shetra',
-      'language title' : 'Choose your preferred language',
-      'language subtitle' : ''
+      'language title' : 'Choose  language',
+      'language subtitle' : 'Please select language as per your choice'
     },
     'hi_IN' : {
       'title' : 'मेरा शेत्र',
