@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myshetra/Components/WebView.dart';
+import 'package:myshetra/helpers/colors.dart';
 // import 'package:url_launcher/url_launcher.dart';
 
 class LinkText extends StatelessWidget {
@@ -29,8 +30,9 @@ class LinkText extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          color: Colors.blue,
+          color: primaryColor,
           fontWeight: FontWeight.bold,
+          fontSize: 16
         ),
       ),
     );

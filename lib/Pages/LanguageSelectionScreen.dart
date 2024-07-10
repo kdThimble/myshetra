@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:myshetra/Pages/AuthPage.dart';
 import 'package:myshetra/Pages/LoginScreen.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -186,12 +187,12 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => LoginScreen()),
+                                builder: (context) => AuthPage()),
                           );
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
-                              const Color(0xFFFF5252)), // Change button color
+                              primaryColor), // Change button color
                           shape:
                               MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
@@ -210,12 +211,12 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                               const EdgeInsets.all(1)), // Add padding
                           minimumSize: MaterialStateProperty.all<Size>(
                               const Size(
-                                  double.infinity, 50)), // Set width to full
+                                  double.infinity, 65)), // Set width to full
                           // side: MaterialStateProperty.all<BorderSide>(
                           //     BorderSide(color: Colors.blue)), // Add border
                         ),
                         child: Text(
-                          'Select',
+                          'Choose',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
