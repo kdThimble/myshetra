@@ -57,6 +57,7 @@ dependencies:
   get:
   flutter_image_compress:
   newrelic_mobile: ^1.0.9
+  connectivity_plus: ^5.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

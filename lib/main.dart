@@ -10,6 +10,7 @@ import 'package:myshetra/Providers/AuthProvider.dart';
 import 'package:myshetra/Services/LanguaugeService.dart';
 import 'package:myshetra/bloc/login/login_bloc.dart';
 import 'package:myshetra/bloc/signup/signup_bloc.dart';
+import 'package:myshetra/dependency_injection.dart';
 import 'package:myshetra/helpers/languages.dart';
 import 'package:newrelic_mobile/config.dart';
 import 'package:path_provider/path_provider.dart';
@@ -93,6 +94,7 @@ void main() async {
         child: MyApp(),
       ),
     );
+    DependencyInjection.init();
   });
 }
 
