@@ -5,9 +5,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:myshetra/helpers/colors.dart';
 import 'map_page.dart';
 
 class PositionProofScreen extends StatefulWidget {
@@ -128,29 +130,44 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back), // iOS style back button
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MapPage(),
+        leading: Row(
+          children: [
+            const SizedBox(
+              width: 10,
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey), // Border color
+                  shape: BoxShape.circle, // Rounded shape
                 ),
-              );
-            },
-            child: Text('Skip', style: TextStyle(color: Colors.black)),
-          ),
-        ],
-        title: Text(''),
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Icon(
+                    Icons.arrow_back, // Back icon
+                    color: Colors.black, // Icon color
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
         centerTitle: true,
+        title: Text(
+          "My Shetra",
+          style: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: width * 0.07,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -158,36 +175,54 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'If you hold any position, please type',
-                  style: TextStyle(fontSize: 18),
+                  'Position Detail',
+                  style: TextStyle(
+                      fontSize: width * 0.07, fontWeight: FontWeight.bold),
                 ),
               ),
+              const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'and upload the proof for the same',
-                  style: TextStyle(fontSize: 18),
+                  'If you hold any position, please type,and upload the proof for the same',
+                  style: TextStyle(fontSize: 18, color: greyColor),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Position name ',
+                  style: TextStyle(
+                      fontSize: width * 0.04, fontWeight: FontWeight.bold),
                 ),
               ),
               SizedBox(height: 20),
               Container(
-                margin: const EdgeInsets.all(10.0),
+                margin: const EdgeInsets.all(0.0),
+                padding: const EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: Colors.grey),
+                  border: Border.all(color: Colors.grey[400]!),
                 ),
                 child: TextField(
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black,
+                  ),
                   controller: positioncontroller,
-                  decoration: const InputDecoration(
-                    contentPadding:
-                        EdgeInsets.only(left: 15, top: 5, bottom: 5),
-                    hintText: 'Type the position name here',
-                    hintStyle:
-                        TextStyle(fontSize: 18.0, fontWeight: FontWeight.w200),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.only(left: 5, top: 5, bottom: 5),
+                    hintText: 'Enter Here',
+                    hintStyle: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey[400]),
                     border: InputBorder.none,
                   ),
                   keyboardType: TextInputType.name,
@@ -213,48 +248,15 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                   height: 200,
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green, width: 2),
+                    border: Border.all(color: Colors.grey[300]!, width: 2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: selectedFilePath == ""
-                      ? const Center(
-                          child: Text(
-                            'Select file',
-                            style: TextStyle(fontSize: 18, color: Colors.black),
-                          ),
-                        )
+                      ? Center(child: Image.asset("assets/images/Content.png"))
                       : Image.file(
                           File(selectedFilePath!),
                           fit: BoxFit.cover,
                         ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Container(
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        color: Colors.grey, // Use the color #3F1444
-                        thickness: 1,
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '  or  ',
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        color: Colors.grey, // Use the color #3F1444
-                        thickness: 1,
-                      ),
-                    ),
-                  ],
                 ),
               ),
               SizedBox(height: 20),
@@ -264,51 +266,76 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                   _openCamera(context);
                 },
                 child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green, width: 2),
-                    borderRadius: BorderRadius.circular(10),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[300]!, width: 2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Image.asset("assets/images/CameraIcon.png"),
+                          const Text(
+                            'Open camera & take Photo',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    )),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              MyButton(onTap: _submitData, text: "Next"),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MapPage(),
+                      ),
+                    );
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white), // Change button color
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        side: BorderSide(color: Color(0xFF0E3D8B)),
+                        borderRadius: BorderRadius.circular(
+                            10), // Make the button rounded
+                      ),
+                    ),
+                    elevation:
+                        MaterialStateProperty.resolveWith<double>((states) {
+                      if (states.contains(MaterialState.pressed)) {
+                        return 10; // Increase elevation when pressed
+                      }
+                      return 5; // Default elevation
+                    }),
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.all(1)), // Add padding
+                    minimumSize: MaterialStateProperty.all<Size>(
+                        const Size(double.infinity, 40)), // Set width to full
+                    // side: MaterialStateProperty.all<BorderSide>(
+                    //     BorderSide(color: Colors.blue)), // Add border
                   ),
-                  child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
                     child: Text(
-                      'Open camera & take Photo',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                      "Skip",
+                      style: TextStyle(
+                        color: const Color(0xFF0E3D8B),
+                        fontWeight: FontWeight.bold,
+                        fontSize: Get.width * 0.06,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 80),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Divider(
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFFFF5252), // Background color
-                  ),
-                  onPressed: () {
-                    // OrganizationProofScreen
-                    _submitData();
-                    // verifySignupOTP(
-                    //   mobileNumber: mobileNumberController.text,
-                    //   otp: otpcontroller.text,
-                    //   name: nameController.text,
-                    //   gender: gender,
-                    //   dateOfBirth: dateOfBirthController.text,
-                    // );
-                  },
-                  child: Text(
-                    'Next',
-                    style: TextStyle(color: Colors.white), // Text color
-                  ),
-                ),
-              ),
+              )
             ],
           ),
         ),

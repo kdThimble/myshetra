@@ -7,8 +7,10 @@ import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Models/OrganisationModel.dart';
 import 'package:myshetra/Services/Authservices.dart';
+import 'package:myshetra/helpers/colors.dart';
 
 import 'Positionproof.dart';
 
@@ -185,31 +187,45 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
     // fetchOrganisationData();
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // iOS style back button
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PositionProofScreen(),
+        leading: Row(
+          children: [
+            const SizedBox(
+              width: 10,
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey), // Border color
+                  shape: BoxShape.circle, // Rounded shape
                 ),
-              );
-              // Navigator.push(context, MaterialPageRoute(builder: (context)=>PositionProofScreen()
-            },
-            child: const Text('Skip', style: TextStyle(color: Colors.black)),
-          ),
-        ],
-        title: const Text(''),
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Icon(
+                    Icons.arrow_back, // Back icon
+                    color: Colors.black, // Icon color
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
         centerTitle: true,
+        title: Text(
+          "My Shetra",
+          style: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: width * 0.07,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -218,47 +234,63 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'If you belong to any organization,',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'please select and upload the proof',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'for the same.',
-                  style: TextStyle(fontSize: 18),
+                  'Organisation Detail',
+                  style: TextStyle(
+                      fontSize: width * 0.07, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'If you belong to any organization,please select and upload the proof',
+                  style: TextStyle(fontSize: 18, color: greyColor),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Select Your Organisation ',
+                  style: TextStyle(
+                      fontSize: width * 0.04, fontWeight: FontWeight.bold),
+                ),
+              ),
+
+              const SizedBox(height: 10),
               _organisationModel == null
-                  ? Center(child: CircularProgressIndicator())
-                  : DropdownButton(
-                      value: _selectedValue,
-                      hint: Text('Select value'),
-                      isExpanded: true,
-                      icon: const Icon(Icons.keyboard_arrow_down),
-                      items: _organisationModel!.organizations!.map((item) {
-                        return DropdownMenuItem(
-                          value: item.id,
-                          child: Text(item.name!),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedValue = value?.toString();
-                          organisationid = _selectedValue!;
-                        });
-                      },
+                  ? const Center(child: CircularProgressIndicator())
+                  : Container(
+                      // margin: const EdgeInsets.all(10.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 10),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: DropdownButton(
+                        value: _selectedValue,
+                        hint: const Text('Select value'),
+                        underline: Container(),
+                        isExpanded: true,
+                        icon: const Icon(Icons.keyboard_arrow_down),
+                        items: _organisationModel!.organizations!.map((item) {
+                          return DropdownMenuItem(
+                            value: item.id,
+                            child: Text(item.name!),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedValue = value?.toString();
+                            organisationid = _selectedValue!;
+                          });
+                        },
+                      ),
                     ),
               // DropdownButtonFormField<String>(
 
@@ -272,16 +304,11 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                   height: 200,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green, width: 2),
+                    border: Border.all(color: Colors.grey[300]!, width: 2),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: selectedFilePath == null
-                      ? const Center(
-                          child: Text(
-                            'Select file',
-                            style: TextStyle(fontSize: 18, color: Colors.black),
-                          ),
-                        )
+                  child: selectedFilePath == ""
+                      ? Center(child: Image.asset("assets/images/Content.png"))
                       : Image.file(
                           File(selectedFilePath!),
                           fit: BoxFit.cover,
@@ -289,34 +316,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(8.0),
-                child: const Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        color: Colors.grey, // Use the color #3F1444
-                        thickness: 1,
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '  or  ',
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        color: Colors.grey, // Use the color #3F1444
-                        thickness: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
+            
               GestureDetector(
                 onTap: () {
                   // Implement file picker logic
@@ -324,49 +324,76 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 },
                 child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(vertical: 30),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.green, width: 2),
+                      border: Border.all(color: Colors.grey[300]!, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Center(
-                      child: Text(
-                        'Open camera & take Photo',
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Image.asset("assets/images/CameraIcon.png"),
+                          const Text(
+                            'Open camera & take Photo',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                          ),
+                        ],
                       ),
                     )),
               ),
-              const SizedBox(height: 80),
-              const Align(
-                alignment: Alignment.bottomCenter,
-                child: Divider(
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
+              SizedBox(
+                height: 5,
               ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: const Color(0xFFFF5252), // Background color
-                  ),
+
+              MyButton(onTap: _submitData, text: "Next"),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                child: TextButton(
                   onPressed: () {
-                    // OrganizationProofScreen
-                    _submitData();
-                    // verifySignupOTP(
-                    //   mobileNumber: mobileNumberController.text,
-                    //   otp: otpcontroller.text,
-                    //   name: nameController.text,
-                    //   gender: gender,
-                    //   dateOfBirth: dateOfBirthController.text,
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PositionProofScreen(),
+                      ),
+                    );
                   },
-                  child: const Text(
-                    'Next',
-                    style: TextStyle(color: Colors.white), // Text color
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white), // Change button color
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        side: BorderSide(color: Color(0xFF0E3D8B)),
+                        borderRadius: BorderRadius.circular(
+                            10), // Make the button rounded
+                      ),
+                    ),
+                    elevation:
+                        MaterialStateProperty.resolveWith<double>((states) {
+                      if (states.contains(MaterialState.pressed)) {
+                        return 10; // Increase elevation when pressed
+                      }
+                      return 5; // Default elevation
+                    }),
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.all(1)), // Add padding
+                    minimumSize: MaterialStateProperty.all<Size>(
+                        const Size(double.infinity, 40)), // Set width to full
+                    // side: MaterialStateProperty.all<BorderSide>(
+                    //     BorderSide(color: Colors.blue)), // Add border
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
+                    child: Text(
+                      "Skip",
+                      style: TextStyle(
+                        color: const Color(0xFF0E3D8B),
+                        fontWeight: FontWeight.bold,
+                        fontSize: Get.width * 0.06,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),

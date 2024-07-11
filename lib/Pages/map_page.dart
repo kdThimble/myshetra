@@ -8,6 +8,7 @@ import 'package:myshetra/Pages/Editprofile.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:myshetra/helpers/colors.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -32,54 +33,91 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     print(authService.token);
     getLocationUpdates();
-
   }
 
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            // Handle back button press, e.g., navigate to the previous screen
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          'Choose your sector location',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w600,
-            height: 0,
-          ),
-          textAlign: TextAlign.center,
+        leading: Row(
+          children: [
+            const SizedBox(
+              width: 10,
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey), // Border color
+                  shape: BoxShape.circle, // Rounded shape
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Icon(
+                    Icons.arrow_back, // Back icon
+                    color: Colors.black, // Icon color
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
-      ),
-      body: GoogleMap(
-        onMapCreated: ((GoogleMapController controller) =>
-            _mapController.complete(controller)),
-        initialCameraPosition: CameraPosition(
-          target: _currentP ?? LatLng(0, 0),
-          zoom: 100, // Adjust the zoom level as needed
+        title: Text(
+          "My Shetra",
+          style: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: width * 0.07,
+          ),
         ),
-        markers: _currentP == null
-            ? {}
-            : {
-                Marker(
-                  markerId: MarkerId("_currentLocation"),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueAzure), // Set marker color to black
-                  position: _currentP!,
-                ),
-              },
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 0),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Choose you sector location',
+                style: TextStyle(
+                    fontSize: width * 0.06, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 0),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Please Select your location',
+                style: TextStyle(fontSize: 18, color: greyColor),
+              ),
+            ),
+            GoogleMap(
+              onMapCreated: ((GoogleMapController controller) =>
+                  _mapController.complete(controller)),
+              initialCameraPosition: CameraPosition(
+                target: _currentP ?? LatLng(0, 0),
+                zoom: 100, // Adjust the zoom level as needed
+              ),
+              markers: _currentP == null
+                  ? {}
+                  : {
+                      Marker(
+                        markerId: MarkerId("_currentLocation"),
+                        icon: BitmapDescriptor.defaultMarkerWithHue(
+                            BitmapDescriptor
+                                .hueAzure), // Set marker color to black
+                        position: _currentP!,
+                      ),
+                    },
+            ),
+          ],
+        ),
       ),
       bottomSheet: LocationDetailsBottomSheet(
         address: _currentAddress,
