@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
@@ -111,6 +112,7 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
           loginStatus: LoginStatus.success,
         ));
       } else {
+        Get.snackbar('Error', '${data['message']}');
         emit(state.copyWith(loginStatus: LoginStatus.error));
       }
     } catch (e) {

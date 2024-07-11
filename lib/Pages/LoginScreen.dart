@@ -38,7 +38,6 @@ class _LoginScreenState extends State<LoginScreen> {
     var height = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
-
         body: BlocProvider(
           create: (context) => _loginBlocs,
           child: LoginForm(),
@@ -86,7 +85,6 @@ class _LoginFormState extends State<LoginForm> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(height: 12),
-
                 Center(
                   child: Text(
                     'Verify login details',
@@ -195,7 +193,7 @@ class _LoginFormState extends State<LoginForm> {
     var height = MediaQuery.of(context).size.height;
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
-        if (state.loginStatus == LoginStatus.success  &&
+        if (state.loginStatus == LoginStatus.success &&
             !_isOtpBottomSheetShown) {
           _isOtpBottomSheetShown = true;
           _showOtpBottomSheet(context);
@@ -212,25 +210,34 @@ class _LoginFormState extends State<LoginForm> {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                SizedBox(height:height*0.03,),
+                SizedBox(
+                  height: height * 0.03,
+                ),
                 Row(
                   children: [
-                    Container(
-
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey), // Border color
-                        shape: BoxShape.circle, // Rounded shape
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Icon(
-                          Icons.arrow_back, // Back icon
-                          color: Colors.black, // Icon color
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border:
+                              Border.all(color: Colors.grey), // Border color
+                          shape: BoxShape.circle, // Rounded shape
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Icon(
+                            Icons.arrow_back, // Back icon
+                            color: Colors.black, // Icon color
+                          ),
                         ),
                       ),
                     ),
-                    SizedBox(width:width*0.15,),
+                    SizedBox(
+                      width: width * 0.15,
+                    ),
                     Text(
                       "My Shetra",
                       style: TextStyle(
@@ -241,11 +248,14 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Row(
                   children: [
                     Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 10),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 10),
                       child: Text(
                         "Login Your Account",
                         textAlign: TextAlign.center,
@@ -273,9 +283,12 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Container(
                   margin: const EdgeInsets.all(10.0),
+                  padding: EdgeInsets.symmetric(vertical: 5),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
                     border: Border.all(color: Colors.grey),
@@ -285,11 +298,11 @@ class _LoginFormState extends State<LoginForm> {
                       const SizedBox(width: 10),
                       const Padding(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+                            EdgeInsets.symmetric(horizontal: 8.0, vertical: 10),
                         child: Text(
                           '+91',
                           style: TextStyle(
-                              fontSize: 18.0, fontWeight: FontWeight.w100),
+                              fontSize: 20.0, fontWeight: FontWeight.w100),
                         ),
                       ),
                       BlocBuilder<LoginBloc, LoginState>(
@@ -298,6 +311,8 @@ class _LoginFormState extends State<LoginForm> {
                         builder: (context, state) {
                           return Expanded(
                             child: TextField(
+                                style:
+                                    TextStyle(fontSize: 20, color: greyColor),
                                 controller: _numberController,
                                 decoration: const InputDecoration(
                                   hintText: 'Enter mobile number',
@@ -319,20 +334,21 @@ class _LoginFormState extends State<LoginForm> {
                     ],
                   ),
                 ),
-                SizedBox(height: height*0.05),
+                SizedBox(height: height * 0.05),
                 SizedBox(
                   width: double.infinity,
                   child: TextButton(
                     style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          side: const BorderSide(color: Colors.black),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            side: const BorderSide(color: Colors.black),
+                          ),
                         ),
-                      ),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          primaryColor,)
-                    ),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          primaryColor,
+                        )),
                     onPressed: () =>
                         context.read<LoginBloc>().add(GenerateOtp()),
                     child: const Padding(
@@ -355,7 +371,7 @@ class _LoginFormState extends State<LoginForm> {
                     children: [
                       TextSpan(
                         text: "Don't have an account? ",
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: greyColor),
                       ),
                       TextSpan(
                         text: 'Signup',
@@ -367,7 +383,8 @@ class _LoginFormState extends State<LoginForm> {
                           ..onTap = () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => SignUpPage()),
+                              MaterialPageRoute(
+                                  builder: (context) => SignUpPage()),
                             );
                           },
                       ),
@@ -375,7 +392,6 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
                 SizedBox(height: height * 0.32),
-
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -383,19 +399,16 @@ class _LoginFormState extends State<LoginForm> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("By signing up, you agree to our ",style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        )),
+                        const Text("By signing up, you agree to our ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
                         LinkText(
                             link:
                                 "https://pub.dev/packages/url_launcher/example",
                             text: "Terms"),
-                        const Text(",",style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        )),
-
+                        const Text(",",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
                       ],
                     ),
                     SizedBox(height: height * 0.004),
@@ -404,12 +417,11 @@ class _LoginFormState extends State<LoginForm> {
                       children: [
                         LinkText(
                             link:
-                            "https://pub.dev/packages/url_launcher/example",
+                                "https://pub.dev/packages/url_launcher/example",
                             text: " Privacy Policy"),
-                        const Text(" and ",style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        )),
+                        const Text(" and ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
                         LinkText(
                             link:
                                 "https://pub.dev/packages/url_launcher/example",
@@ -418,7 +430,9 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 BlocBuilder<LoginBloc, LoginState>(
                   builder: (context, state) {
                     if (state.loginStatus == LoginStatus.loading) {

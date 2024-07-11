@@ -3,12 +3,14 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:myshetra/Models/Authmodel.dart';
+import 'package:myshetra/Pages/LoginScreen.dart';
 
 import 'package:myshetra/Pages/Otpscreen.dart';
 import 'package:myshetra/Pages/Positionproof.dart';
@@ -52,11 +54,37 @@ class _SignUpPageState extends State<SignUpPage> {
     var height = MediaQuery.of(context).size.height;
     return Scaffold(
         appBar: AppBar(
+          leading: Row(
+            children: [
+              SizedBox(
+                width: 10,
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey), // Border color
+                    shape: BoxShape.circle, // Rounded shape
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Icon(
+                      Icons.arrow_back, // Back icon
+                      color: Colors.black, // Icon color
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
           centerTitle: true,
           title: Text(
             "My Shetra",
             style: TextStyle(
-              color: blueColor,
+              color: primaryColor,
               fontWeight: FontWeight.bold,
               fontSize: width * 0.07,
             ),
@@ -417,7 +445,8 @@ class _SignUpFormState extends State<SignUpForm> {
         // Save the tokens to secure storage or a state management solution
         Provider.of<AuthProvider>(context, listen: false)
             .setAuthResponse(authResponse);
-        Get.find<AuthService>().setAuthResponse(authResponse.token, authResponse.refreshToken);
+        Get.find<AuthService>()
+            .setAuthResponse(authResponse.token, authResponse.refreshToken);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', authResponse.token);
         await prefs.setString('refreshToken', authResponse.refreshToken);
@@ -474,210 +503,275 @@ class _SignUpFormState extends State<SignUpForm> {
         child: SingleChildScrollView(
           child: Container(
             margin: const EdgeInsets.all(15.0),
-            child: Center(
-              child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.center,
-                  // crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Center(
-                      child: Text(
-                        "Create your account",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: height * 0.035,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    BlocBuilder<SignupBloc, SignupState>(
-                      builder: (context, state) {
-                        return Container(
-                          margin: const EdgeInsets.all(10.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(color: Colors.grey),
-                          ),
-                          child: TextField(
-                              controller: nameController,
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.only(
-                                    left: 15, top: 5, bottom: 5),
-                                hintText: 'Full Name',
-                                hintStyle: TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w200),
-                                border: InputBorder.none,
-                              ),
-                              keyboardType: TextInputType.name,
-                              onChanged: (value) => {
-                                    context
-                                        .read<SignupBloc>()
-                                        .add(NameChanged(name: value)),
-                                  }),
-                        );
-                      },
-                    ),
-                    Container(
-                      margin: const EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: Row(
-                        children: [
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8.0, vertical: 12),
-                            child: Text(
-                              '+91',
-                              style: TextStyle(
-                                  fontSize: 18.0, fontWeight: FontWeight.w100),
-                            ),
-                          ),
-                          BlocBuilder<SignupBloc, SignupState>(
-                            builder: (context, state) {
-                              return Expanded(
-                                child: TextField(
-                                    controller: _mobileNumberController,
-                                    onEditingComplete: _checkMobileNumber,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Enter mobile number',
-                                      hintStyle: TextStyle(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.w200),
-                                      border: InputBorder.none,
-                                    ),
-                                    keyboardType: TextInputType.phone,
-                                    onChanged: (value) => {
-                                          context.read<SignupBloc>().add(
-                                              NumberChanged(number: value)),
-                                          if (value.length == 10)
-                                            {
-                                              context
-                                                  .read<SignupBloc>()
-                                                  .add(CheckNumber()),
-                                            }
-                                        }),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        numberText,
-                        style: TextStyle(
-                            color: isAvailable ? Colors.green : Colors.red,
-                            fontSize: 12),
-                      ),
-                    ),
-                    SizedBox(
-                      height: height * 0.02,
-                    ),
-                    BlocBuilder<SignupBloc, SignupState>(
-                      builder: (context, state) {
-                        return Container(
-                          margin: const EdgeInsets.all(10.0),
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(color: Colors.grey),
-                          ),
-                          child: DropdownButton<String>(
-                            elevation: 0,
-                            isExpanded: true,
-                            underline: Container(),
-                            value: gender,
-                            hint: const Text("Gender"),
-                            onChanged: (value) {
-                              setState(() {
-                                gender = value!;
-                              });
-                              context.read<SignupBloc>().add(
-                                  GenderChanged(gender: value!.toLowerCase()));
-                            },
-                            items:
-                                <String>['Male', 'Female'].map((String gender) {
-                              return DropdownMenuItem<String>(
-                                value: gender,
-                                child: Text(gender),
-                              );
-                            }).toList(),
-                          ),
-                        );
-                      },
-                    ),
-                    SizedBox(
-                      height: height * 0.02,
-                    ),
-                    Container(
-                      margin: const EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TextField(
-                              controller: dateOfBirthController,
-                              decoration: const InputDecoration(
-                                hintText: 'Enter date of birth',
-                                hintStyle: TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w200),
-                                border: InputBorder.none,
-                              ),
-                              readOnly: true,
-                              onTap: () {
-                                _selectDate(context);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 180),
-                    const Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Divider(
-                        color: Colors.grey,
-                        thickness: 1,
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          primary: const Color(0xFFFF5252), // Background color
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Personal Details",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: height * 0.03,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    "Please enter your details",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: height * 0.019,
+                        fontWeight: FontWeight.normal,
+                        color: greyColor),
+                  ),
+                  const SizedBox(
+                    height: 25,
+                  ),
+                  BlocBuilder<SignupBloc, SignupState>(
+                    builder: (context, state) {
+                      return Container(
+                        margin: const EdgeInsets.all(10.0),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.grey),
                         ),
+                        child: TextField(
+                            controller: nameController,
+                            style: TextStyle(fontSize: 20, color: greyColor),
+                            decoration: const InputDecoration(
+                              contentPadding:
+                                  EdgeInsets.only(left: 15, top: 5, bottom: 5),
+                              hintText: 'Enter Your full name',
+                              hintStyle: TextStyle(
+                                  fontSize: 18.0, fontWeight: FontWeight.w200),
+                              border: InputBorder.none,
+                            ),
+                            keyboardType: TextInputType.name,
+                            onChanged: (value) => {
+                                  context
+                                      .read<SignupBloc>()
+                                      .add(NameChanged(name: value)),
+                                }),
+                      );
+                    },
+                  ),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Container(
+                          // margin: const EdgeInsets.all(10.0),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 20),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Text(
+                            '+91',
+                            style: TextStyle(
+                                fontSize: 18.0, fontWeight: FontWeight.w200),
+                          )),
+                      BlocBuilder<SignupBloc, SignupState>(
+                        builder: (context, state) {
+                          return Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.all(10.0),
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              child: TextField(
+                                  controller: _mobileNumberController,
+                                  style:
+                                      TextStyle(fontSize: 20, color: greyColor),
+                                  onEditingComplete: _checkMobileNumber,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter mobile number',
+                                    contentPadding: EdgeInsets.only(
+                                        left: 10, top: 5, bottom: 5),
+                                    hintStyle: TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.w200),
+                                    border: InputBorder.none,
+                                  ),
+                                  keyboardType: TextInputType.phone,
+                                  onChanged: (value) => {
+                                        context
+                                            .read<SignupBloc>()
+                                            .add(NumberChanged(number: value)),
+                                        if (value.length == 10)
+                                          {
+                                            context
+                                                .read<SignupBloc>()
+                                                .add(CheckNumber()),
+                                          }
+                                      }),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      numberText,
+                      style: TextStyle(
+                          color: isAvailable ? Colors.green : Colors.red,
+                          fontSize: 12),
+                    ),
+                  ),
+                  SizedBox(
+                    height: height * 0.02,
+                  ),
+                  BlocBuilder<SignupBloc, SignupState>(
+                    builder: (context, state) {
+                      return Container(
+                        margin: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 10),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: DropdownButton<String>(
+                          elevation: 0,
+                          isExpanded: true,
+                          underline: Container(),
+                          value: gender,
+                          hint: const Text("Gender"),
+                          onChanged: (value) {
+                            setState(() {
+                              gender = value!;
+                            });
+                            context.read<SignupBloc>().add(
+                                GenderChanged(gender: value!.toLowerCase()));
+                          },
+                          items:
+                              <String>['Male', 'Female'].map((String gender) {
+                            return DropdownMenuItem<String>(
+                              value: gender,
+                              child: Text(
+                                gender,
+                                style:
+                                    TextStyle(fontSize: 20, color: greyColor),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    height: height * 0.02,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: dateOfBirthController,
+                            style: TextStyle(fontSize: 20, color: greyColor),
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.calendar_month_outlined,
+                                color: greyColor,
+                              ),
+                              hintText: 'Enter date of birth',
+                              hintStyle: TextStyle(
+                                  fontSize: 18.0, fontWeight: FontWeight.w200),
+                              border: InputBorder.none,
+                            ),
+                            readOnly: true,
+                            onTap: () {
+                              _selectDate(context);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                side: const BorderSide(color: Colors.black),
+                              ),
+                            ),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              primaryColor,
+                            )),
                         onPressed: () {
-                          // context.read<SignupBloc>().add(GenerateOtp());
                           generateSignupOTP(_mobileNumberController.text);
                         },
                         child: const Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(6.0),
                           child: Text(
-                            'Next',
+                            'Create Acoount',
                             style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 22), // Text color
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25),
                           ),
                         ),
                       ),
                     ),
-                  ]),
-            ),
+                  ),
+                  SizedBox(height: height * 0.02),
+                  Center(
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: TextStyle(fontSize: 18), // Apply the base style
+                        children: [
+                          TextSpan(
+                            text: "Already have an account? ",
+                            style: TextStyle(color: greyColor),
+                          ),
+                          TextSpan(
+                            text: 'Login',
+                            style: TextStyle(
+                              color: primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LoginScreen()),
+                                );
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ]),
           ),
         ),
       ),
