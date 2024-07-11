@@ -22,7 +22,7 @@ class _AuthPageState extends State<AuthPage> {
         child: Column(
           children: [
             Container(
-              height: height * 0.46,
+              height: height * 0.4,
               width: width,
               decoration: BoxDecoration(
                 color: bgColor,
@@ -45,7 +45,7 @@ class _AuthPageState extends State<AuthPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     SizedBox(
-                      height: height*0.06,
+                      height: height*0.04,
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30.0),

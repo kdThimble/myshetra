@@ -4,11 +4,14 @@ class OtpScreen extends StatefulWidget {
   final String mobileNumber;
   final Function(String) onOtpVerification;
   final String otp;
-
+  final String attemptsLeft;
+  final String  otpValidity;
   OtpScreen(
       {required this.mobileNumber,
       required this.onOtpVerification,
-      required this.otp});
+      required this.otp,
+        required this.attemptsLeft,
+        required this.otpValidity});
 
   @override
   _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
@@ -56,6 +59,8 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.otpValidity);
+    final otpValidityInMinutes = (int.parse(widget.otpValidity) / 60).toStringAsFixed(2);
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.only(
@@ -115,7 +120,13 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
               SizedBox(height: 10),
               Center(
                 child: Text(
-                  'Valid up to 25 seconds',
+                  'Valid up to $otpValidityInMinutes minutes',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
+              Center(
+                child: Text(
+                  'Attempts left: ${widget.attemptsLeft}',
                   style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ),

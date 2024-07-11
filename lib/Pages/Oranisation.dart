@@ -11,8 +11,11 @@ import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Models/OrganisationModel.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:myshetra/helpers/colors.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'Positionproof.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path/path.dart' as path;
 
 class OrganizationProofScreen extends StatefulWidget {
   @override
@@ -127,52 +130,73 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
     final image = await imagePicker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
-      try {
+      final compressedImage = await _compressImage(File(image.path));
+      if (compressedImage != null) {
         setState(() {
-          selectedFilePath = image.path;
+          selectedFilePath = compressedImage.path;
         });
         print(selectedFilePath);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Image captured successfully'),
+            content: Text('Image captured and compressed successfully'),
           ),
         );
         // Call uploadImage function with the selected image
-        // await uploadImage(context, XFile(croppedImage.path));
-      } catch (error) {
-        // Handle errors during upload
-        print("Error during upload: $error");
-      } finally {
-        // Dismiss the loading overlay
-        // await uploadImage(context, XFile(croppedImage.path));
+        // await uploadImage(context, XFile(compressedImage.path));
+      } else {
+        // Handle compression failure
+        print("Compression failed");
       }
     }
   }
 
   Future<void> _openFilePicker(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.image, // Specify the allowed file type as an image
+      type: FileType.image,
     );
 
     if (result != null && result.files.isNotEmpty) {
       final filePath = result.files.single.path!;
-
-      setState(() {
-        selectedFilePath = result.files.single.path!;
-      });
-      try {
-        // Call uploadImage function with the selected image
-        // await uploadImage(context, XFile(croppedImage.path));
-      } catch (error) {
-        // Handle errors during upload
-        print("Error during upload: $error");
-      } finally {
-        // Dismiss the loading overlay
-        print("fiunal");
+      final compressedImage = await _compressImage(File(filePath));
+      if (compressedImage != null) {
+        setState(() {
+          selectedFilePath = compressedImage.path;
+        });
         print(selectedFilePath);
-        // await uploadImage(context, XFile(croppedImage.path));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Image selected and compressed successfully'),
+          ),
+        );
+        // Call uploadImage function with the selected image
+        // await uploadImage(context, XFile(compressedImage.path));
+      } else {
+        // Handle compression failure
+        print("Compression failed");
       }
     }
+  }
+
+  Future<File?> _compressImage(File file) async {
+    final dir = await getTemporaryDirectory();
+    final targetPath = path.join(dir.path, 'compressed_${path.basename(file.path)}');
+    int quality = 100;
+    XFile? compressedXFile;
+
+    while (quality > 0) {
+      compressedXFile = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        targetPath,
+        quality: quality,
+      );
+
+      if (compressedXFile != null && await compressedXFile.length() <= 5 * 1024) {
+        break;
+      }
+      quality -= 5;
+    }
+
+    return compressedXFile != null ? File(compressedXFile.path) : null;
   }
 
   var newData;

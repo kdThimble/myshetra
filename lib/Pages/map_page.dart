@@ -1,6 +1,8 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:geocoding/geocoding.dart' as geocoding;
@@ -27,7 +29,7 @@ class _MapPageState extends State<MapPage> {
   LatLng? _currentP;
   String _currentAddress =
       'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
-
+  String _formattedCoordinates = "";
   @override
   void initState() {
     super.initState();
@@ -38,6 +40,8 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    print("_formattedCoordinates:$_formattedCoordinates");
     return Scaffold(
       appBar: AppBar(
         leading: Row(
@@ -90,6 +94,7 @@ class _MapPageState extends State<MapPage> {
               ),
             ),
             const SizedBox(height: 0),
+            Text(_formattedCoordinates),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -97,30 +102,34 @@ class _MapPageState extends State<MapPage> {
                 style: TextStyle(fontSize: 18, color: greyColor),
               ),
             ),
-            GoogleMap(
-              onMapCreated: ((GoogleMapController controller) =>
-                  _mapController.complete(controller)),
-              initialCameraPosition: CameraPosition(
-                target: _currentP ?? LatLng(0, 0),
-                zoom: 100, // Adjust the zoom level as needed
-              ),
-              markers: _currentP == null
-                  ? {}
-                  : {
-                      Marker(
-                        markerId: MarkerId("_currentLocation"),
-                        icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor
-                                .hueAzure), // Set marker color to black
-                        position: _currentP!,
-                      ),
-                    },
-            ),
+            Image.asset("assets/Screenshot 2024-07-12 at 12.14.58 AM.png"),
+            // GoogleMap(
+            //   onMapCreated: ((GoogleMapController controller) =>
+            //       _mapController.complete(controller)),
+            //   initialCameraPosition: CameraPosition(
+            //     target: _currentP ?? LatLng(0, 0),
+            //     zoom: 100, // Adjust the zoom level as needed
+            //   ),
+            //   markers: _currentP == null
+            //       ? {}
+            //       : {
+            //           Marker(
+            //             markerId: MarkerId("_currentLocation"),
+            //             icon: BitmapDescriptor.defaultMarkerWithHue(
+            //                 BitmapDescriptor
+            //                     .hueAzure), // Set marker color to black
+            //             position: _currentP!,
+            //           ),
+            //         },
+            // ),
           ],
         ),
       ),
-      bottomSheet: LocationDetailsBottomSheet(
-        address: _currentAddress,
+      bottomSheet: SizedBox(
+        height: height * 0.55,
+        child: LocationDetailsBottomSheet(
+          address: _currentAddress,
+        ),
       ),
     );
   }
@@ -136,15 +145,17 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
+
   Future<void> getLocationUpdates() async {
     _locationController.onLocationChanged.listen(
-      (location.LocationData currentLocation) async {
+          (location.LocationData currentLocation) async {
         if (currentLocation.latitude != null &&
             currentLocation.longitude != null) {
           setState(() {
-            _currentP =
-                LatLng(currentLocation.latitude!, currentLocation.longitude!);
-            _cameraToPosition(_currentP!);
+            // _currentP =
+            //     LatLng(currentLocation.latitude!, currentLocation.longitude!);
+            // _cameraToPosition(_currentP!);
+            _formattedCoordinates = _convertToDMS(currentLocation.latitude!, currentLocation.longitude!);
           });
 
           // Fetch address using geocoding
@@ -154,85 +165,91 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  Future<void> _getAddressFromCoordinates(LatLng? coordinates) async {
-    if (coordinates == null) {
-      setState(() {
-        _currentAddress = 'Fetching location...';
-      });
-      return;
+  String _convertToDMS(double latitude, double longitude) {
+    String latDirection = latitude >= 0 ? "N" : "S";
+    String lonDirection = longitude >= 0 ? "E" : "W";
+
+    String latDMS = _convertToDMSHelper(latitude.abs());
+    String lonDMS = _convertToDMSHelper(longitude.abs());
+
+    return "$latDMS$latDirection, $lonDMS$lonDirection";
+  }
+
+  String _convertToDMSHelper(double coordinate) {
+    int degrees = coordinate.floor();
+    double minutesDecimal = (coordinate - degrees) * 60;
+    int minutes = minutesDecimal.floor();
+    int seconds = ((minutesDecimal - minutes) * 60).round();
+
+    // Adjust minutes and degrees if seconds are 60
+    if (seconds == 60) {
+      seconds = 0;
+      minutes += 1;
+    }
+    if (minutes == 60) {
+      minutes = 0;
+      degrees += 1;
     }
 
-    try {
-      List<geocoding.Placemark> placemarks =
-          await geocoding.placemarkFromCoordinates(
+    return "${degrees}°${minutes}'${seconds}\"";
+  }
+
+  Future<void> _getAddressFromCoordinates(LatLng? coordinates) async {
+    if (coordinates != null) {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
         coordinates.latitude,
         coordinates.longitude,
       );
-
       if (placemarks.isNotEmpty) {
-        geocoding.Placemark firstPlacemark = placemarks.first;
+        Placemark place = placemarks.first;
         setState(() {
-          _currentAddress =
-              '${firstPlacemark.subThoroughfare} ${firstPlacemark.thoroughfare}, ${firstPlacemark.locality}';
+          // Update address or other details if needed
         });
       }
-    } catch (e) {
-      print('Error fetching address: $e');
-      setState(() {
-        _currentAddress =
-            'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
-      });
     }
   }
+
+
+
+  // Future<void> _getAddressFromCoordinates(LatLng? coordinates) async {
+  //   if (coordinates == null) {
+  //     setState(() {
+  //       _currentAddress = 'Fetching location...';
+  //     });
+  //     return;
+  //   }
+  //
+  //   try {
+  //     List<geocoding.Placemark> placemarks =
+  //         await geocoding.placemarkFromCoordinates(
+  //       coordinates.latitude,
+  //       coordinates.longitude,
+  //     );
+  //
+  //     if (placemarks.isNotEmpty) {
+  //       geocoding.Placemark firstPlacemark = placemarks.first;
+  //       setState(() {
+  //         _currentAddress =
+  //             '${firstPlacemark.subThoroughfare} ${firstPlacemark.thoroughfare}, ${firstPlacemark.locality}';
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching address: $e');
+  //     setState(() {
+  //       _currentAddress =
+  //           'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
+  //     });
+  //   }
+  // }
 }
 
-void _showLocationSelectionBottomSheet(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return Container(
-        padding: EdgeInsets.all(16.0),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Your LocationSelectionBottomSheet content
-            LocationSelectionBottomSheet(
-              onStateChanged: (String? value) {
-                // Your logic here
-              },
-            ),
 
-            // Circle-shaped black container with cross icon
-            // Positioned(
-            //   top: 0,
-            //   child: Container(
-            //     width: 40.0,  // Adjust the size according to your design
-            //     height: 40.0,  // Adjust the size according to your design
-            //     decoration: BoxDecoration(
-            //       shape: BoxShape.circle,
-            //       color: Colors.black,
-            //     ),
-            //     child: Center(
-            //       child: IconButton(
-            //         icon: Icon(Icons.close, color: Colors.white),
-            //         onPressed: () {
-            //           Navigator.pop(context); // Close the modal
-            //         },
-            //       ),
-            //     ),
-            //   ),
-            // ),
-          ],
-        ),
-      );
-    },
-  );
-}
 
 class LocationSelectionBottomSheet extends StatefulWidget {
   final ValueChanged<String?> onStateChanged;
 
   LocationSelectionBottomSheet({required this.onStateChanged});
+
   @override
   State<LocationSelectionBottomSheet> createState() =>
       _LocationSelectionBottomSheetState();
@@ -240,37 +257,601 @@ class LocationSelectionBottomSheet extends StatefulWidget {
 
 class _LocationSelectionBottomSheetState
     extends State<LocationSelectionBottomSheet> {
-  String? _selectedState;
-  String? _selected1;
-  String? _selected2;
-  String? _selected3;
-  String address = 'Reliance Fresh, \n Block FB, Rohini Sec - 12';
-  final List<Map<String, String>> states = [
-    {"key": "1", "value": "Delhi"},
-    {"key": "2", "value": "Haryana"},
-    {"key": "3", "value": "Uttar Pradesh"},
-    {"key": "4", "value": "Punjab"},
-  ];
+  String _selectedState = '';
+  String _selectedDistrict = '';
+  String _selectedSubDistrict = '';
+  String _selectedLocalDivision = '';
 
-  final List<Map<String, String>> Zone = [
-    {"key": "1", "value": "North Delhi"},
-    {"key": "2", "value": "East Delhi"},
-    {"key": "3", "value": "South Delhi"},
-    {"key": "4", "value": "West Delhi"},
-  ];
+  List<String> _states = [];
+  List<String> _districts = [];
+  List<String> _subDistricts = [];
+  List<String> _localDivisions = [];
 
-  final List<Map<String, String>> District = [
-    {"key": "1", "value": "Shahadar"},
-    {"key": "2", "value": "Rohini"},
-    {"key": "3", "value": "Dwarka"},
-    {"key": "4", "value": "Janakpuri"},
-  ];
-  final List<Map<String, String>> Sector = [
-    {"key": "1", "value": "11"},
-    {"key": "2", "value": "12"},
-    {"key": "3", "value": "13"},
-    {"key": "4", "value": "3"},
-  ];
+  void _fetchStates() async {
+    var headers = {
+      'Authorization': 'your_auth_token_here',
+    };
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getAllStates'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseString = await response.stream.bytesToString();
+      Map<String, dynamic> responseData = json.decode(responseString);
+      List<dynamic> states = responseData['data']['states'];
+      setState(() {
+        _states = states.map((state) => state['label']).cast<String>().toList();
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  void _fetchDistrictsByState(String stateId) async {
+    var headers = {
+      'Authorization': 'your_auth_token_here',
+    };
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getDistrictsByState?state_id=$stateId'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseString = await response.stream.bytesToString();
+      Map<String, dynamic> responseData = json.decode(responseString);
+      List<dynamic> districts = responseData['data']['districts'];
+      setState(() {
+        _districts =
+            districts.map((district) => district['label']).cast<String>().toList();
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  void _fetchSubDistrictsByDistrict(String districtId) async {
+    var headers = {
+      'Authorization': 'your_auth_token_here',
+    };
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getSubDistrictsByDistrict?district_id=$districtId'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseString = await response.stream.bytesToString();
+      Map<String, dynamic> responseData = json.decode(responseString);
+      List<dynamic> subDistricts =
+      responseData['data']['sub_districts'];
+      setState(() {
+        _subDistricts =
+            subDistricts.map((subDistrict) => subDistrict['label']).cast<String>().toList();
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  void _fetchLocalDivisionsBySubDistrict(String subDistrictId) async {
+    var headers = {
+      'Authorization': 'your_auth_token_here',
+    };
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getLocalDivisionsBySubDistrict?sub_district_id=$subDistrictId'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseString = await response.stream.bytesToString();
+      Map<String, dynamic> responseData = json.decode(responseString);
+      List<dynamic> localDivisions =
+      responseData['data']['local_divisions'];
+      setState(() {
+        _localDivisions =
+            localDivisions.map((localDivision) => localDivision['label']).cast<String>().toList();
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStates();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _showLocationSelectionBottomSheet(context);
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: ShapeDecoration(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(width: 1, color: Color(0xFF4A4A4A)),
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Icon(Icons.add, color: Color(0xFF4A4A4A)),
+                SizedBox(width: 8),
+                Text(
+                  'Enter manually',
+                  style: TextStyle(
+                    color: Color(0xFF4A4A4A),
+                    fontSize: 16,
+                    fontFamily: 'Okra',
+                    fontWeight: FontWeight.w600,
+                    height: 0,
+                    letterSpacing: -0.30,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLocationSelectionBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Enter manually',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedState,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedState = newValue!;
+                        _fetchDistrictsByState(newValue);
+                      });
+                    },
+                    items: _states.map((state) {
+                      return DropdownMenuItem<String>(
+                        value: state,
+                        child: Text(state),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelText: 'Select State',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedDistrict,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedDistrict = newValue!;
+                        _fetchSubDistrictsByDistrict(newValue);
+                      });
+                    },
+                    items: _districts.map((district) {
+                      return DropdownMenuItem<String>(
+                        value: district,
+                        child: Text(district),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelText: 'Select District',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedSubDistrict,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedSubDistrict = newValue!;
+                        _fetchLocalDivisionsBySubDistrict(newValue);
+                      });
+                    },
+                    items: _subDistricts.map((subDistrict) {
+                      return DropdownMenuItem<String>(
+                        value: subDistrict,
+                        child: Text(subDistrict),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelText: 'Select Sub District',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedLocalDivision,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedLocalDivision = newValue!;
+                      });
+                    },
+                    items: _localDivisions.map((localDivision) {
+                      return DropdownMenuItem<String>(
+                        value: localDivision,
+                        child: Text(localDivision),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelText: 'Select Local Division',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Perform action on submit button press
+                      Navigator.of(context).pop();
+                      // Optionally, you can pass the selected values back to the calling widget
+                      // or perform further actions with them.
+                    },
+                    child: Text('Submit'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class LocationDetailsBottomSheet extends StatefulWidget {
+  final String address;
+
+  LocationDetailsBottomSheet({required this.address});
+
+  @override
+  State<LocationDetailsBottomSheet> createState() => _LocationDetailsBottomSheetState();
+}
+
+
+
+class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet> {
+  final authService = Get.find<AuthService>();
+  List<dynamic> _representatives = [];
+  String _selectedState = '';
+  String _selectedDistrict = '';
+  String _selectedSubDistrict = '';
+  String _selectedLocalDivision = '';
+  String _selectedState1 = '';
+  String _selectedDistrict1 = '';
+  String _selectedSubDistrict1 = '';
+  String _selectedLocalDivision1 = '';
+
+  List<String> _states = [];
+  List<String> _districts = [];
+  List<String> _subDistricts = [];
+  List<String> _localDivisions = [];
+  Map<String, String> _stateMap = {}; // Map to store state label and value pairs
+
+  void _fetchStates() async {
+    var headers = {
+      'Authorization': '${authService.token}'
+    };
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getAllStates'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseString = await response.stream.bytesToString();
+      Map<String, dynamic> responseData = json.decode(responseString);
+      List<dynamic> states = responseData['data']['states'];
+      setState(() {
+        _states = states.map((state) => state['label'] as String).toList();
+        _stateMap = Map.fromIterable(states,
+            key: (state) => state['label'] as String,
+            value: (state) => state['value'] as String);
+        _selectedState = _states.isNotEmpty ? _states[0] : ''; // Initialize with the first state if available
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  Map<String, String> _districtMap = {}; // Map to store district label and value pairs
+
+  void _fetchDistrictsByState(String stateId) async {
+    var headers = {
+      'Authorization': '${authService.token}'
+    };
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getDistrictsByState?state_id=$stateId'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseString = await response.stream.bytesToString();
+      Map<String, dynamic> responseData = json.decode(responseString);
+      List<dynamic> districts = responseData['data']['districts'];
+      setState(() {
+        _districts = districts.map((district) => district['label'] as String).toList();
+        _districtMap = Map.fromIterable(districts,
+            key: (district) => district['label'] as String,
+            value: (district) => district['value'] as String);
+        _selectedDistrict = _districts.isNotEmpty ? _districts[0] : ''; // Initialize with the first district if available
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+  Map<String, String> _subDistrictMap = {}; // Map to store sub-district label and value pairs
+
+  void _fetchSubDistrictsByDistrict(String districtId) async {
+    var headers = {
+      'Authorization': '${authService.token}'
+    };
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getSubDistrictsByDistrict?district_id=$districtId'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseString = await response.stream.bytesToString();
+      Map<String, dynamic> responseData = json.decode(responseString);
+      List<dynamic> subDistricts = responseData['data']['sub_districts'];
+      setState(() {
+        _subDistricts = subDistricts.map((subDistrict) => subDistrict['label'] as String).toList();
+        _subDistrictMap = Map.fromIterable(subDistricts,
+            key: (subDistrict) => subDistrict['label'] as String,
+            value: (subDistrict) => subDistrict['value'] as String);
+        _selectedSubDistrict = _subDistricts.isNotEmpty ? _subDistricts[0] : ''; // Initialize with the first sub-district if available
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+  Map<String, String> _localDivisionMap = {}; // Map to store local division label and value pairs
+  bool _isLoading = false;
+
+  Future<void> fetchRepresentatives({
+    required String localDivisionId,
+    required String subDistrictId,
+    required String districtId,
+  }) async {
+    var headers = {
+      'Authorization':
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI3MDExODk5ODI2IiwidXNlcl9pZCI6IjY2Nzg1NDViNTdiMWE0YmE0ZDk4MTJjZiIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTI0ODM0N30.q6IyfAq1aagaUvA3xz-H39DApJrMdhL06DOdpp8mFLg'
+    };
+
+    var formData = {
+      'local_division_id': localDivisionId,
+      'sub_district_id': subDistrictId,
+      'district_id': districtId,
+    };
+
+    var request = http.MultipartRequest(
+      'GET',
+      Uri.parse(
+          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByLocationId'),
+    );
+
+    request.fields.addAll(formData);
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+  void _fetchLocalDivisionsBySubDistrict(String subDistrictId) async {
+    var headers = {
+      'Authorization': '${authService.token}'
+    };
+    var request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getLocalDivisionsBySubDistrict?sub_district_id=$subDistrictId'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseString = await response.stream.bytesToString();
+      Map<String, dynamic> responseData = json.decode(responseString);
+      List<dynamic> localDivisions = responseData['data']['local_divisions'];
+      setState(() {
+        _localDivisions = localDivisions.map((localDivision) => localDivision['label'] as String).toList();
+        _localDivisionMap = Map.fromIterable(localDivisions,
+            key: (localDivision) => localDivision['label'] as String,
+            value: (localDivision) => localDivision['value'] as String);
+        _selectedLocalDivision = _localDivisions.isNotEmpty ? _localDivisions[0] : ''; // Initialize with the first local division if available
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+  void _showLocationSelectionBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              padding: EdgeInsets.all(16),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Enter manually',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedState,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedState = newValue!;
+                          _selectedState1 = _stateMap[newValue]!;
+                          _fetchDistrictsByState(_stateMap[newValue]!);
+                        });
+                      },
+                      items: _states.map((state) {
+                        return DropdownMenuItem<String>(
+                          value: state,
+                          child: Text(state),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'Select State',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedDistrict,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedDistrict = newValue!;
+                          _selectedDistrict1 = _districtMap[newValue]!;
+                          _fetchSubDistrictsByDistrict(_districtMap[newValue]!);
+                        });
+                      },
+                      items: _districts.map((district) {
+                        return DropdownMenuItem<String>(
+                          value: district,
+                          child: Text(district),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'Select District',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedSubDistrict,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedSubDistrict = newValue!;
+                          _selectedSubDistrict1 = _subDistrictMap[newValue]!;
+                          _fetchLocalDivisionsBySubDistrict(_subDistrictMap[newValue]!);
+                        });
+                      },
+                      items: _subDistricts.map((subDistrict) {
+                        return DropdownMenuItem<String>(
+                          value: subDistrict,
+                          child: Text(subDistrict),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'Select Sub District',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedLocalDivision,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedLocalDivision = newValue!;
+                          _selectedLocalDivision1 = _localDivisionMap[newValue]!;
+                        });
+                      },
+                      items: _localDivisions.map((localDivision) {
+                        return DropdownMenuItem<String>(
+                          value: localDivision,
+                          child: Text(localDivision),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: 'Select Local Division',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        // Perform action on submit button press
+                        await fetchRepresentatives(   localDivisionId: _selectedLocalDivision1 , subDistrictId: _selectedSubDistrict1  ,districtId: _selectedDistrict1 );
+                        setState(() {}); // Refresh bottom sheet with new data
+                      },
+                      child: Text('Submit'),
+                    ),
+                    SizedBox(height: 16),
+                    _isLoading
+                        ? CircularProgressIndicator()
+                        : _representatives.isEmpty
+                        ? Text('No representatives found in your area.')
+                        : RepresentativeWidget(representatives: _representatives),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStates();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -280,194 +861,163 @@ class _LocationSelectionBottomSheetState
           padding: EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
+                SizedBox(height: 8),
+                // Divider(
+                //   thickness: 2,
+                // ),
                 Align(
                   alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text(
+                        'Your repair Sector',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _representatives.isEmpty
+                ? Center(child: CircularProgressIndicator())
+                : Column(
+              children: _representatives.map((rep) {
+                return Column(
+                  children: [
+                    Container(
+                      // margin: EdgeInsets.only(bottom: 16),
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey,
+                            ),
+                            child: Image.network(
+                              rep['org_symbol_url'],
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      rep['name'],
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                    SizedBox(width: 5),
+                                  ],
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  rep['division_name'],
+                                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+
+                SizedBox(height: 16),
+                Center(
                   child: Text(
-                    'Nearby locations',
+                    'Not your sector area?',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
-                      fontFamily: 'Okra',
-                      fontWeight: FontWeight.w500,
-                      height: 0,
-                      letterSpacing: -0.30,
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Column(
-                        children: [
-                          Icon(Icons.location_on),
-                          SizedBox(
-                            height: 12,
-                          ),
-                          Text(
-                            '135m',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 8),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          address,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Column(
-                        children: [
-                          Icon(Icons.location_on),
-                          SizedBox(
-                            height: 12,
-                          ),
-                          Text(
-                            '135m',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 8),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          address,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Column(
-                        children: [
-                          Icon(Icons.location_on),
-                          SizedBox(
-                            height: 12,
-                          ),
-                          Text(
-                            '135m',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 8),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          address,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          color: Colors.black12, // Use the color #3F1444
-                          thickness: 1,
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          'Check Manually',
-                          style: TextStyle(
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          color: Colors.black12, // Use the color #3F1444
-                          thickness: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text("State"),
-                    )),
-                _buildDropdown('Select State', states),
-                SizedBox(
-                  height: 8,
-                ),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text("Zone"),
-                    )),
-                _buildDropdown1('Select Zone ', Zone),
-                SizedBox(
-                  height: 8,
-                ),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text("District"),
-                    )),
-                _buildDropdown2('Select District', District),
-                SizedBox(
-                  height: 8,
-                ),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text("Sector Number"),
-                    )),
-                _buildDropdown3('Select Sector Number', Sector),
-                SizedBox(
-                  height: 8,
-                ),
-                Container(
-                  width: 303,
-                  height: 43,
-                  decoration: ShapeDecoration(
-                    color: Color(0xFFFF5252),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Check Representatives',
-                      style: TextStyle(
+                GestureDetector(
+                  onTap: () {
+                    _showLocationSelectionBottomSheet(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: ShapeDecoration(
                         color: Colors.white,
-                        fontSize: 15,
-                        fontFamily: 'Okra',
-                        fontWeight: FontWeight.w500,
-                        height: 0,
-                        letterSpacing: -0.30,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(width: 1, color: Color(0xFF4A4A4A)),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Icon(Icons.add, color: Color(0xFF4A4A4A)),
+                            SizedBox(width: 8),
+                            Text(
+                              'Enter manually',
+                              style: TextStyle(
+                                color: Color(0xFF4A4A4A),
+                                fontSize: 16,
+                                fontFamily: 'Okra',
+                                fontWeight: FontWeight.w600,
+                                height: 0,
+                                letterSpacing: -0.30,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                )
-                // Additional fields for Zone, District, Sector can be added here
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xFFFF5252), // Background color
+                    ),
+                    onPressed: () {
+                      // OrganizationProofScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditProfileScreen(),
+                        ),
+                      );
+                      // verifySignupOTP(
+                      //   mobileNumber: mobileNumberController.text,
+                      //   otp: otpcontroller.text,
+                      //   name: nameController.text,
+                      //   gender: gender,
+                      //   dateOfBirth: dateOfBirthController.text,
+                      // );
+                    },
+                    child: Text(
+                      'Next',
+                      style: TextStyle(color: Colors.white), // Text color
+                    ),
+                  ),
+                ),
+                // Repeat the above structure for the second item if needed
               ],
             ),
           ),
@@ -475,377 +1025,65 @@ class _LocationSelectionBottomSheetState
       ],
     );
   }
-
-  Widget _buildDropdown(String hintText, List<Map<String, String>> items) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<String>(
-        isExpanded: true,
-        hint: Text(hintText),
-        value: _selectedState,
-        items: items.map((Map<String, String> item) {
-          return DropdownMenuItem<String>(
-            value: item['key'],
-            child: Text(item['value']!),
-          );
-        }).toList(),
-        onChanged: (String? value) {
-          setState(() {
-            _selectedState = value;
-          });
-          widget.onStateChanged(value);
-        },
-      ),
-    );
-  }
-
-  Widget _buildDropdown1(String hintText, List<Map<String, String>> items) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<String>(
-        isExpanded: true,
-        hint: Text(hintText),
-        value: _selected1,
-        items: items.map((Map<String, String> item) {
-          return DropdownMenuItem<String>(
-            value: item['key'],
-            child: Text(item['value']!),
-          );
-        }).toList(),
-        onChanged: (String? value) {
-          setState(() {
-            _selected1 = value;
-          });
-          widget.onStateChanged(value);
-        },
-      ),
-    );
-  }
-
-  Widget _buildDropdown2(String hintText, List<Map<String, String>> items) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<String>(
-        isExpanded: true,
-        hint: Text(hintText),
-        value: _selected2,
-        items: items.map((Map<String, String> item) {
-          return DropdownMenuItem<String>(
-            value: item['key'],
-            child: Text(item['value']!),
-          );
-        }).toList(),
-        onChanged: (String? value) {
-          setState(() {
-            _selected2 = value;
-          });
-          widget.onStateChanged(value);
-        },
-      ),
-    );
-  }
-
-  Widget _buildDropdown3(String hintText, List<Map<String, String>> items) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<String>(
-        isExpanded: true,
-        hint: Text(hintText),
-        value: _selected3,
-        items: items.map((Map<String, String> item) {
-          return DropdownMenuItem<String>(
-            value: item['key'],
-            child: Text(item['value']!),
-          );
-        }).toList(),
-        onChanged: (String? value) {
-          setState(() {
-            _selected3 = value;
-          });
-          widget.onStateChanged(value);
-        },
-      ),
-    );
-  }
 }
+class RepresentativeWidget extends StatelessWidget {
+  final List<dynamic> representatives;
 
-class LocationDetailsBottomSheet extends StatelessWidget {
-  final String address;
-
-  LocationDetailsBottomSheet({required this.address});
+  RepresentativeWidget({required this.representatives});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Container with the exact address and location icon
-              Container(
-                padding: EdgeInsets.all(8),
-                // decoration: BoxDecoration(
-                //   border: Border.all(color: Colors.grey),
-                //   borderRadius: BorderRadius.circular(8),
-                // ),
-                child: Row(
-                  children: [
-                    Icon(Icons.location_on),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          address,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+    return Column(
+      children: representatives.isEmpty
+          ? [Text('No representatives found in your area.')]
+          : representatives.map((rep) {
+        return Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.black),
               ),
-              SizedBox(height: 8),
-              Divider(
-                thickness: 2,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Text(
-                    'Your repair experts',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-              // Column with image and text
-              Row(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.grey,
-                        ),
-                        // Replace with your image widget
-                        child: Image.network(
-                          'https://imgs.search.brave.com/5h0EbKGdF1fI4OII39XaDGZEj8LwR9Z1aHPL8u2pc7Q/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9zdDIu/ZGVwb3NpdHBob3Rv/cy5jb20vMTQzOTg4/OC85NDExL2kvNjAw/L2RlcG9zaXRwaG90/b3NfOTQxMTgyNDgt/c3RvY2stcGhvdG8t/ZmVtYWxlLXVzZXIt/YXZhdGFyLWljb24u/anBn',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      // Container with text
-                      Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Replace with your text
-                            Row(
-                              children: [
-                                Text(
-                                  'Manoj Bajaj',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                // Image.asset(
-                                //     "assets/Bharatiya_Janata_Party_logo 1.png"),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            // Replace with your text
-                            Text(
-                              'Exterior Mechanic',
-                              style:
-                                  TextStyle(fontSize: 14, color: Colors.grey),
-                            ),
-                            // Image.asset("assets/Bharatiya_Janata_Party_logo 1.png"),
-                          ],
-                        ),
-                      ),
-                    ],
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey,
+                    ),
+                    child: Image.network(
+                      rep['org_symbol_url'],
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.grey,
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          rep['name'],
+                          style: TextStyle(fontSize: 14),
                         ),
-                        // Replace with your image widget
-                        child: Image.network(
-                          'https://imgs.search.brave.com/5h0EbKGdF1fI4OII39XaDGZEj8LwR9Z1aHPL8u2pc7Q/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9zdDIu/ZGVwb3NpdHBob3Rv/cy5jb20vMTQzOTg4/OC85NDExL2kvNjAw/L2RlcG9zaXRwaG90/b3NfOTQxMTgyNDgt/c3RvY2stcGhvdG8t/ZmVtYWxlLXVzZXIt/YXZhdGFyLWljb24u/anBn',
-                          fit: BoxFit.cover,
+                        SizedBox(height: 5),
+                        Text(
+                          rep['division_name'],
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      // Container with text
-                      Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Replace with your text
-                            Row(
-                              children: [
-                                Text(
-                                  'Manoj Bajaj',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                // Image.asset(
-                                //     "assets/Bharatiya_Janata_Party_logo 1.png"),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            // Replace with your text
-                            Text(
-                              'Exterior Mechanic',
-                              style:
-                                  TextStyle(fontSize: 14, color: Colors.grey),
-                            ),
-                            // Image.asset("assets/Bharatiya_Janata_Party_logo 1.png"),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        color: Colors.black12, // Use the color #3F1444
-                        thickness: 1,
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        'Not your sector area?',
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        color: Colors.black12, // Use the color #3F1444
-                        thickness: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 16),
-              GestureDetector(
-                onTap: () {
-                  _showLocationSelectionBottomSheet(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    // width: 381,
-                    // height: 31,
-                    decoration: ShapeDecoration(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1, color: Color(0xFF4A4A4A)),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: Text(
-                          'Enter manually',
-                          style: TextStyle(
-                            color: Color(0xFF4A4A4A),
-                            fontSize: 16,
-                            fontFamily: 'Okra',
-                            fontWeight: FontWeight.w600,
-                            height: 0,
-                            letterSpacing: -0.30,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFFFF5252), // Background color
-                  ),
-                  onPressed: () {
-                    // OrganizationProofScreen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditProfileScreen(),
-                      ),
-                    );
-                    // verifySignupOTP(
-                    //   mobileNumber: mobileNumberController.text,
-                    //   otp: otpcontroller.text,
-                    //   name: nameController.text,
-                    //   gender: gender,
-                    //   dateOfBirth: dateOfBirthController.text,
-                    // );
-                  },
-                  child: Text(
-                    'Next',
-                    style: TextStyle(color: Colors.white), // Text color
-                  ),
-                ),
-              ),
-              // Repeat the above structure for the second item if needed
-            ],
-          ),
-        ),
-      ],
+            ),
+            SizedBox(height: 10),
+          ],
+        );
+      }).toList(),
     );
   }
 }

@@ -356,7 +356,8 @@ class _SignUpFormState extends State<SignUpForm> {
       );
     }
   }
-
+  int attemptsLeft = 0;
+  int  otpValidity = 0;
   Future<void> generateSignupOTP(String mobileNumber) async {
     print("OTP number $mobileNumber");
     var request = http.Request(
@@ -375,7 +376,11 @@ class _SignUpFormState extends State<SignUpForm> {
 
       // Assuming the OTP is part of the response, extract it
       String otp = otpData['otp'] ?? '';
-
+      setState(() {
+         attemptsLeft = otpData['data']['attempts_left'] ?? 0;
+          otpValidity = otpData['data']['otp_validity'] ?? 0;
+      });
+      print("otpValidity:$otpValidity");
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -387,13 +392,16 @@ class _SignUpFormState extends State<SignUpForm> {
               child: OtpScreen(
                 mobileNumber: _mobileNumberController.text,
                 otp: otp,
+                  attemptsLeft:attemptsLeft.toString(),
+                  otpValidity:otpValidity.toString(),
                 onOtpVerification: (otp2) {
                   verifySignupOTP(
                       mobileNumber: mobileNumber,
                       otp: otp2,
                       name: nameController.text,
                       gender: gender,
-                      dateOfBirth: dateOfBirthController.text);
+                      dateOfBirth: dateOfBirthController.text ,
+                  );
                 },
               ),
             ),
