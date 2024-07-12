@@ -6,9 +6,10 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Pages/HomePage.dart';
 
 import '../Services/Authservices.dart';
-
 
 class EditProfilePage extends StatefulWidget {
   @override
@@ -25,12 +26,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController organizationController = TextEditingController();
   final authService = Get.find<AuthService>();
 
-
   Future<UserProfile?> fetchUserProfile() async {
-    var headers = {
-      'Authorization': '${authService.token}'
-    };
-    var url = Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getMyEditableProfile');
+    var headers = {'Authorization': '${authService.token}'};
+    var url = Uri.parse(
+        'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getMyEditableProfile');
 
     var response = await http.get(url, headers: headers);
 
@@ -39,10 +38,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
       var jsonResponse = json.decode(response.body);
       return UserProfile.fromJson(jsonResponse['data']);
     } else {
-      print('Request failed with status: ${response.statusCode}');
+      Get.snackbar('Error', 'Failed to fetch user profile');
+      print(
+          'Request failed with status: ${json.decode(response.body)['message']}');
+      print("REfresg token ${authService.refreshToken} ");
       return null;
     }
   }
+
   File? _profileImage;
   File? _bannerImage;
 
@@ -55,7 +58,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _profileImage = File(pickedFile.path);
       });
     }
-    await _uploadProfileImage();  // Automatically call upload function
+    await _uploadProfileImage(); // Automatically call upload function
   }
 
   Future<void> _selectBannerImage() async {
@@ -67,8 +70,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _bannerImage = File(pickedFile.path);
       });
     }
-    await _uploadBannerImage();  // Automatically call upload function
-
+    await _uploadBannerImage(); // Automatically call upload function
   }
 
   Future<void> _uploadProfileImage() async {
@@ -77,13 +79,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return;
     }
 
-    var headers = {
-      'Authorization': '${authService.token}'
-    };
+    var headers = {'Authorization': '${authService.token}'};
     print(authService.token);
-    var request = http.MultipartRequest('POST', Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/updateUserProfileImage'));
+    var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/updateUserProfileImage'));
     request.headers.addAll(headers);
-    request.files.add(await http.MultipartFile.fromPath('profile_image', _profileImage!.path));
+    request.files.add(await http.MultipartFile.fromPath(
+        'profile_image', _profileImage!.path));
 
     http.StreamedResponse response = await request.send();
 
@@ -102,12 +106,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return;
     }
 
-    var headers = {
-      'Authorization': '${authService.token}'
-    };
-    var request = http.MultipartRequest('POST', Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/updateUserBannerImage'));
+    var headers = {'Authorization': '${authService.token}'};
+    var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/updateUserBannerImage'));
     request.headers.addAll(headers);
-    request.files.add(await http.MultipartFile.fromPath('banner_image', _bannerImage!.path));
+    request.files.add(
+        await http.MultipartFile.fromPath('banner_image', _bannerImage!.path));
 
     http.StreamedResponse response = await request.send();
 
@@ -119,8 +125,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       // Handle failure
     }
   }
-    String ? profileimage;
-  String ? bannerimage;
+
+  String? profileimage;
+  String? bannerimage;
   @override
   void initState() {
     // TODO: implement initState
@@ -139,18 +146,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
         bannerimage = userProfile.bannerImageUrl;
       }
     });
+    print("profileimage: $profileimage");
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Edit Profile'),
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'Edit Profile',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           TextButton(
             onPressed: () {
               // Implement save logic
+              Get.to(HomePage());
             },
-            child: Text('Save', style: TextStyle(color: Colors.black)),
+            child: Text('Save', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -161,25 +177,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
           Column(
             children: <Widget>[
               GestureDetector(
-                onTap: ()=>_selectBannerImage(),
+                onTap: () => _selectBannerImage(),
                 child: Container(
-                  height: 200.0,
-                  color: Colors.grey, // Replace with your background image or color
+                  height: 280.0,
+                  color: Colors
+                      .grey, // Replace with your background image or color
                   child: Center(
                     child: _bannerImage != null
                         ? Image(
-                      image: FileImage(_bannerImage!) as ImageProvider<Object>
-                    )
+                            image: FileImage(_bannerImage!)
+                                as ImageProvider<Object>)
                         : Image(
-                      image: NetworkImage(bannerimage ?? "https://www.google.com/url?sa=i&url=https%3A%2F%2Ffeaturewallprints.com.au%2Fproduct%2Fupload-photo%2F&psig=AOvVaw1uAGlwR59OLPACApJPPhDJ&ust=1720865000875000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCJjtq-2foYcDFQAAAAAdAAAAABAE"),
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
+                            image: NetworkImage(
+                                "https://static.vecteezy.com/system/resources/previews/002/909/206/original/abstract-background-for-landing-pages-banner-placeholder-cover-book-and-print-geometric-pettern-on-screen-gradient-colors-design-vector.jpg"),
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
                   ),
                 ),
               ),
-              SizedBox(height: 50,),
+              SizedBox(
+                height: 50,
+              ),
               Expanded(
                 child: Container(
                   color: Colors.white,
@@ -188,13 +208,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildProfileField('Name', nameController),
-                        _buildProfileField('Handle Name', handleNameController),
+                        _buildProfileField(
+                            'edit_profile_name_ttitle'.tr, nameController),
+                        _buildProfileField('edit_profile_header_name_ttitle'.tr, handleNameController),
                         _buildProfileField('Bio', bioController),
                         _buildProfileField('Locality', localityController),
-                        _buildProfileField('Date of Birth', dobController),
-                        _buildProfileField('Position', positionController),
-                        _buildProfileField('Organization', organizationController),
+                        _buildProfileField('edit_profile_dob_title'.tr, dobController),
+                        _buildProfileField('edit_profile_position_title'.tr, positionController),
+                        _buildProfileField(
+                            'edit_profile_organization_title'.tr, organizationController),
+                        MyButton(
+                            onTap: () {
+                              // Implement save logic
+                              Get.to(HomePage());
+                            },
+                            text: "Save"),
+                        SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -204,7 +233,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
           // Profile avatar with camera icon
           Positioned(
-            top: 150.0,
+            top: 220.0,
             left: 20.0,
             child: GestureDetector(
               onTap: () {
@@ -215,7 +244,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 width: 100.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.black, // Replace with your profile image or placeholder
+                  color: Colors
+                      .black, // Replace with your profile image or placeholder
                 ),
                 child: Stack(
                   alignment: Alignment.center,
@@ -224,14 +254,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     CircleAvatar(
                       radius: 45.0,
                       backgroundColor: Colors.white, // Adjust as needed
-                      backgroundImage: _profileImage != null ? FileImage(_profileImage!) as ImageProvider<Object> : NetworkImage('https://example.com/your-profile-image.jpg'),
+                      backgroundImage: _profileImage != null
+                          ? FileImage(_profileImage!) as ImageProvider<Object>
+                          : NetworkImage(
+                              'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph'),
                     ),
                     // Camera icon for changing profile image
                     Positioned(
                       bottom: 0,
                       right: 0,
                       child: GestureDetector(
-                        onTap: ()=>_selectProfileImage(),
+                        onTap: () => _selectProfileImage(),
                         child: CircleAvatar(
                           radius: 15.0,
                           backgroundColor: Colors.blue,
@@ -273,8 +306,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 }
-
-
 
 class UserProfile {
   final String bannerImageUrl;

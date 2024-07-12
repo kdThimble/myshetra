@@ -77,7 +77,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                       height: 20,
                     ),
                     Text(
-                      'language title'.tr,
+                      'choose_language_snackbar_title'.tr,
                       style: TextStyle(
                         fontSize: width * 0.057,
                         fontWeight: FontWeight.bold,
@@ -88,7 +88,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Text(
-                        'language subtitle'.tr,
+                        'choose_language_snackbar_sub_title'.tr,
                         style: TextStyle(
                           fontSize: width * 0.04,
                           fontWeight: FontWeight.w400,
@@ -186,9 +186,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    OrganizationProofScreen()),
+                            MaterialPageRoute(builder: (context) => AuthPage()),
                           );
                         },
                         style: ButtonStyle(

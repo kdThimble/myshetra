@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myshetra/Pages/HomePage.dart';
 import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,10 +16,19 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _checkToken();
+  }
+
+  Future<void> _checkToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
     Future.delayed(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LanguageSelectionPage()),
+        MaterialPageRoute(
+            builder: (context) =>
+                token != null ? HomePage() : LanguageSelectionPage()),
       );
     });
   }

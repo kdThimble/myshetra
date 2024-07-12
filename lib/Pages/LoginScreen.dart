@@ -1,12 +1,23 @@
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:myshetra/Components/LinkText.dart';
 import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Models/Authmodel.dart';
+import 'package:myshetra/Pages/HomePage.dart';
+import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
+import 'package:myshetra/Pages/Oranisation.dart';
 import 'package:myshetra/Pages/Signup.dart';
+import 'package:myshetra/Providers/AuthProvider.dart';
+import 'package:myshetra/Services/Authservices.dart';
 import 'package:myshetra/bloc/login/login_bloc.dart';
 import 'package:myshetra/helpers/colors.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Checkmobilenumber.dart';
 import 'Otpscreen.dart';
@@ -87,11 +98,11 @@ class _LoginFormState extends State<LoginForm> {
                 SizedBox(height: 12),
                 Center(
                   child: Text(
-                    'Verify login details',
+                    'verify_login_otp_title'.tr,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Center(child: Text('We have sent a verification code to')),
+                Center(child: Text('verify_login_otp_sub_title'.tr)),
                 Center(
                   child: Text(
                     '+91-${context.read<LoginBloc>().state.number}',
@@ -99,11 +110,16 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
                 SizedBox(height: 8),
-                Center(
-                  child: Text(
-                    'change number?',
-                    style: TextStyle(
-                        color: Colors.blue, fontWeight: FontWeight.bold),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Center(
+                    child: Text(
+                      'change number?',
+                      style: TextStyle(
+                          color: Colors.blue, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
                 SizedBox(height: 20),
@@ -178,6 +194,121 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
+  int attemptsLeft = 0;
+  int otpValidity = 0;
+
+  Future<void> generateSignupOTP(String mobileNumber) async {
+    try {
+      // final response = await http.post(
+      //     Uri.parse(
+      //       'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/generateLoginOTP?mobile_number=${mobileNumber}',
+      //     ),
+      //   );
+      var request = http.Request(
+        'POST',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/generateLoginOTP?mobile_number=${mobileNumber}'),
+      );
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        var otpData = json.decode(responseData);
+        print("OTP DATA $otpData");
+
+        // Assuming the OTP is part of the response, extract it
+        String otp = otpData['otp'] ?? '';
+        setState(() {
+          attemptsLeft = otpData['data']['attempts_left'] ?? 0;
+          otpValidity = otpData['data']['otp_validity'] ?? 0;
+        });
+        // ignore: use_build_context_synchronously
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (BuildContext context) {
+            return SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: OtpScreen(
+                  mobileNumber: mobileNumber,
+                  otp: otp,
+                  attemptsLeft: attemptsLeft.toString(),
+                  otpValidity: otpValidity.toString(),
+                  onOtpVerification: (otp) {
+                    verifyLoginOTP(
+                      mobileNumber: mobileNumber,
+                      otp: otp,
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        );
+      } else {
+        Get.snackbar('Error', 'Failed to generate OTP');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Something went wrong');
+    }
+  }
+
+  Future<void> verifyLoginOTP({
+    required String mobileNumber,
+    required String otp,
+  }) async {
+    print("Inside verify function");
+    var headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    var request = http.Request(
+        'POST',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifyLoginOTP?mobile_number=${mobileNumber}&otp=${otp}'));
+    request.bodyFields = {};
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    String responseBody = await response.stream.bytesToString();
+    var jsonData = json.decode(responseBody);
+    print("Response code: ${jsonData}");
+    final authResponse = AuthResponse.fromJson(jsonData['data']);
+
+    if (response.statusCode == 200) {
+      print(responseBody);
+      if (authResponse.refreshToken != null && authResponse.token != null) {
+        // Save the tokens to secure storage or a state management solution
+        Provider.of<AuthProvider>(context, listen: false)
+            .setAuthResponse(authResponse);
+        Get.find<AuthService>()
+            .setAuthResponse(authResponse.token, authResponse.refreshToken);
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', authResponse.token);
+        await prefs.setString('refreshToken', authResponse.refreshToken);
+      } else {
+        Get.snackbar('Error', '${jsonData['message']}');
+        print('Failed to authenticate');
+      }
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ),
+      );
+    } else {
+      print("ERROR");
+      print(response.reasonPhrase);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to verify OTP. Please try again.'),
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -217,7 +348,7 @@ class _LoginFormState extends State<LoginForm> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.pop(context);
+                        Get.to(LanguageSelectionPage());
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -257,7 +388,7 @@ class _LoginFormState extends State<LoginForm> {
                       margin: const EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 10),
                       child: Text(
-                        "Login Your Account",
+                        "login_screen_title".tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: height * 0.025,
@@ -273,7 +404,7 @@ class _LoginFormState extends State<LoginForm> {
                       margin: const EdgeInsets.all(0.0),
                       padding: const EdgeInsets.only(left: 10.0),
                       child: Text(
-                        "Please enter your number to sign up in shetra account",
+                        "login_screen_sub_title".tr,
                         textAlign: TextAlign.left,
                         style: TextStyle(
                             fontSize: height * 0.02,
@@ -314,8 +445,10 @@ class _LoginFormState extends State<LoginForm> {
                                 style:
                                     TextStyle(fontSize: 20, color: greyColor),
                                 controller: _numberController,
-                                decoration: const InputDecoration(
-                                  hintText: 'Enter mobile number',
+                                decoration: InputDecoration(
+                                  hintText:
+                                      'login_screen_mobile_input_placeholder'
+                                          .tr,
                                   hintStyle: TextStyle(
                                       fontSize: 18.0,
                                       fontWeight: FontWeight.w200),
@@ -350,11 +483,12 @@ class _LoginFormState extends State<LoginForm> {
                           primaryColor,
                         )),
                     onPressed: () =>
-                        context.read<LoginBloc>().add(GenerateOtp()),
-                    child: const Padding(
+                        {generateSignupOTP(_numberController.text)},
+                    // context.read<LoginBloc>().add(GenerateOtp()),
+                    child: Padding(
                       padding: EdgeInsets.all(6.0),
                       child: Text(
-                        'Login',
+                        'initial_screen_login_button_text'.tr,
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -370,11 +504,11 @@ class _LoginFormState extends State<LoginForm> {
                     style: TextStyle(fontSize: 18), // Apply the base style
                     children: [
                       TextSpan(
-                        text: "Don't have an account? ",
+                        text: "login_screen_donot_have_account_question".tr,
                         style: TextStyle(color: greyColor),
                       ),
                       TextSpan(
-                        text: 'Signup',
+                        text: 'login_screen_signup_hyperlink_text'.tr,
                         style: TextStyle(
                           color: primaryColor,
                           fontWeight: FontWeight.bold,

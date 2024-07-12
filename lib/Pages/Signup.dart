@@ -56,7 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
         appBar: AppBar(
           leading: Row(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               GestureDetector(
@@ -69,8 +69,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     border: Border.all(color: Colors.grey), // Border color
                     shape: BoxShape.circle, // Rounded shape
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
+                  child: const Padding(
+                    padding: EdgeInsets.all(10.0),
                     child: Icon(
                       Icons.arrow_back, // Back icon
                       color: Colors.black, // Icon color
@@ -356,8 +356,9 @@ class _SignUpFormState extends State<SignUpForm> {
       );
     }
   }
+
   int attemptsLeft = 0;
-  int  otpValidity = 0;
+  int otpValidity = 0;
   Future<void> generateSignupOTP(String mobileNumber) async {
     print("OTP number $mobileNumber");
     var request = http.Request(
@@ -377,8 +378,8 @@ class _SignUpFormState extends State<SignUpForm> {
       // Assuming the OTP is part of the response, extract it
       String otp = otpData['otp'] ?? '';
       setState(() {
-         attemptsLeft = otpData['data']['attempts_left'] ?? 0;
-          otpValidity = otpData['data']['otp_validity'] ?? 0;
+        attemptsLeft = otpData['data']['attempts_left'] ?? 0;
+        otpValidity = otpData['data']['otp_validity'] ?? 0;
       });
       print("otpValidity:$otpValidity");
       showModalBottomSheet(
@@ -392,15 +393,15 @@ class _SignUpFormState extends State<SignUpForm> {
               child: OtpScreen(
                 mobileNumber: _mobileNumberController.text,
                 otp: otp,
-                  attemptsLeft:attemptsLeft.toString(),
-                  otpValidity:otpValidity.toString(),
+                attemptsLeft: attemptsLeft.toString(),
+                otpValidity: otpValidity.toString(),
                 onOtpVerification: (otp2) {
                   verifySignupOTP(
-                      mobileNumber: mobileNumber,
-                      otp: otp2,
-                      name: nameController.text,
-                      gender: gender,
-                      dateOfBirth: dateOfBirthController.text ,
+                    mobileNumber: mobileNumber,
+                    otp: otp2,
+                    name: nameController.text,
+                    gender: gender,
+                    dateOfBirth: dateOfBirthController.text,
                   );
                 },
               ),
@@ -459,6 +460,7 @@ class _SignUpFormState extends State<SignUpForm> {
         await prefs.setString('token', authResponse.token);
         await prefs.setString('refreshToken', authResponse.refreshToken);
       } else {
+        Get.snackbar('Error', 'Failed to authenticate');
         print('Failed to authenticate');
       }
 
@@ -517,7 +519,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Personal Details",
+                    "create_account_title".tr,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: height * 0.03,
@@ -528,7 +530,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     height: 5,
                   ),
                   Text(
-                    "Please enter your details",
+                    "create_account_sub_title".tr,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: height * 0.019,
@@ -542,7 +544,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     builder: (context, state) {
                       return Container(
                         margin: const EdgeInsets.all(10.0),
-                        padding: EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
                           border: Border.all(color: Colors.grey),
@@ -550,11 +552,12 @@ class _SignUpFormState extends State<SignUpForm> {
                         child: TextField(
                             controller: nameController,
                             style: TextStyle(fontSize: 20, color: greyColor),
-                            decoration: const InputDecoration(
-                              contentPadding:
-                                  EdgeInsets.only(left: 15, top: 5, bottom: 5),
-                              hintText: 'Enter Your full name',
-                              hintStyle: TextStyle(
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.only(
+                                  left: 15, top: 5, bottom: 5),
+                              hintText:
+                                  'create_account_full_name_placeholder'.tr,
+                              hintStyle: const TextStyle(
                                   fontSize: 18.0, fontWeight: FontWeight.w200),
                               border: InputBorder.none,
                             ),
@@ -574,13 +577,13 @@ class _SignUpFormState extends State<SignUpForm> {
                       ),
                       Container(
                           // margin: const EdgeInsets.all(10.0),
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 15, vertical: 20),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10.0),
                             border: Border.all(color: Colors.grey),
                           ),
-                          child: Text(
+                          child: const Text(
                             '+91',
                             style: TextStyle(
                                 fontSize: 18.0, fontWeight: FontWeight.w200),
@@ -590,7 +593,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           return Expanded(
                             child: Container(
                               margin: const EdgeInsets.all(10.0),
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
                                 border: Border.all(color: Colors.grey),
@@ -600,11 +603,13 @@ class _SignUpFormState extends State<SignUpForm> {
                                   style:
                                       TextStyle(fontSize: 20, color: greyColor),
                                   onEditingComplete: _checkMobileNumber,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Enter mobile number',
-                                    contentPadding: EdgeInsets.only(
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'create_account_mobile_number_placeholder'
+                                            .tr,
+                                    contentPadding: const EdgeInsets.only(
                                         left: 10, top: 5, bottom: 5),
-                                    hintStyle: TextStyle(
+                                    hintStyle: const TextStyle(
                                         fontSize: 18.0,
                                         fontWeight: FontWeight.w200),
                                     border: InputBorder.none,
@@ -700,8 +705,9 @@ class _SignUpFormState extends State<SignUpForm> {
                                 Icons.calendar_month_outlined,
                                 color: greyColor,
                               ),
-                              hintText: 'Enter date of birth',
-                              hintStyle: TextStyle(
+                              hintText:
+                                  'create_account_dob_select_placeholder'.tr,
+                              hintStyle: const TextStyle(
                                   fontSize: 18.0, fontWeight: FontWeight.w200),
                               border: InputBorder.none,
                             ),
@@ -714,7 +720,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   SizedBox(
@@ -736,11 +742,11 @@ class _SignUpFormState extends State<SignUpForm> {
                         onPressed: () {
                           generateSignupOTP(_mobileNumberController.text);
                         },
-                        child: const Padding(
-                          padding: EdgeInsets.all(6.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
                           child: Text(
-                            'Create Acoount',
-                            style: TextStyle(
+                            'create_account_button_text'.tr,
+                            style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 25),
@@ -754,14 +760,20 @@ class _SignUpFormState extends State<SignUpForm> {
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: TextStyle(fontSize: 18), // Apply the base style
+                        style: const TextStyle(
+                            fontSize: 18), // Apply the base style
                         children: [
                           TextSpan(
-                            text: "Already have an account? ",
+                            text: "signup_screen_already_have_account_question"
+                                .tr,
                             style: TextStyle(color: greyColor),
                           ),
                           TextSpan(
-                            text: 'Login',
+                            text: " ".tr,
+                            style: TextStyle(color: greyColor),
+                          ),
+                          TextSpan(
+                            text: 'signup_screen_login_hyperlink_text'.tr,
                             style: TextStyle(
                               color: primaryColor,
                               fontWeight: FontWeight.bold,

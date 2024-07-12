@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:myshetra/Pages/Signup.dart';
 
 import '../helpers/colors.dart';
@@ -45,7 +46,7 @@ class _AuthPageState extends State<AuthPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     SizedBox(
-                      height: height*0.04,
+                      height: height * 0.04,
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30.0),
@@ -67,7 +68,6 @@ class _AuthPageState extends State<AuthPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: width * 0.04,
-
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF858585),
                         ),
@@ -76,7 +76,6 @@ class _AuthPageState extends State<AuthPage> {
                     SizedBox(
                       height: 10,
                     ),
-
                     SizedBox(
                       height: 5,
                     ),
@@ -94,21 +93,21 @@ class _AuthPageState extends State<AuthPage> {
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
-                              const Color(0xFF0E3D8B)),  // Change button color
+                              const Color(0xFF0E3D8B)), // Change button color
                           shape:
-                          MaterialStateProperty.all<RoundedRectangleBorder>(
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                   10), // Make the button rounded
                             ),
                           ),
                           elevation: MaterialStateProperty.resolveWith<double>(
-                                  (states) {
-                                if (states.contains(MaterialState.pressed)) {
-                                  return 10; // Increase elevation when pressed
-                                }
-                                return 5; // Default elevation
-                              }),
+                              (states) {
+                            if (states.contains(MaterialState.pressed)) {
+                              return 10; // Increase elevation when pressed
+                            }
+                            return 5; // Default elevation
+                          }),
                           padding: MaterialStateProperty.all<EdgeInsets>(
                               const EdgeInsets.all(1)), // Add padding
                           minimumSize: MaterialStateProperty.all<Size>(
@@ -120,7 +119,7 @@ class _AuthPageState extends State<AuthPage> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 15.0),
                           child: Text(
-                            'Sign Up',
+                            'initial_screen_signup_button_text'.tr,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -133,7 +132,6 @@ class _AuthPageState extends State<AuthPage> {
                     SizedBox(
                       height: 0,
                     ),
-
                     Container(
                       margin: const EdgeInsets.symmetric(
                           vertical: 10, horizontal: 20),
@@ -147,9 +145,9 @@ class _AuthPageState extends State<AuthPage> {
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
-                               Colors.transparent), // Change button color
+                              Colors.transparent), // Change button color
                           shape:
-                          MaterialStateProperty.all<RoundedRectangleBorder>(
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               side: BorderSide(color: Color(0xFF0E3D8B)),
                               borderRadius: BorderRadius.circular(
@@ -157,12 +155,12 @@ class _AuthPageState extends State<AuthPage> {
                             ),
                           ),
                           elevation: MaterialStateProperty.resolveWith<double>(
-                                  (states) {
-                                if (states.contains(MaterialState.pressed)) {
-                                  return 10; // Increase elevation when pressed
-                                }
-                                return 5; // Default elevation
-                              }),
+                              (states) {
+                            if (states.contains(MaterialState.pressed)) {
+                              return 10; // Increase elevation when pressed
+                            }
+                            return 5; // Default elevation
+                          }),
                           padding: MaterialStateProperty.all<EdgeInsets>(
                               const EdgeInsets.all(1)), // Add padding
                           minimumSize: MaterialStateProperty.all<Size>(
@@ -174,7 +172,7 @@ class _AuthPageState extends State<AuthPage> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 15.0),
                           child: Text(
-                            'Login',
+                            'initial_screen_login_button_text'.tr,
                             style: TextStyle(
                               color: Color(0xFF0E3D8B),
                               fontWeight: FontWeight.bold,

@@ -269,7 +269,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Organisation Detail',
+                  'select_organization_title'.tr,
                   style: TextStyle(
                       fontSize: width * 0.07, fontWeight: FontWeight.bold),
                 ),
@@ -278,7 +278,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'If you belong to any organization,please select and upload the proof',
+                  'select_organization_sub_title'.tr,
                   style: TextStyle(fontSize: 18, color: greyColor),
                 ),
               ),
@@ -286,7 +286,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Select Your Organisation ',
+                  'select_organization_select_placeholder'.tr,
                   style: TextStyle(
                       fontSize: width * 0.04, fontWeight: FontWeight.bold),
                 ),
@@ -377,7 +377,9 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 height: 5,
               ),
 
-              MyButton(onTap: _submitData, text: "Next"),
+              MyButton(
+                  onTap: _submitData,
+                  text: "choose_location_snackbar_button_text".tr),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                 child: TextButton(
@@ -416,7 +418,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 15.0),
                     child: Text(
-                      "Skip",
+                      "enter_position_skip_button_text".tr,
                       style: TextStyle(
                         color: const Color(0xFF0E3D8B),
                         fontWeight: FontWeight.bold,

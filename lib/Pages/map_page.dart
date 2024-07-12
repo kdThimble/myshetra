@@ -6,7 +6,9 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:geocoding/geocoding.dart' as geocoding;
+import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Pages/Editprofile.dart';
+import 'package:myshetra/Pages/ManualPage.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -43,7 +45,11 @@ class _MapPageState extends State<MapPage> {
     var height = MediaQuery.of(context).size.height;
     print("_formattedCoordinates:$_formattedCoordinates");
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         leading: Row(
           children: [
             const SizedBox(
@@ -94,7 +100,7 @@ class _MapPageState extends State<MapPage> {
               ),
             ),
             const SizedBox(height: 0),
-            Text(_formattedCoordinates),
+            // Text(_formattedCoordinates),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -102,7 +108,10 @@ class _MapPageState extends State<MapPage> {
                 style: TextStyle(fontSize: 18, color: greyColor),
               ),
             ),
-            Image.asset("assets/Screenshot 2024-07-12 at 12.14.58 AM.png"),
+            ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                    "assets/Screenshot 2024-07-12 at 12.14.58 AM.png")),
             // GoogleMap(
             //   onMapCreated: ((GoogleMapController controller) =>
             //       _mapController.complete(controller)),
@@ -125,7 +134,8 @@ class _MapPageState extends State<MapPage> {
           ],
         ),
       ),
-      bottomSheet: SizedBox(
+      bottomSheet: Container(
+        color: Colors.white,
         height: height * 0.55,
         child: LocationDetailsBottomSheet(
           address: _currentAddress,
@@ -145,17 +155,17 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-
   Future<void> getLocationUpdates() async {
     _locationController.onLocationChanged.listen(
-          (location.LocationData currentLocation) async {
+      (location.LocationData currentLocation) async {
         if (currentLocation.latitude != null &&
             currentLocation.longitude != null) {
           setState(() {
             // _currentP =
             //     LatLng(currentLocation.latitude!, currentLocation.longitude!);
             // _cameraToPosition(_currentP!);
-            _formattedCoordinates = _convertToDMS(currentLocation.latitude!, currentLocation.longitude!);
+            _formattedCoordinates = _convertToDMS(
+                currentLocation.latitude!, currentLocation.longitude!);
           });
 
           // Fetch address using geocoding
@@ -209,8 +219,6 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-
-
   // Future<void> _getAddressFromCoordinates(LatLng? coordinates) async {
   //   if (coordinates == null) {
   //     setState(() {
@@ -242,8 +250,6 @@ class _MapPageState extends State<MapPage> {
   //   }
   // }
 }
-
-
 
 class LocationSelectionBottomSheet extends StatefulWidget {
   final ValueChanged<String?> onStateChanged;
@@ -310,8 +316,10 @@ class _LocationSelectionBottomSheetState
       Map<String, dynamic> responseData = json.decode(responseString);
       List<dynamic> districts = responseData['data']['districts'];
       setState(() {
-        _districts =
-            districts.map((district) => district['label']).cast<String>().toList();
+        _districts = districts
+            .map((district) => district['label'])
+            .cast<String>()
+            .toList();
       });
     } else {
       print(response.reasonPhrase);
@@ -334,11 +342,12 @@ class _LocationSelectionBottomSheetState
     if (response.statusCode == 200) {
       String responseString = await response.stream.bytesToString();
       Map<String, dynamic> responseData = json.decode(responseString);
-      List<dynamic> subDistricts =
-      responseData['data']['sub_districts'];
+      List<dynamic> subDistricts = responseData['data']['sub_districts'];
       setState(() {
-        _subDistricts =
-            subDistricts.map((subDistrict) => subDistrict['label']).cast<String>().toList();
+        _subDistricts = subDistricts
+            .map((subDistrict) => subDistrict['label'])
+            .cast<String>()
+            .toList();
       });
     } else {
       print(response.reasonPhrase);
@@ -361,11 +370,12 @@ class _LocationSelectionBottomSheetState
     if (response.statusCode == 200) {
       String responseString = await response.stream.bytesToString();
       Map<String, dynamic> responseData = json.decode(responseString);
-      List<dynamic> localDivisions =
-      responseData['data']['local_divisions'];
+      List<dynamic> localDivisions = responseData['data']['local_divisions'];
       setState(() {
-        _localDivisions =
-            localDivisions.map((localDivision) => localDivision['label']).cast<String>().toList();
+        _localDivisions = localDivisions
+            .map((localDivision) => localDivision['label'])
+            .cast<String>()
+            .toList();
       });
     } else {
       print(response.reasonPhrase);
@@ -390,18 +400,18 @@ class _LocationSelectionBottomSheetState
           decoration: ShapeDecoration(
             color: Colors.white,
             shape: RoundedRectangleBorder(
-              side: BorderSide(width: 1, color: Color(0xFF4A4A4A)),
+              side: const BorderSide(width: 1, color: Color(0xFF4A4A4A)),
               borderRadius: BorderRadius.circular(5),
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Icon(Icons.add, color: Color(0xFF4A4A4A)),
                 SizedBox(width: 8),
                 Text(
-                  'Enter manually',
+                  'choose_location_snackbar_enter_manually_text'.tr,
                   style: TextStyle(
                     color: Color(0xFF4A4A4A),
                     fontSize: 16,
@@ -426,19 +436,19 @@ class _LocationSelectionBottomSheetState
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Enter manually',
+                    'choose_location_snackbar_enter_manually_text'.tr,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedState,
                     onChanged: (newValue) {
@@ -453,12 +463,12 @@ class _LocationSelectionBottomSheetState
                         child: Text(state),
                       );
                     }).toList(),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Select State',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedDistrict,
                     onChanged: (newValue) {
@@ -473,12 +483,12 @@ class _LocationSelectionBottomSheetState
                         child: Text(district),
                       );
                     }).toList(),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Select District',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedSubDistrict,
                     onChanged: (newValue) {
@@ -493,12 +503,12 @@ class _LocationSelectionBottomSheetState
                         child: Text(subDistrict),
                       );
                     }).toList(),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Select Sub District',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedLocalDivision,
                     onChanged: (newValue) {
@@ -512,12 +522,12 @@ class _LocationSelectionBottomSheetState
                         child: Text(localDivision),
                       );
                     }).toList(),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Select Local Division',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       // Perform action on submit button press
@@ -525,7 +535,7 @@ class _LocationSelectionBottomSheetState
                       // Optionally, you can pass the selected values back to the calling widget
                       // or perform further actions with them.
                     },
-                    child: Text('Submit'),
+                    child: const Text('Submit'),
                   ),
                 ],
               ),
@@ -543,12 +553,12 @@ class LocationDetailsBottomSheet extends StatefulWidget {
   LocationDetailsBottomSheet({required this.address});
 
   @override
-  State<LocationDetailsBottomSheet> createState() => _LocationDetailsBottomSheetState();
+  State<LocationDetailsBottomSheet> createState() =>
+      _LocationDetailsBottomSheetState();
 }
 
-
-
-class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet> {
+class _LocationDetailsBottomSheetState
+    extends State<LocationDetailsBottomSheet> {
   final authService = Get.find<AuthService>();
   List<dynamic> _representatives = [];
   String _selectedState = '';
@@ -564,12 +574,11 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
   List<String> _districts = [];
   List<String> _subDistricts = [];
   List<String> _localDivisions = [];
-  Map<String, String> _stateMap = {}; // Map to store state label and value pairs
+  Map<String, String> _stateMap =
+      {}; // Map to store state label and value pairs
 
   void fetchRepresentatives123() async {
-    var headers = {
-      'Authorization': '${authService.token}'
-    };
+    var headers = {'Authorization': '${authService.token}'};
     var url = Uri.parse(
         'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates?latitude=28°39\'17"N&longitude=77°07\'45"E');
 
@@ -589,13 +598,16 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
       // Print or use _representatives as needed
       print('Representatives: $_representatives');
     } else {
+      Get.snackbar(
+        'Server Error',
+        'Failed to fetch representatives',
+      );
       print('Request failed with status: ${response.statusCode}');
     }
   }
+
   void _fetchStates() async {
-    var headers = {
-      'Authorization': '${authService.token}'
-    };
+    var headers = {'Authorization': '${authService.token}'};
     var request = http.Request(
         'GET',
         Uri.parse(
@@ -614,19 +626,20 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
         _stateMap = Map.fromIterable(states,
             key: (state) => state['label'] as String,
             value: (state) => state['value'] as String);
-        _selectedState = _states.isNotEmpty ? _states[0] : ''; // Initialize with the first state if available
+        _selectedState = _states.isNotEmpty
+            ? _states[0]
+            : ''; // Initialize with the first state if available
       });
     } else {
       print(response.reasonPhrase);
     }
   }
 
-  Map<String, String> _districtMap = {}; // Map to store district label and value pairs
+  Map<String, String> _districtMap =
+      {}; // Map to store district label and value pairs
 
   void _fetchDistrictsByState(String stateId) async {
-    var headers = {
-      'Authorization': '${authService.token}'
-    };
+    var headers = {'Authorization': '${authService.token}'};
     var request = http.Request(
         'GET',
         Uri.parse(
@@ -641,22 +654,25 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
       Map<String, dynamic> responseData = json.decode(responseString);
       List<dynamic> districts = responseData['data']['districts'];
       setState(() {
-        _districts = districts.map((district) => district['label'] as String).toList();
+        _districts =
+            districts.map((district) => district['label'] as String).toList();
         _districtMap = Map.fromIterable(districts,
             key: (district) => district['label'] as String,
             value: (district) => district['value'] as String);
-        _selectedDistrict = _districts.isNotEmpty ? _districts[0] : ''; // Initialize with the first district if available
+        _selectedDistrict = _districts.isNotEmpty
+            ? _districts[0]
+            : ''; // Initialize with the first district if available
       });
     } else {
       print(response.reasonPhrase);
     }
   }
-  Map<String, String> _subDistrictMap = {}; // Map to store sub-district label and value pairs
+
+  Map<String, String> _subDistrictMap =
+      {}; // Map to store sub-district label and value pairs
 
   void _fetchSubDistrictsByDistrict(String districtId) async {
-    var headers = {
-      'Authorization': '${authService.token}'
-    };
+    var headers = {'Authorization': '${authService.token}'};
     var request = http.Request(
         'GET',
         Uri.parse(
@@ -671,17 +687,23 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
       Map<String, dynamic> responseData = json.decode(responseString);
       List<dynamic> subDistricts = responseData['data']['sub_districts'];
       setState(() {
-        _subDistricts = subDistricts.map((subDistrict) => subDistrict['label'] as String).toList();
+        _subDistricts = subDistricts
+            .map((subDistrict) => subDistrict['label'] as String)
+            .toList();
         _subDistrictMap = Map.fromIterable(subDistricts,
             key: (subDistrict) => subDistrict['label'] as String,
             value: (subDistrict) => subDistrict['value'] as String);
-        _selectedSubDistrict = _subDistricts.isNotEmpty ? _subDistricts[0] : ''; // Initialize with the first sub-district if available
+        _selectedSubDistrict = _subDistricts.isNotEmpty
+            ? _subDistricts[0]
+            : ''; // Initialize with the first sub-district if available
       });
     } else {
       print(response.reasonPhrase);
     }
   }
-  Map<String, String> _localDivisionMap = {}; // Map to store local division label and value pairs
+
+  Map<String, String> _localDivisionMap =
+      {}; // Map to store local division label and value pairs
   bool _isLoading = false;
 
   Future<void> fetchRepresentatives({
@@ -691,7 +713,7 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
   }) async {
     var headers = {
       'Authorization':
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI3MDExODk5ODI2IiwidXNlcl9pZCI6IjY2Nzg1NDViNTdiMWE0YmE0ZDk4MTJjZiIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTI0ODM0N30.q6IyfAq1aagaUvA3xz-H39DApJrMdhL06DOdpp8mFLg'
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI3MDExODk5ODI2IiwidXNlcl9pZCI6IjY2Nzg1NDViNTdiMWE0YmE0ZDk4MTJjZiIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTI0ODM0N30.q6IyfAq1aagaUvA3xz-H39DApJrMdhL06DOdpp8mFLg'
     };
 
     var formData = {
@@ -717,10 +739,9 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
       print(response.reasonPhrase);
     }
   }
+
   void _fetchLocalDivisionsBySubDistrict(String subDistrictId) async {
-    var headers = {
-      'Authorization': '${authService.token}'
-    };
+    var headers = {'Authorization': '${authService.token}'};
     var request = http.Request(
         'GET',
         Uri.parse(
@@ -735,16 +756,21 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
       Map<String, dynamic> responseData = json.decode(responseString);
       List<dynamic> localDivisions = responseData['data']['local_divisions'];
       setState(() {
-        _localDivisions = localDivisions.map((localDivision) => localDivision['label'] as String).toList();
+        _localDivisions = localDivisions
+            .map((localDivision) => localDivision['label'] as String)
+            .toList();
         _localDivisionMap = Map.fromIterable(localDivisions,
             key: (localDivision) => localDivision['label'] as String,
             value: (localDivision) => localDivision['value'] as String);
-        _selectedLocalDivision = _localDivisions.isNotEmpty ? _localDivisions[0] : ''; // Initialize with the first local division if available
+        _selectedLocalDivision = _localDivisions.isNotEmpty
+            ? _localDivisions[0]
+            : ''; // Initialize with the first local division if available
       });
     } else {
       print(response.reasonPhrase);
     }
   }
+
   void _showLocationSelectionBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -752,20 +778,20 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Enter manually',
+                      'choose_location_snackbar_enter_manually_text'.tr,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       value: _selectedState,
                       onChanged: (newValue) {
@@ -781,12 +807,12 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
                           child: Text(state),
                         );
                       }).toList(),
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Select State',
                         border: OutlineInputBorder(),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       value: _selectedDistrict,
                       onChanged: (newValue) {
@@ -802,19 +828,20 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
                           child: Text(district),
                         );
                       }).toList(),
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Select District',
                         border: OutlineInputBorder(),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       value: _selectedSubDistrict,
                       onChanged: (newValue) {
                         setState(() {
                           _selectedSubDistrict = newValue!;
                           _selectedSubDistrict1 = _subDistrictMap[newValue]!;
-                          _fetchLocalDivisionsBySubDistrict(_subDistrictMap[newValue]!);
+                          _fetchLocalDivisionsBySubDistrict(
+                              _subDistrictMap[newValue]!);
                         });
                       },
                       items: _subDistricts.map((subDistrict) {
@@ -823,18 +850,19 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
                           child: Text(subDistrict),
                         );
                       }).toList(),
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Select Sub District',
                         border: OutlineInputBorder(),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       value: _selectedLocalDivision,
                       onChanged: (newValue) {
                         setState(() {
                           _selectedLocalDivision = newValue!;
-                          _selectedLocalDivision1 = _localDivisionMap[newValue]!;
+                          _selectedLocalDivision1 =
+                              _localDivisionMap[newValue]!;
                         });
                       },
                       items: _localDivisions.map((localDivision) {
@@ -843,26 +871,31 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
                           child: Text(localDivision),
                         );
                       }).toList(),
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Select Local Division',
                         border: OutlineInputBorder(),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () async {
                         // Perform action on submit button press
-                        await fetchRepresentatives(   localDivisionId: _selectedLocalDivision1 , subDistrictId: _selectedSubDistrict1  ,districtId: _selectedDistrict1 );
+                        await fetchRepresentatives(
+                            localDivisionId: _selectedLocalDivision1,
+                            subDistrictId: _selectedSubDistrict1,
+                            districtId: _selectedDistrict1);
                         setState(() {}); // Refresh bottom sheet with new data
                       },
-                      child: Text('Submit'),
+                      child: const Text('Submit'),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     _isLoading
-                        ? CircularProgressIndicator()
+                        ? const CircularProgressIndicator()
                         : _representatives.isEmpty
-                        ? Text('No representatives found in your area.')
-                        : RepresentativeWidget(representatives: _representatives),
+                            ? const Text(
+                                'No representatives found in your area.')
+                            : RepresentativeWidget(
+                                representatives: _representatives),
                   ],
                 ),
               ),
@@ -885,125 +918,137 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
     return Stack(
       children: [
         Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 // Divider(
                 //   thickness: 2,
                 // ),
-                Align(
+                const Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: Text(
-                        'Your repair Sector',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Your repair Sector',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: _representatives.isEmpty
-                ? Center(child: CircularProgressIndicator())
-                : Column(
-              children: _representatives.map((rep) {
-                return Column(
-                  children: [
-                    Container(
-                      // margin: EdgeInsets.only(bottom: 16),
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Colors.grey,
-                            ),
-                            child: Image.network(
-                              rep['org_symbol_url'],
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 5),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: _representatives.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : Column(
+                          children: _representatives.map((rep) {
+                            return Column(
                               children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      rep['name'],
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    SizedBox(width: 5),
-                                  ],
+                                Container(
+                                  // margin: EdgeInsets.only(bottom: 16),
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.black),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: 60,
+                                        height: 60,
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          color: Colors.grey,
+                                        ),
+                                        child: Image.network(
+                                          rep['org_symbol_url'],
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Container(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  rep['name'],
+                                                  style: const TextStyle(
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                const SizedBox(width: 5),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              rep['division_name'],
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                SizedBox(height: 8),
-                                Text(
-                                  rep['division_name'],
-                                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                                ),
+                                const SizedBox(height: 10),
                               ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
+                            );
+                          }).toList(),
+                        ),
+                ),
 
-                SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    'Not your sector area?',
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
+                const SizedBox(height: 0),
+                const Text(
+                  'Not your sector area?',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontFamily: 'Okra',
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 GestureDetector(
                   onTap: () {
                     _showLocationSelectionBottomSheet(context);
+                    Get.to(ManualPage());
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
                       decoration: ShapeDecoration(
-                        color: Colors.white,
+                        color: const Color.fromARGB(255, 220, 231, 240),
                         shape: RoundedRectangleBorder(
-                          side: BorderSide(width: 1, color: Color(0xFF4A4A4A)),
+                          side: BorderSide(width: 1, color: primaryColor),
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 20.0, horizontal: 20),
                         child: Row(
                           children: [
-                            Icon(Icons.add, color: Color(0xFF4A4A4A)),
-                            SizedBox(width: 8),
+                            Icon(Icons.add, color: primaryColor, weight: 26),
+                            const SizedBox(width: 8),
                             Text(
-                              'Enter manually',
+                              'choose_location_snackbar_enter_manually_text'.tr,
                               style: TextStyle(
-                                color: Color(0xFF4A4A4A),
-                                fontSize: 16,
+                                color: primaryColor,
+                                fontSize: 18,
                                 fontFamily: 'Okra',
                                 fontWeight: FontWeight.w600,
                                 height: 0,
@@ -1016,13 +1061,8 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0xFFFF5252), // Background color
-                    ),
-                    onPressed: () {
+                MyButton(
+                    onTap: () {
                       // OrganizationProofScreen
                       Navigator.push(
                         context,
@@ -1030,20 +1070,9 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
                           builder: (context) => EditProfilePage(),
                         ),
                       );
-                      // verifySignupOTP(
-                      //   mobileNumber: mobileNumberController.text,
-                      //   otp: otpcontroller.text,
-                      //   name: nameController.text,
-                      //   gender: gender,
-                      //   dateOfBirth: dateOfBirthController.text,
-                      // );
                     },
-                    child: Text(
-                      'Next',
-                      style: TextStyle(color: Colors.white), // Text color
-                    ),
-                  ),
-                ),
+                    text: "choose_location_snackbar_button_text".tr),
+
                 // Repeat the above structure for the second item if needed
               ],
             ),
@@ -1053,6 +1082,7 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
     );
   }
 }
+
 class RepresentativeWidget extends StatelessWidget {
   final List<dynamic> representatives;
 
@@ -1062,55 +1092,56 @@ class RepresentativeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: representatives.isEmpty
-          ? [Text('No representatives found in your area.')]
+          ? [const Text('No representatives found in your area.')]
           : representatives.map((rep) {
-        return Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.black),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              return Column(
                 children: [
                   Container(
-                    width: 30,
-                    height: 30,
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black),
                     ),
-                    child: Image.network(
-                      rep['org_symbol_url'],
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          rep['name'],
-                          style: TextStyle(fontSize: 14),
+                        Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey,
+                          ),
+                          child: Image.network(
+                            rep['org_symbol_url'],
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                        SizedBox(height: 5),
-                        Text(
-                          rep['division_name'],
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                rep['name'],
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                rep['division_name'],
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.grey),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 10),
                 ],
-              ),
-            ),
-            SizedBox(height: 10),
-          ],
-        );
-      }).toList(),
+              );
+            }).toList(),
     );
   }
 }

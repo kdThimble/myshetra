@@ -117,7 +117,7 @@ class MyApp extends StatelessWidget {
       locale: Locale(Get.find<LocaleController>().locale.value,
           Get.find<LocaleController>().countryCode.value),
       fallbackLocale: Locale('en', 'US'),
-      translations: Langugae(),
+      translations: Language(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFFF5252)),
         useMaterial3: true,
