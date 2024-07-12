@@ -370,7 +370,7 @@ class _LoginFormState extends State<LoginForm> {
                       width: width * 0.15,
                     ),
                     Text(
-                      "My Shetra",
+                      "app_header_title".tr,
                       style: TextStyle(
                         color: primaryColor, // Replace with your primaryColor
                         fontWeight: FontWeight.bold,
@@ -507,6 +507,7 @@ class _LoginFormState extends State<LoginForm> {
                         text: "login_screen_donot_have_account_question".tr,
                         style: TextStyle(color: greyColor),
                       ),
+                      TextSpan(text: " "),
                       TextSpan(
                         text: 'login_screen_signup_hyperlink_text'.tr,
                         style: TextStyle(
@@ -533,13 +534,16 @@ class _LoginFormState extends State<LoginForm> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("By signing up, you agree to our ",
+                        Text("signup_screen_signup_conditions_pretext".tr,
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(" "),
                         LinkText(
                             link:
                                 "https://pub.dev/packages/url_launcher/example",
-                            text: "Terms"),
+                            text:
+                                "signup_screen_signup_conditions_terms_hyperlink"
+                                    .tr),
                         const Text(",",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
@@ -552,14 +556,20 @@ class _LoginFormState extends State<LoginForm> {
                         LinkText(
                             link:
                                 "https://pub.dev/packages/url_launcher/example",
-                            text: " Privacy Policy"),
-                        const Text(" and ",
+                            text:
+                                "signup_screen_signup_conditions_policy_hyperlink"
+                                    .tr),
+                        Text(" "),
+                        Text("signup_screen_signup_conditions_separator".tr,
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(" "),
                         LinkText(
                             link:
                                 "https://pub.dev/packages/url_launcher/example",
-                            text: "Cookie Use"),
+                            text:
+                                "signup_screen_signup_conditions_cookie_use_hyperlink"
+                                    .tr),
                       ],
                     ),
                   ],

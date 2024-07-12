@@ -194,7 +194,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         ),
         centerTitle: true,
         title: Text(
-          "My Shetra",
+          "app_header_title".tr,
           style: TextStyle(
             color: primaryColor,
             fontWeight: FontWeight.bold,

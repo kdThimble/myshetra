@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:myshetra/Pages/HomePage.dart';
 import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
@@ -45,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text('My Shetra',
+                  Text('app_header_title'.tr,
                       style: TextStyle(
                           fontSize: width * 0.12,
                           fontWeight: FontWeight.bold,

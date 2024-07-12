@@ -78,7 +78,7 @@ class _MapPageState extends State<MapPage> {
         ),
         centerTitle: true,
         title: Text(
-          "My Shetra",
+          "app_header_title".tr,
           style: TextStyle(
             color: primaryColor,
             fontWeight: FontWeight.bold,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -100,7 +101,7 @@ class _CheckMobileScreenState extends State<CheckMobileScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "My Shetra",
+          "app_header_title".tr,
           style: TextStyle(
             color: blueColor,
             fontWeight: FontWeight.bold,
