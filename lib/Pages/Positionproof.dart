@@ -15,7 +15,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;
 
-
 class PositionProofScreen extends StatefulWidget {
   @override
   State<PositionProofScreen> createState() => _PositionProofScreenState();
@@ -27,6 +26,14 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
   final authService = Get.find<AuthService>();
 
   Future<void> _submitData() async {
+    if (positioncontroller.text.isEmpty) {
+      Get.snackbar("Incomplete Form", "Please enter position name");
+      return;
+    }
+    if (selectedFilePath == "") {
+      Get.snackbar("Incomplete Form", "Please select a file");
+      return;
+    }
     try {
       var request = http.MultipartRequest(
         'POST',
@@ -63,18 +70,16 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         String errorMessage = jsonResponse['message'];
 
         // Show SnackBar with the error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-          ),
-        );
+        Get.snackbar("Error", errorMessage);
 
         print('Error: $errorMessage');
       } else {
+        Get.snackbar("Error", "Some Server Error");
         // Handle other error responses
         print('Error: ${response.statusCode}');
       }
     } catch (error) {
+      Get.snackbar("Error", "Some Server Error");
       print('Error: $error');
     }
   }
@@ -98,6 +103,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         // Call uploadImage function with the selected image
         // await uploadImage(context, XFile(compressedImage.path));
       } else {
+        Get.snackbar("Error", "Some  Error Occured");
         // Handle compression failure
         print("Compression failed");
       }
@@ -133,7 +139,8 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
 
   Future<File?> _compressImage(File file) async {
     final dir = await getTemporaryDirectory();
-    final targetPath = path.join(dir.path, 'compressed_${path.basename(file.path)}');
+    final targetPath =
+        path.join(dir.path, 'compressed_${path.basename(file.path)}');
     int quality = 100;
     XFile? compressedXFile;
 
@@ -144,7 +151,8 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         quality: quality,
       );
 
-      if (compressedXFile != null && await compressedXFile.length() <= 5 * 1024) {
+      if (compressedXFile != null &&
+          await compressedXFile.length() <= 5 * 1024) {
         break;
       }
       quality -= 5;

@@ -74,13 +74,13 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
           // Parse the response data to get the error message
           var jsonResponse = json.decode(responseData);
           String errorMessage = jsonResponse['message'];
-
+          Get.snackbar("Error", errorMessage);
           // Show SnackBar with the error message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-            ),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text(errorMessage),
+          //   ),
+          // );
 
           print('Error: $errorMessage');
         } else {
@@ -92,6 +92,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
       }
     } else {
       // Handle validation error
+      Get.snackbar("Error", "Please select an organization and an image");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select an organization and an image'),
@@ -115,8 +116,10 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         return OrganisationModel.fromJson(jsonDecode(response.body)['data']);
       }
     } catch (error) {
+      Get.snackbar("Error", "Error while fetching data");
       throw Exception('error fetching data');
     }
+    Get.snackbar("Error", "Error while fetching data");
     throw Exception('error fetching data');
   }
 
@@ -136,11 +139,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
           selectedFilePath = compressedImage.path;
         });
         print(selectedFilePath);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Image captured and compressed successfully'),
-          ),
-        );
+        Get.snackbar("Hurrah!", "Image Captured Successfully");
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('Image captured and compressed successfully'),
+        //   ),
+        // );
         // Call uploadImage function with the selected image
         // await uploadImage(context, XFile(compressedImage.path));
       } else {
@@ -163,14 +167,16 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
           selectedFilePath = compressedImage.path;
         });
         print(selectedFilePath);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Image selected and compressed successfully'),
-          ),
-        );
+        Get.snackbar("Hurrah!", "Image Uploaded Successfully");
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('Image selected and compressed successfully'),
+        //   ),
+        // );
         // Call uploadImage function with the selected image
         // await uploadImage(context, XFile(compressedImage.path));
       } else {
+        Get.snackbar("Error!", "Could not upload Image ");
         // Handle compression failure
         print("Compression failed");
       }
@@ -179,18 +185,20 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
 
   Future<File?> _compressImage(File file) async {
     final dir = await getTemporaryDirectory();
-    final targetPath = path.join(dir.path, 'compressed_${path.basename(file.path)}');
+    final targetPath =
+        path.join(dir.path, 'compressed_${path.basename(file.path)}');
     int quality = 100;
     XFile? compressedXFile;
 
-    while (quality > 0) {
+    while (quality > 20) {
       compressedXFile = await FlutterImageCompress.compressAndGetFile(
         file.absolute.path,
         targetPath,
         quality: quality,
       );
 
-      if (compressedXFile != null && await compressedXFile.length() <= 5 * 1024) {
+      if (compressedXFile != null &&
+          await compressedXFile.length() <= 5 * 1024) {
         break;
       }
       quality -= 5;
@@ -340,7 +348,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-            
+
               GestureDetector(
                 onTap: () {
                   // Implement file picker logic

@@ -55,7 +55,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
               width: width,
               decoration: BoxDecoration(
                 color: bgColor,
-                image: DecorationImage(
+                image: const DecorationImage(
                   image: AssetImage('assets/images/Group1.png'),
                   fit: BoxFit.fitWidth,
                 ),
@@ -63,7 +63,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
             ),
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
@@ -73,7 +73,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     Text(
@@ -92,11 +92,11 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                         style: TextStyle(
                           fontSize: width * 0.04,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xFF858585),
+                          color: const Color(0xFF858585),
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     Container(
@@ -125,7 +125,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                               : const Color(0xFFEFEFEF),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(
+                            side: const BorderSide(
                                 color: Colors
                                     .grey), // Set the border color to gray
                           ),
@@ -175,10 +175,10 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                         selectedTileColor: blueColor.withOpacity(0.2),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 5,
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Container(
                       margin: const EdgeInsets.symmetric(
                           vertical: 10, horizontal: 20),
@@ -187,7 +187,8 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => AuthPage()),
+                                builder: (context) =>
+                                    OrganizationProofScreen()),
                           );
                         },
                         style: ButtonStyle(
@@ -225,7 +226,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     )
                   ],
