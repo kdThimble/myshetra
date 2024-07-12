@@ -7,6 +7,8 @@ import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_holo_date_picker/date_picker.dart';
+import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:myshetra/Models/Authmodel.dart';
@@ -255,39 +257,20 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    DateTime? pickedDate = await showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return BlocBuilder<SignupBloc, SignupState>(
-          builder: (context, state) {
-            return Container(
-              height: 300.0,
-              color: Colors.white,
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.date,
-                initialDateTime: DateTime.now(),
-                minimumDate: DateTime(1900),
-                maximumDate: DateTime.now(),
-                onDateTimeChanged: (DateTime newDateTime) {
-                  setState(() {
-                    dateOfBirthController.text =
-                        DateFormat('yyyy-MM-dd').format(newDateTime);
-                  });
-                  context.read<SignupBloc>().add(DOBChanged(
-                      dateOfBirth:
-                          DateFormat('yyyy-MM-dd').format(newDateTime)));
-                },
-              ),
-            );
-          },
-        );
-      },
+    var datePicked = await DatePicker.showSimpleDatePicker(
+
+      context,
+      // initialDate: DateTime(2020),
+      firstDate: DateTime(1924),
+      lastDate: DateTime(2024),
+      dateFormat: "dd-MMMM-yyyy",
+      locale: DateTimePickerLocale.en_us,
+      looping: true,
     );
 
-    if (pickedDate != null) {
+    if (datePicked != null) {
       setState(() {
-        dateOfBirthController.text =
-            DateFormat('yyyy-MM-dd').format(pickedDate);
+        dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(datePicked);
       });
     }
   }
