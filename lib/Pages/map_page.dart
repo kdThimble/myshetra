@@ -566,6 +566,32 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
   List<String> _localDivisions = [];
   Map<String, String> _stateMap = {}; // Map to store state label and value pairs
 
+  void fetchRepresentatives123() async {
+    var headers = {
+      'Authorization': '${authService.token}'
+    };
+    var url = Uri.parse(
+        'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates?latitude=28°39\'17"N&longitude=77°07\'45"E');
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      // Parse JSON response
+      var jsonResponse = json.decode(response.body);
+
+      // Extract representatives data
+      var representatives = jsonResponse['data']['representatives'];
+
+      // Clear existing list and add new data
+      _representatives.clear();
+      _representatives.addAll(representatives);
+
+      // Print or use _representatives as needed
+      print('Representatives: $_representatives');
+    } else {
+      print('Request failed with status: ${response.statusCode}');
+    }
+  }
   void _fetchStates() async {
     var headers = {
       'Authorization': '${authService.token}'
@@ -850,6 +876,7 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
   @override
   void initState() {
     super.initState();
+    fetchRepresentatives123();
     _fetchStates();
   }
 
@@ -1000,7 +1027,7 @@ class _LocationDetailsBottomSheetState extends State<LocationDetailsBottomSheet>
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditProfileScreen(),
+                          builder: (context) => EditProfilePage(),
                         ),
                       );
                       // verifySignupOTP(
