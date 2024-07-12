@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:myshetra/Models/Authmodel.dart';
+import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
 import 'package:myshetra/Pages/LoginScreen.dart';
 
 import 'package:myshetra/Pages/Otpscreen.dart';
@@ -61,7 +62,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.pop(context);
+                  Get.to(LanguageSelectionPage());
                 },
                 child: Container(
                   decoration: BoxDecoration(
