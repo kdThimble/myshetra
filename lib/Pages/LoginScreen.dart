@@ -1,11 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:myshetra/Components/LinkText.dart';
 import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Controller/loadingController.dart';
 import 'package:myshetra/Models/Authmodel.dart';
 import 'package:myshetra/Pages/HomePage.dart';
 import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
@@ -95,26 +99,27 @@ class _LoginFormState extends State<LoginForm> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Center(
                   child: Text(
                     'verify_login_otp_title'.tr,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
                 Center(child: Text('verify_login_otp_sub_title'.tr)),
                 Center(
                   child: Text(
                     '+91-${context.read<LoginBloc>().state.number}',
-                    style: TextStyle(color: Colors.blue),
+                    style: const TextStyle(color: Colors.blue),
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
                   },
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       'change number?',
                       style: TextStyle(
@@ -122,7 +127,7 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(6, (index) {
@@ -143,8 +148,8 @@ class _LoginFormState extends State<LoginForm> {
                     );
                   }),
                 ),
-                SizedBox(height: 10),
-                Center(
+                const SizedBox(height: 10),
+                const Center(
                   child: Text(
                     'Valid up to 25 seconds',
                     style: TextStyle(fontSize: 12, color: Colors.grey),
@@ -153,7 +158,7 @@ class _LoginFormState extends State<LoginForm> {
                 Center(
                   child: TextButton(
                     onPressed: () {},
-                    child: Text('Resend OTP'),
+                    child: const Text('Resend OTP'),
                   ),
                 ),
                 Padding(
@@ -199,21 +204,19 @@ class _LoginFormState extends State<LoginForm> {
 
   Future<void> generateSignupOTP(String mobileNumber) async {
     try {
-      // final response = await http.post(
-      //     Uri.parse(
-      //       'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/generateLoginOTP?mobile_number=${mobileNumber}',
-      //     ),
-      //   );
+      Get.find<LoadingController>().startLoading();
       var request = http.Request(
         'POST',
         Uri.parse(
             'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/generateLoginOTP?mobile_number=${mobileNumber}'),
       );
       http.StreamedResponse response = await request.send();
-
-      if (response.statusCode == 200) {
+      Get.find<LoadingController>().stopLoading();
         var responseData = await response.stream.bytesToString();
         var otpData = json.decode(responseData);
+
+      if (response.statusCode == 200) {
+      
         print("OTP DATA $otpData");
 
         // Assuming the OTP is part of the response, extract it
@@ -248,10 +251,11 @@ class _LoginFormState extends State<LoginForm> {
           },
         );
       } else {
-        Get.snackbar('Error', 'Failed to generate OTP');
+        Get.snackbar('Error', '${otpData['message']}');
       }
     } catch (e) {
       Get.snackbar('Error', 'Something went wrong');
+      Get.find<LoadingController>().stopLoading();
     }
   }
 
@@ -259,53 +263,56 @@ class _LoginFormState extends State<LoginForm> {
     required String mobileNumber,
     required String otp,
   }) async {
-    print("Inside verify function");
-    var headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    };
-    var request = http.Request(
-        'POST',
-        Uri.parse(
-            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifyLoginOTP?mobile_number=${mobileNumber}&otp=${otp}'));
-    request.bodyFields = {};
-    request.headers.addAll(headers);
+    Get.find<LoadingController>().startLoading();
+    try {
+      var headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      };
+      var request = http.Request(
+          'POST',
+          Uri.parse(
+              'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifyLoginOTP?mobile_number=${mobileNumber}&otp=${otp}'));
+      request.bodyFields = {};
+      request.headers.addAll(headers);
 
-    http.StreamedResponse response = await request.send();
-    String responseBody = await response.stream.bytesToString();
-    var jsonData = json.decode(responseBody);
-    print("Response code: ${jsonData}");
-    final authResponse = AuthResponse.fromJson(jsonData['data']);
+      http.StreamedResponse response = await request.send();
+      String responseBody = await response.stream.bytesToString();
+      var jsonData = json.decode(responseBody);
+      print("Response code: ${jsonData}");
+      Get.find<LoadingController>().stopLoading();
 
-    if (response.statusCode == 200) {
-      print(responseBody);
-      if (authResponse.refreshToken != null && authResponse.token != null) {
-        // Save the tokens to secure storage or a state management solution
-        Provider.of<AuthProvider>(context, listen: false)
-            .setAuthResponse(authResponse);
-        Get.find<AuthService>()
-            .setAuthResponse(authResponse.token, authResponse.refreshToken);
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', authResponse.token);
-        await prefs.setString('refreshToken', authResponse.refreshToken);
+      if (response.statusCode == 200) {
+        final authResponse = AuthResponse.fromJson(jsonData['data']);
+        print(responseBody);
+        if (authResponse.refreshToken != null && authResponse.token != null) {
+          // Save the tokens to secure storage or a state management solution
+          Provider.of<AuthProvider>(context, listen: false)
+              .setAuthResponse(authResponse);
+          Get.find<AuthService>()
+              .setAuthResponse(authResponse.token, authResponse.refreshToken);
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('token', authResponse.token);
+          await prefs.setString('refreshToken', authResponse.refreshToken);
+        } else {
+          Get.snackbar('Error', '${jsonData['message']}');
+          if (kDebugMode) {
+            print('Failed to authenticate');
+          }
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrganizationProofScreen(),
+          ),
+        );
       } else {
+        Get.find<LoadingController>().stopLoading();
         Get.snackbar('Error', '${jsonData['message']}');
-        print('Failed to authenticate');
       }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(),
-        ),
-      );
-    } else {
-      print("ERROR");
-      print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to verify OTP. Please try again.'),
-        ),
-      );
+    } catch (e) {
+      Get.find<LoadingController>().stopLoading();
+      Get.snackbar('Error', 'Something went wrong');
     }
   }
 
@@ -348,7 +355,7 @@ class _LoginFormState extends State<LoginForm> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Get.to(LanguageSelectionPage());
+                        Get.to(const LanguageSelectionPage());
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -357,8 +364,8 @@ class _LoginFormState extends State<LoginForm> {
                               Border.all(color: Colors.grey), // Border color
                           shape: BoxShape.circle, // Rounded shape
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10.0),
                           child: Icon(
                             Icons.arrow_back, // Back icon
                             color: Colors.black, // Icon color
@@ -379,7 +386,7 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Row(
@@ -414,12 +421,12 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Container(
                   margin: const EdgeInsets.all(10.0),
-                  padding: EdgeInsets.symmetric(vertical: 5),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
                     border: Border.all(color: Colors.grey),
@@ -433,7 +440,7 @@ class _LoginFormState extends State<LoginForm> {
                         child: Text(
                           '+91',
                           style: TextStyle(
-                              fontSize: 20.0, fontWeight: FontWeight.w100),
+                              fontSize: 20.0, fontWeight: FontWeight.w400),
                         ),
                       ),
                       BlocBuilder<LoginBloc, LoginState>(
@@ -442,20 +449,23 @@ class _LoginFormState extends State<LoginForm> {
                         builder: (context, state) {
                           return Expanded(
                             child: TextField(
-                                style:
-                                    TextStyle(fontSize: 20, color: greyColor),
+                                maxLength: 10,
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.black),
                                 controller: _numberController,
                                 decoration: InputDecoration(
+                                  counter: SizedBox.shrink(),
+                                  contentPadding: EdgeInsets.only(top: 5),
                                   hintText:
                                       'login_screen_mobile_input_placeholder'
                                           .tr,
-                                  hintStyle: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.w200),
+                                  hintStyle: const TextStyle(
+                                      fontSize: 21.0,
+                                      fontWeight: FontWeight.w400),
                                   border: InputBorder.none,
                                 ),
                                 keyboardType: TextInputType.phone,
-                                key: Key("value"),
+                                key: const Key("value"),
                                 onChanged: (value) => {
                                       context
                                           .read<LoginBloc>()
@@ -485,29 +495,34 @@ class _LoginFormState extends State<LoginForm> {
                     onPressed: () =>
                         {generateSignupOTP(_numberController.text)},
                     // context.read<LoginBloc>().add(GenerateOtp()),
-                    child: Padding(
-                      padding: EdgeInsets.all(6.0),
-                      child: Text(
-                        'initial_screen_login_button_text'.tr,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25),
-                      ),
-                    ),
+                    child: Obx(() => Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: Get.find<LoadingController>().isLoading.value
+                              ? CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  'initial_screen_login_button_text'.tr,
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 25),
+                                ),
+                        )),
                   ),
                 ),
                 SizedBox(height: height * 0.02),
                 RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: TextStyle(fontSize: 18), // Apply the base style
+                    style:
+                        const TextStyle(fontSize: 18), // Apply the base style
                     children: [
                       TextSpan(
                         text: "login_screen_donot_have_account_question".tr,
                         style: TextStyle(color: greyColor),
                       ),
-                      TextSpan(text: " "),
+                      const TextSpan(text: " "),
                       TextSpan(
                         text: 'login_screen_signup_hyperlink_text'.tr,
                         style: TextStyle(
@@ -535,9 +550,9 @@ class _LoginFormState extends State<LoginForm> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text("signup_screen_signup_conditions_pretext".tr,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(" "),
+                        const Text(" "),
                         LinkText(
                             link:
                                 "https://pub.dev/packages/url_launcher/example",
@@ -559,11 +574,11 @@ class _LoginFormState extends State<LoginForm> {
                             text:
                                 "signup_screen_signup_conditions_policy_hyperlink"
                                     .tr),
-                        Text(" "),
+                        const Text(" "),
                         Text("signup_screen_signup_conditions_separator".tr,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(" "),
+                        const Text(" "),
                         LinkText(
                             link:
                                 "https://pub.dev/packages/url_launcher/example",
@@ -574,13 +589,13 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 BlocBuilder<LoginBloc, LoginState>(
                   builder: (context, state) {
                     if (state.loginStatus == LoginStatus.loading) {
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     }
                     return Container();
                   },

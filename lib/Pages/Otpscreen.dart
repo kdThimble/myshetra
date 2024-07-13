@@ -1,20 +1,22 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:myshetra/Components/MyButton.dart';
 
 class OtpScreen extends StatefulWidget {
   final String mobileNumber;
   final Function(String) onOtpVerification;
   final String otp;
   final String attemptsLeft;
-  final String  otpValidity;
+  final String otpValidity;
   OtpScreen(
       {required this.mobileNumber,
       required this.onOtpVerification,
-      required this.otp,
-        required this.attemptsLeft,
-        required this.otpValidity});
+      this.otp = '',
+      required this.attemptsLeft,
+      required this.otpValidity});
 
   @override
   _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
@@ -37,28 +39,26 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
   void _verifyOtp() {
     _otp = _controllers.map((controller) => controller.text).join();
     if (_otp.isEmpty || _otp.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter the OTP'),
-          duration: Duration(seconds: 2),
-        ),
+      Get.snackbar(
+        "Error",
+        "Please enter the OTP",
       );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //     content: Text('Please enter the OTP'),
+      //     duration: Duration(seconds: 2),
+      //   ),
+      // );
     } else {
       print("OTP , $_otp");
-      print("OTP2 , ${widget.otp}");
+
       if (true) {
         print("inside if");
         widget.onOtpVerification(_otp);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Otp Does not matched'),
-            duration: Duration(seconds: 2),
-          ),
-        );
       }
     }
   }
+
   Future<void> generateSignupOTP(String mobileNumber) async {
     print("OTP number $mobileNumber");
     var request = http.Request(
@@ -74,12 +74,11 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
       var responseData = await response.stream.bytesToString();
       var otpData = json.decode(responseData);
       print("OTP DATA $otpData");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('OTP RESENT SUCCESFULLY !'),
-          backgroundColor: Colors.transparent,
-        ),
+      Get.snackbar(
+        "Success",
+        "OTP sent successfully",
       );
+
       // Assuming the OTP is part of the response, extract it
       String otp = otpData['otp'] ?? '';
       // setState(() {
@@ -88,19 +87,16 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
       // });
       // print("otpValidity:$otpValidity");
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to generate OTP. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
+      Get.snackbar(
+        "Error",
+        "Please enter the OTP",
       );
     }
   }
 
-
   void _startTimer() {
     print("start");
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingTimeInSeconds > 0) {
         setState(() {
           _remainingTimeInSeconds--;
@@ -122,12 +118,14 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
     final int remainingSeconds = seconds % 60;
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
+
   late int _remainingTimeInSeconds;
   Timer? _timer;
   @override
   void initState() {
     super.initState();
-    final otpValidityInMinutes = (int.parse(widget.otpValidity) / 60).truncate();
+    final otpValidityInMinutes =
+        (int.parse(widget.otpValidity) / 60).truncate();
     _remainingTimeInSeconds = otpValidityInMinutes * 60;
     _startTimer();
   }
@@ -141,35 +139,46 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Container(
-          color: Colors.white,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
-                height: 12,
+              const SizedBox(
+                height: 25,
               ),
-              Center(
+              const Center(
                   child: Text(
                 'Verify login details',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               )),
-              Center(child: Text('We have sent a verification code to')),
+              const Center(child: Text('We have sent a verification code to')),
               Center(
                 child: Text(
                   '+91-${widget.mobileNumber}',
-                  style: TextStyle(color: Colors.blue),
+                  style: const TextStyle(color: Colors.blue),
                 ),
               ),
-              SizedBox(height: 8),
-              Center(
+              const SizedBox(height: 8),
+              const Center(
                 child: Text(
                   'change number?',
                   style: TextStyle(
                       color: Colors.blue, fontWeight: FontWeight.bold),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(6, (index) {
@@ -178,6 +187,7 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                     child: TextFormField(
                       controller: _controllers[index],
                       focusNode: _focusNodes[index],
+                      keyboardType: TextInputType.number,
                       textCapitalization: TextCapitalization.characters,
                       textAlign: TextAlign.center,
                       // maxLength: 1,
@@ -191,11 +201,11 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                   );
                 }),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Center(
                 child: Text(
                   'Valid up to $_remainingTimeInSeconds seconds',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ),
               Center(
@@ -203,46 +213,30 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                   onPressed: () {
                     generateSignupOTP(widget.mobileNumber);
                   },
-                  child: Text('Resend OTP',   style: TextStyle(fontSize: 12, fontWeight:FontWeight.bold ,color: Colors.black),),
+                  child: const Text(
+                    'Resend OTP',
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue),
+                  ),
                 ),
               ),
               Center(
                 child: Text(
                   'You have ${widget.attemptsLeft} Attempts left',
-                  style: TextStyle(fontSize: 12, fontWeight:FontWeight.bold ,color: Color(0xFFFF5252)),
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFF5252)),
                 ),
               ),
               // SizedBox(height: 10),
               // SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: _verifyOtp,
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          // side: BorderSide(color: Colors.black),
-                        ),
-                      ),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          const Color(0xFFFF5252)),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'Submit',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 19),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+                padding: const EdgeInsets.all(8.0),
+                child: MyButton(onTap: _verifyOtp, text: "Submit"),
+              )
             ],
           ),
         ),

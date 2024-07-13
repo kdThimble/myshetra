@@ -11,12 +11,14 @@ import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:myshetra/Controller/loadingController.dart';
 import 'package:myshetra/Models/Authmodel.dart';
 import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
 import 'package:myshetra/Pages/LoginScreen.dart';
 
 import 'package:myshetra/Pages/Otpscreen.dart';
 import 'package:myshetra/Pages/Positionproof.dart';
+import 'package:myshetra/Pages/map_page.dart';
 import 'package:myshetra/Providers/AuthProvider.dart';
 import 'package:myshetra/bloc/signup/signup_bloc.dart';
 import 'package:myshetra/helpers/colors.dart';
@@ -193,6 +195,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       child: TextFormField(
                         controller: _controllers[index],
                         focusNode: _focusNodes[index],
+                        keyboardType: TextInputType.number,
                         textCapitalization: TextCapitalization.characters,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
@@ -258,19 +261,26 @@ class _SignUpFormState extends State<SignUpForm> {
 
   Future<void> _selectDate(BuildContext context) async {
     var datePicked = await DatePicker.showSimpleDatePicker(
-
       context,
+      backgroundColor: Color.fromARGB(255, 248, 185, 185),
       // initialDate: DateTime(2020),
       firstDate: DateTime(1924),
-      lastDate: DateTime(2024),
+      lastDate: DateTime(2023),
       dateFormat: "dd-MMMM-yyyy",
       locale: DateTimePickerLocale.en_us,
       looping: true,
+      itemTextStyle: TextStyle(
+        // Customize picker item text style
+        color: Colors.blue,
+        fontWeight: FontWeight.bold,
+      ),
+      textColor: Colors.black,
     );
 
     if (datePicked != null) {
       setState(() {
-        dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(datePicked);
+        dateOfBirthController.text =
+            DateFormat('yyyy-MM-dd').format(datePicked);
       });
     }
   }
@@ -312,23 +322,23 @@ class _SignUpFormState extends State<SignUpForm> {
           isAvailable = true;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Number is  available',
-              style: TextStyle(color: Colors.white)),
-          backgroundColor: Colors.green,
-        ));
+        // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        //   content: Text('Number is  available',
+        //       style: TextStyle(color: Colors.white)),
+        //   backgroundColor: Colors.green,
+        // ));
       } else {
         setState(() {
           numberText = "Mobile number is not available";
           isAvailable = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Number is not available',
-                style: TextStyle(color: Colors.red)),
-            backgroundColor: Colors.red,
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('Number is not available',
+        //         style: TextStyle(color: Colors.red)),
+        //     backgroundColor: Colors.red,
+        //   ),
+        // );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -345,6 +355,7 @@ class _SignUpFormState extends State<SignUpForm> {
   int otpValidity = 0;
   Future<void> generateSignupOTP(String mobileNumber) async {
     print("OTP number $mobileNumber");
+    Get.find<LoadingController>().startLoading();
     var request = http.Request(
       'POST',
       Uri.parse(
@@ -360,12 +371,13 @@ class _SignUpFormState extends State<SignUpForm> {
       print("OTP DATA $otpData");
 
       // Assuming the OTP is part of the response, extract it
-      String otp = otpData['otp'] ?? '';
+
       setState(() {
         attemptsLeft = otpData['data']['attempts_left'] ?? 0;
         otpValidity = otpData['data']['otp_validity'] ?? 0;
       });
       print("otpValidity:$otpValidity");
+      Get.find<LoadingController>().stopLoading();
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -376,7 +388,6 @@ class _SignUpFormState extends State<SignUpForm> {
                   bottom: MediaQuery.of(context).viewInsets.bottom),
               child: OtpScreen(
                 mobileNumber: _mobileNumberController.text,
-                otp: otp,
                 attemptsLeft: attemptsLeft.toString(),
                 otpValidity: otpValidity.toString(),
                 onOtpVerification: (otp2) {
@@ -410,62 +421,68 @@ class _SignUpFormState extends State<SignUpForm> {
     required String gender,
     required String dateOfBirth,
   }) async {
-    var headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    };
-    var request = http.Request(
-        'POST',
-        Uri.parse(
-            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifySignupOTP'));
-    request.bodyFields = {
-      'mobile_number': mobileNumber,
-      'otp': otp,
-      'name': name,
-      'gender': gender.toLowerCase(),
-      'date_of_birth': dateOfBirth,
-    };
-    request.headers.addAll(headers);
+    print("Inside try");
+    Get.find<LoadingController>().startLoading();
+    try {
+      var headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      };
+      var request = http.Request(
+          'POST',
+          Uri.parse(
+              'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifySignupOTP'));
+      request.bodyFields = {
+        'mobile_number': mobileNumber,
+        'otp': otp,
+        'name': name,
+        'gender': gender.toLowerCase(),
+        'date_of_birth': dateOfBirth,
+      };
+      request.headers.addAll(headers);
 
-    http.StreamedResponse response = await request.send();
-    String responseBody = await response.stream.bytesToString();
-    var jsonData = json.decode(responseBody);
-    print("Response code: ${jsonData}");
-    final authResponse = AuthResponse.fromJson(jsonData['data']);
+      http.StreamedResponse response = await request.send();
+      String responseBody = await response.stream.bytesToString();
+      var jsonData = json.decode(responseBody);
+      print("Response code: ${jsonData}");
 
-    if (response.statusCode == 200) {
-      print(responseBody);
-      if (authResponse.refreshToken != null && authResponse.token != null) {
-        // Save the tokens to secure storage or a state management solution
-        Provider.of<AuthProvider>(context, listen: false)
-            .setAuthResponse(authResponse);
-        Get.find<AuthService>()
-            .setAuthResponse(authResponse.token, authResponse.refreshToken);
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', authResponse.token);
-        await prefs.setString('refreshToken', authResponse.refreshToken);
+      Get.find<LoadingController>().stopLoading();
+
+      if (response.statusCode == 200) {
+        final authResponse = AuthResponse.fromJson(jsonData['data']);
+        print(responseBody);
+        if (authResponse.refreshToken != null && authResponse.token != null) {
+          // Save the tokens to secure storage or a state management solution
+          Provider.of<AuthProvider>(context, listen: false)
+              .setAuthResponse(authResponse);
+          Get.find<AuthService>()
+              .setAuthResponse(authResponse.token, authResponse.refreshToken);
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('token', authResponse.token);
+          await prefs.setString('refreshToken', authResponse.refreshToken);
+        } else {
+          Get.snackbar('Error', 'Failed to authenticate');
+          print('Failed to authenticate');
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MapPage(),
+          ),
+        );
       } else {
-        Get.snackbar('Error', 'Failed to authenticate');
-        print('Failed to authenticate');
+        print("ERROR");
+        print(response.reasonPhrase);
+        Get.snackbar("Error", " ${jsonData['message'].toString()}");
       }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OrganizationProofScreen(),
-        ),
-      );
-    } else {
-      print("ERROR");
-      print(response.reasonPhrase);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to verify OTP. Please try again.'),
-        ),
-      );
+    } catch (e) {
+      Get.find<LoadingController>().stopLoading();
+      Get.snackbar(
+          "Error", "Failed to verify OTP. Please try again. ${e.toString()}");
     }
   }
 
-  var gender = "Male";
+  var gender;
   var DateOfBirth = "";
   @override
   Widget build(BuildContext context) {
@@ -535,7 +552,7 @@ class _SignUpFormState extends State<SignUpForm> {
                         ),
                         child: TextField(
                             controller: nameController,
-                            style: TextStyle(fontSize: 20, color: greyColor),
+                            style: TextStyle(fontSize: 20, color: Colors.black),
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.only(
                                   left: 15, top: 5, bottom: 5),
@@ -570,24 +587,28 @@ class _SignUpFormState extends State<SignUpForm> {
                           child: const Text(
                             '+91',
                             style: TextStyle(
-                                fontSize: 18.0, fontWeight: FontWeight.w200),
+                                fontSize: 18.0, fontWeight: FontWeight.w400),
                           )),
                       BlocBuilder<SignupBloc, SignupState>(
                         builder: (context, state) {
                           return Expanded(
                             child: Container(
                               margin: const EdgeInsets.all(10.0),
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(5),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: TextField(
                                   controller: _mobileNumberController,
-                                  style:
-                                      TextStyle(fontSize: 20, color: greyColor),
+                                  maxLength: 10,
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.black),
                                   onEditingComplete: _checkMobileNumber,
                                   decoration: InputDecoration(
+                                    counter: SizedBox(
+                                      height: 0,
+                                    ),
                                     hintText:
                                         'create_account_mobile_number_placeholder'
                                             .tr,
@@ -644,7 +665,10 @@ class _SignUpFormState extends State<SignUpForm> {
                           isExpanded: true,
                           underline: Container(),
                           value: gender,
-                          hint: const Text("Gender"),
+                          hint: const Text(
+                            "Gender",
+                            style: TextStyle(color: Colors.black),
+                          ),
                           onChanged: (value) {
                             setState(() {
                               gender = value!;
@@ -658,8 +682,8 @@ class _SignUpFormState extends State<SignUpForm> {
                               value: gender,
                               child: Text(
                                 gender,
-                                style:
-                                    TextStyle(fontSize: 20, color: greyColor),
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.black),
                               ),
                             );
                           }).toList(),
@@ -683,7 +707,7 @@ class _SignUpFormState extends State<SignUpForm> {
                         Expanded(
                           child: TextField(
                             controller: dateOfBirthController,
-                            style: TextStyle(fontSize: 20, color: greyColor),
+                            style: TextStyle(fontSize: 20, color: Colors.black),
                             decoration: InputDecoration(
                               prefixIcon: Icon(
                                 Icons.calendar_month_outlined,
@@ -707,38 +731,44 @@ class _SignUpFormState extends State<SignUpForm> {
                   const SizedBox(
                     height: 10,
                   ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextButton(
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                side: const BorderSide(color: Colors.black),
-                              ),
-                            ),
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              primaryColor,
-                            )),
-                        onPressed: () {
-                          generateSignupOTP(_mobileNumberController.text);
-                        },
+                  Obx(() => SizedBox(
+                        width: double.infinity,
                         child: Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Text(
-                            'create_account_button_text'.tr,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25),
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextButton(
+                            style: ButtonStyle(
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    side: const BorderSide(color: Colors.black),
+                                  ),
+                                ),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                  primaryColor,
+                                )),
+                            onPressed: () {
+                              generateSignupOTP(_mobileNumberController.text);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child:
+                                  Get.find<LoadingController>().isLoading.value
+                                      ? CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                      : Text(
+                                          'create_account_button_text'.tr,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 25),
+                                        ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
+                      )),
                   SizedBox(height: height * 0.02),
                   Center(
                     child: RichText(

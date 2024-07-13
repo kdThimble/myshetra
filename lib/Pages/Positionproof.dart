@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Controller/loadingController.dart';
+import 'package:myshetra/Pages/Editprofile.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -30,11 +32,13 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
       Get.snackbar("Incomplete Form", "Please enter position name");
       return;
     }
+
     if (selectedFilePath == "") {
       Get.snackbar("Incomplete Form", "Please select a file");
       return;
     }
     try {
+      Get.find<LoadingController>().startLoading();
       var request = http.MultipartRequest(
         'POST',
         Uri.parse(
@@ -56,6 +60,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
       final responseData = await response.stream.bytesToString();
       print("responseData");
       print(responseData);
+      Get.find<LoadingController>().stopLoading();
       if (response.statusCode == 200) {
         // Handle successful response
         Navigator.push(
@@ -81,6 +86,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
     } catch (error) {
       Get.snackbar("Error", "Some Server Error");
       print('Error: $error');
+      Get.find<LoadingController>().stopLoading();
     }
   }
 
@@ -138,6 +144,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
   }
 
   Future<File?> _compressImage(File file) async {
+    Get.find<LoadingController>().startLoading();
     final dir = await getTemporaryDirectory();
     final targetPath =
         path.join(dir.path, 'compressed_${path.basename(file.path)}');
@@ -157,7 +164,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
       }
       quality -= 5;
     }
-
+    Get.find<LoadingController>().stopLoading();
     return compressedXFile != null ? File(compressedXFile.path) : null;
   }
 
@@ -330,7 +337,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MapPage(),
+                        builder: (context) => EditProfilePage(),
                       ),
                     );
                   },

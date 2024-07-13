@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Controller/loadingController.dart';
 import 'package:myshetra/Pages/Editprofile.dart';
 import 'package:myshetra/Pages/map_page.dart';
 import 'package:myshetra/Services/Authservices.dart';
@@ -135,6 +136,7 @@ class _ManualPageState extends State<ManualPage> {
     required String subDistrictId,
     required String districtId,
   }) async {
+    Get.find<LoadingController>().startLoading();
     var headers = {
       'Authorization':
           '${authService.token}', // Authorization header with the token
@@ -145,6 +147,9 @@ class _ManualPageState extends State<ManualPage> {
       'sub_district_id': subDistrictId,
       'district_id': districtId,
     };
+    print("local_division_id: $localDivisionId");
+    print("sub_district_id: $subDistrictId");
+    print("district_id: $districtId");
 
     var request = http.MultipartRequest(
       'GET',
@@ -156,10 +161,21 @@ class _ManualPageState extends State<ManualPage> {
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
-
+    Get.find<LoadingController>().stopLoading();
+    String responseBody = await response.stream.bytesToString();
+    var jsonData = json.decode(responseBody);
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
+      var representatives = jsonData['data']['representatives'];
+
+      // Clear existing list and add new data
+      _representatives.clear();
+      _representatives.addAll(representatives);
+
+      // Print or use _representatives as needed
+      print('Representatives: $_representatives');
     } else {
+      Get.snackbar('Error ', jsonData['message'] ?? "Server Error");
       print(response.reasonPhrase);
     }
   }
@@ -354,12 +370,18 @@ class _ManualPageState extends State<ManualPage> {
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
                                       value: _selectedLocalDivision,
-                                      onChanged: (newValue) {
+                                      onChanged: (newValue) async {
                                         setState(() {
                                           _selectedLocalDivision = newValue!;
                                           _selectedLocalDivision1 =
                                               _localDivisionMap[newValue]!;
                                         });
+                                        await fetchRepresentatives(
+                                            localDivisionId:
+                                                _selectedLocalDivision1,
+                                            subDistrictId:
+                                                _selectedSubDistrict1,
+                                            districtId: _selectedDistrict1);
                                       },
                                       items:
                                           _localDivisions.map((localDivision) {
@@ -377,45 +399,15 @@ class _ManualPageState extends State<ManualPage> {
                                     MyButton(
                                         onTap: () async {
                                           // Perform action on submit button press
-                                          await fetchRepresentatives(
-                                              localDivisionId:
-                                                  _selectedLocalDivision1,
-                                              subDistrictId:
-                                                  _selectedSubDistrict1,
-                                              districtId: _selectedDistrict1);
-                                          setState(
-                                              () {}); // Refresh bottom sheet with new data
+                                          Get.to(MapPage(
+                                            isRedirected: true,
+                                            representatives: _representatives,
+                                          )); // Refresh bottom sheet with new data
                                         },
                                         text:
                                             "choose_location_manually_snackbar_button_text"
                                                 .tr),
                                     const SizedBox(height: 16),
-                                    _isLoading
-                                        ? const CircularProgressIndicator()
-                                        : _representatives.isEmpty
-                                            ? Center(
-                                                child: Text(
-                                                  'No representatives found in your area.',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: Get.width * 0.037,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              )
-                                            : RepresentativeWidget(
-                                                representatives:
-                                                    _representatives),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    MyButton(
-                                        onTap: () {
-                                          Get.to(EditProfilePage());
-                                        },
-                                        text:
-                                            "choose_location_snackbar_button_text"
-                                                .tr),
                                   ],
                                 ),
                               ),

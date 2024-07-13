@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Controller/loadingController.dart';
 import 'package:myshetra/Models/OrganisationModel.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:myshetra/helpers/colors.dart';
@@ -39,7 +40,8 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
   var selectedFilePath = "";
   var selectedFilePath1 = "";
   Future<void> _submitData() async {
-    if (_selectedValue != null) {
+    if (_selectedValue != null && selectedFilePath != "") {
+      Get.find<LoadingController>().startLoading();
       try {
         var request = http.MultipartRequest(
           'POST',
@@ -62,6 +64,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         final responseData = await response.stream.bytesToString();
         print("responseData");
         print(responseData);
+        Get.find<LoadingController>().stopLoading();
         if (response.statusCode == 200) {
           // Handle successful response
           Navigator.push(
@@ -89,15 +92,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         }
       } catch (error) {
         print('Error: $error');
+        Get.snackbar("Error", "Error while uploading data");
+        Get.find<LoadingController>().stopLoading();
       }
     } else {
       // Handle validation error
       Get.snackbar("Error", "Please select an organization and an image");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an organization and an image'),
-        ),
-      );
     }
   }
 
@@ -160,6 +160,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
     );
 
     if (result != null && result.files.isNotEmpty) {
+      Get.find<LoadingController>().startLoading();
       final filePath = result.files.single.path!;
       final compressedImage = await _compressImage(File(filePath));
       if (compressedImage != null) {
@@ -180,10 +181,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         // Handle compression failure
         print("Compression failed");
       }
+      Get.find<LoadingController>().stopLoading();
     }
   }
 
   Future<File?> _compressImage(File file) async {
+    Get.find<LoadingController>().startLoading();
     final dir = await getTemporaryDirectory();
     final targetPath =
         path.join(dir.path, 'compressed_${path.basename(file.path)}');
@@ -203,6 +206,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
       }
       quality -= 5;
     }
+    Get.find<LoadingController>().stopLoading();
 
     return compressedXFile != null ? File(compressedXFile.path) : null;
   }

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:myshetra/Controller/loadingController.dart';
 import 'package:myshetra/Pages/SplashScreen.dart';
 import 'package:myshetra/Providers/AuthProvider.dart';
 import 'package:myshetra/Services/LanguaugeService.dart';
@@ -101,6 +102,7 @@ void main() async {
 Future<void> initServices() async {
   Get.put(AuthService());
   Get.put(LocaleController());
+  Get.put(LoadingController());
   await Get.find<AuthService>().loadTokensFromStorage();
   await Get.find<LocaleController>().getLocaleFromStorage();
 }
@@ -119,6 +121,10 @@ class MyApp extends StatelessWidget {
       fallbackLocale: Locale('en', 'US'),
       translations: Language(),
       theme: ThemeData(
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.black,
+          // Set the cursor color to black
+        ),
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFFF5252)),
         useMaterial3: true,
       ),

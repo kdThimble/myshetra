@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:myshetra/Controller/loadingController.dart';
 
 class MyButton extends StatelessWidget {
   final VoidCallback onTap;
@@ -41,14 +42,18 @@ class MyButton extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15.0),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: Get.width * 0.06,
-            ),
-          ),
+          child: Obx(() => Get.find<LoadingController>().isLoading.value
+              ? CircularProgressIndicator(
+                  color: Colors.white,
+                )
+              : Text(
+                  text,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: Get.width * 0.06,
+                  ),
+                )),
         ),
       ),
     );
