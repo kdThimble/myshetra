@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -56,11 +59,82 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
       }
     }
   }
+  Future<void> generateSignupOTP(String mobileNumber) async {
+    print("OTP number $mobileNumber");
+    var request = http.Request(
+      'POST',
+      Uri.parse(
+          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/generateSignupOTP?mobile_number=$mobileNumber'),
+    );
+
+    http.StreamedResponse response = await request.send();
+    print("response otp $response");
+
+    if (response.statusCode == 200) {
+      var responseData = await response.stream.bytesToString();
+      var otpData = json.decode(responseData);
+      print("OTP DATA $otpData");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('OTP RESENT SUCCESFULLY !'),
+          backgroundColor: Colors.transparent,
+        ),
+      );
+      // Assuming the OTP is part of the response, extract it
+      String otp = otpData['otp'] ?? '';
+      // setState(() {
+      //   attemptsLeft = otpData['data']['attempts_left'] ?? 0;
+      //   otpValidity = otpData['data']['otp_validity'] ?? 0;
+      // });
+      // print("otpValidity:$otpValidity");
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to generate OTP. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+
+  void _startTimer() {
+    print("start");
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTimeInSeconds > 0) {
+        setState(() {
+          _remainingTimeInSeconds--;
+        });
+      } else {
+        _timer?.cancel();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String _formatDuration(int seconds) {
+    final int minutes = seconds ~/ 60;
+    final int remainingSeconds = seconds % 60;
+    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+  late int _remainingTimeInSeconds;
+  Timer? _timer;
+  @override
+  void initState() {
+    super.initState();
+    final otpValidityInMinutes = (int.parse(widget.otpValidity) / 60).truncate();
+    _remainingTimeInSeconds = otpValidityInMinutes * 60;
+    _startTimer();
+  }
 
   @override
   Widget build(BuildContext context) {
     print(widget.otpValidity);
-    final otpValidityInMinutes = (int.parse(widget.otpValidity) / 60).toStringAsFixed(2);
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.only(
@@ -120,23 +194,25 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
               SizedBox(height: 10),
               Center(
                 child: Text(
-                  'Valid up to $otpValidityInMinutes minutes',
+                  'Valid up to $_remainingTimeInSeconds seconds',
                   style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    generateSignupOTP(widget.mobileNumber);
+                  },
+                  child: Text('Resend OTP',   style: TextStyle(fontSize: 12, fontWeight:FontWeight.bold ,color: Colors.black),),
                 ),
               ),
               Center(
                 child: Text(
-                  'Attempts left: ${widget.attemptsLeft}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  'You have ${widget.attemptsLeft} Attempts left',
+                  style: TextStyle(fontSize: 12, fontWeight:FontWeight.bold ,color: Color(0xFFFF5252)),
                 ),
               ),
               // SizedBox(height: 10),
-              Center(
-                child: TextButton(
-                  onPressed: _verifyOtp,
-                  child: Text('Resend OTP'),
-                ),
-              ),
               // SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.all(32.0),
