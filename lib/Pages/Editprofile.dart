@@ -36,6 +36,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (response.statusCode == 200) {
       // Parse JSON response into UserProfile object
       var jsonResponse = json.decode(response.body);
+      print("object $jsonResponse");
+      Get.snackbar("Hurrah", "Profile fetched successfully");
       return UserProfile.fromJson(jsonResponse['data']);
     } else {
       Get.snackbar('Error', 'Failed to fetch user profile');
@@ -128,24 +130,41 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   String? profileimage;
   String? bannerimage;
-  @override
+  void SetUserProfile() async {
+    // Set retrieved data to text controllers
+    UserProfile user = await fetchUserProfile() as UserProfile;
+    print(user);
+    nameController.text = user.name ?? "";
+    handleNameController.text = user.handleName ?? "";
+    bioController.text = user.bioInfo ?? "";
+    localityController.text = user.localDivisionName ?? "";
+    dobController.text = user.dateOfBirth.toString() ?? "";
+    positionController.text = user.currentPosition ?? "";
+    organizationController.text = user.userOrganization ?? "";
+    profileimage = user.profileImageUrl ?? "";
+    bannerimage = user.bannerImageUrl ?? "";
+  }
+
   void initState() {
     // TODO: implement initState
     super.initState();
-    fetchUserProfile().then((userProfile) {
-      if (userProfile != null) {
-        // Set retrieved data to text controllers
-        nameController.text = userProfile.name;
-        handleNameController.text = userProfile.handleName;
-        bioController.text = userProfile.bioInfo;
-        localityController.text = userProfile.localDivisionName;
-        dobController.text = userProfile.dateOfBirth.toString();
-        positionController.text = userProfile.currentPosition;
-        organizationController.text = userProfile.userOrganization;
-        profileimage = userProfile.profileImageUrl;
-        bannerimage = userProfile.bannerImageUrl;
-      }
-    });
+    SetUserProfile();
+    // fetchUserProfile().then((userProfile) {
+    //   print("userProfile: $userProfile");
+    //   if (userProfile != null) {
+    //     // Set retrieved data to text controllers
+    //     nameController.text = userProfile.name;
+    //     handleNameController.text = userProfile.handleName;
+    //     bioController.text = userProfile.bioInfo;
+    //     localityController.text = userProfile.localDivisionName;
+    //     dobController.text = userProfile.dateOfBirth.toString();
+    //     positionController.text = userProfile.currentPosition;
+    //     organizationController.text = userProfile.userOrganization;
+    //     profileimage = userProfile.profileImageUrl;
+    //     bannerimage = userProfile.bannerImageUrl;
+    //   }
+    // });
+
     print("profileimage: $profileimage");
   }
 
@@ -178,20 +197,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
             children: <Widget>[
               Container(
                 height: 280.0,
-                color: Colors.grey, // Replace with your background image or color
+                color:
+                    Colors.grey, // Replace with your background image or color
                 child: Stack(
                   children: [
                     Center(
                       child: _bannerImage != null
                           ? Image(
-                          image: FileImage(_bannerImage!) as ImageProvider<Object>)
+                              image: FileImage(_bannerImage!)
+                                  as ImageProvider<Object>)
                           : Image(
-                        image: NetworkImage(
-                            "https://static.vecteezy.com/system/resources/previews/002/909/206/original/abstract-background-for-landing-pages-banner-placeholder-cover-book-and-print-geometric-pettern-on-screen-gradient-colors-design-vector.jpg"),
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                      ),
+                              image: NetworkImage(
+                                  "https://static.vecteezy.com/system/resources/previews/002/909/206/original/abstract-background-for-landing-pages-banner-placeholder-cover-book-and-print-geometric-pettern-on-screen-gradient-colors-design-vector.jpg"),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
                     ),
                     Positioned(
                       bottom: 10,
@@ -224,13 +245,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       children: [
                         _buildProfileField(
                             'edit_profile_name_ttitle'.tr, nameController),
-                        _buildProfileField('edit_profile_header_name_ttitle'.tr, handleNameController),
+                        _buildProfileField('edit_profile_header_name_ttitle'.tr,
+                            handleNameController),
                         _buildProfileField('Bio', bioController),
                         _buildProfileField('Locality', localityController),
-                        _buildProfileField('edit_profile_dob_title'.tr, dobController),
-                        _buildProfileField('edit_profile_position_title'.tr, positionController),
                         _buildProfileField(
-                            'edit_profile_organization_title'.tr, organizationController),
+                            'edit_profile_dob_title'.tr, dobController),
+                        _buildProfileField('edit_profile_position_title'.tr,
+                            positionController),
+                        _buildProfileField('edit_profile_organization_title'.tr,
+                            organizationController),
                         MyButton(
                             onTap: () {
                               // Implement save logic
@@ -322,34 +346,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
 }
 
 class UserProfile {
-  final String bannerImageUrl;
-  final String profileImageUrl;
-  final String handleName;
-  final String name;
-  final String bioInfo;
-  final DateTime dateOfBirth;
-  final String userOrganization;
-  final String organizationSymbol;
-  final String organizationAbbreviation;
-  final String currentPosition;
-  final String localDivisionName;
-  final String regionalDivisionName;
-  final String nationalDivisionName;
+  final String? bannerImageUrl;
+  final String? profileImageUrl;
+  final String? handleName;
+  final String? name;
+  final String? bioInfo;
+  final DateTime? dateOfBirth;
+  final String? userOrganization;
+  final String? organizationSymbol;
+  final String? organizationAbbreviation;
+  final String? currentPosition;
+  final String? localDivisionName;
+  final String? regionalDivisionName;
+  final String? nationalDivisionName;
 
   UserProfile({
-    required this.bannerImageUrl,
-    required this.profileImageUrl,
-    required this.handleName,
-    required this.name,
-    required this.bioInfo,
-    required this.dateOfBirth,
-    required this.userOrganization,
-    required this.organizationSymbol,
-    required this.organizationAbbreviation,
-    required this.currentPosition,
-    required this.localDivisionName,
-    required this.regionalDivisionName,
-    required this.nationalDivisionName,
+    this.bannerImageUrl,
+    this.profileImageUrl,
+    this.handleName,
+    this.name,
+    this.bioInfo,
+    this.dateOfBirth,
+    this.userOrganization,
+    this.organizationSymbol,
+    this.organizationAbbreviation,
+    this.currentPosition,
+    this.localDivisionName,
+    this.regionalDivisionName,
+    this.nationalDivisionName,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {

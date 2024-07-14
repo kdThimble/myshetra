@@ -212,11 +212,10 @@ class _LoginFormState extends State<LoginForm> {
       );
       http.StreamedResponse response = await request.send();
       Get.find<LoadingController>().stopLoading();
-        var responseData = await response.stream.bytesToString();
-        var otpData = json.decode(responseData);
+      var responseData = await response.stream.bytesToString();
+      var otpData = json.decode(responseData);
 
       if (response.statusCode == 200) {
-      
         print("OTP DATA $otpData");
 
         // Assuming the OTP is part of the response, extract it
@@ -303,7 +302,7 @@ class _LoginFormState extends State<LoginForm> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OrganizationProofScreen(),
+            builder: (context) => HomePage(),
           ),
         );
       } else {
