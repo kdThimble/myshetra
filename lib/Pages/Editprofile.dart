@@ -176,25 +176,39 @@ class _EditProfilePageState extends State<EditProfilePage> {
           // Background container for cover photo
           Column(
             children: <Widget>[
-              GestureDetector(
-                onTap: () => _selectBannerImage(),
-                child: Container(
-                  height: 280.0,
-                  color: Colors
-                      .grey, // Replace with your background image or color
-                  child: Center(
-                    child: _bannerImage != null
-                        ? Image(
-                            image: FileImage(_bannerImage!)
-                                as ImageProvider<Object>)
-                        : Image(
-                            image: NetworkImage(
-                                "https://static.vecteezy.com/system/resources/previews/002/909/206/original/abstract-background-for-landing-pages-banner-placeholder-cover-book-and-print-geometric-pettern-on-screen-gradient-colors-design-vector.jpg"),
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                          ),
-                  ),
+              Container(
+                height: 280.0,
+                color: Colors.grey, // Replace with your background image or color
+                child: Stack(
+                  children: [
+                    Center(
+                      child: _bannerImage != null
+                          ? Image(
+                          image: FileImage(_bannerImage!) as ImageProvider<Object>)
+                          : Image(
+                        image: NetworkImage(
+                            "https://static.vecteezy.com/system/resources/previews/002/909/206/original/abstract-background-for-landing-pages-banner-placeholder-cover-book-and-print-geometric-pettern-on-screen-gradient-colors-design-vector.jpg"),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 10,
+                      right: 10,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.camera_alt_outlined,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          _selectBannerImage();
+                          print("Camera icon pressed");
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(
@@ -269,7 +283,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           radius: 15.0,
                           backgroundColor: Colors.blue,
                           child: Icon(
-                            Icons.camera_alt,
+                            Icons.camera_alt_outlined,
                             color: Colors.white,
                           ),
                         ),

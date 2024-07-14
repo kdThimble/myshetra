@@ -190,11 +190,19 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                       keyboardType: TextInputType.number,
                       textCapitalization: TextCapitalization.characters,
                       textAlign: TextAlign.center,
-                      // maxLength: 1,
                       decoration: InputDecoration(
                         counterText: "",
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Color(0xFF0E3D8B), width: 2.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.black45, width: 2.0),
+                        ),
                       ),
                       onChanged: (value) => _onTextFieldChanged(index, value),
                     ),

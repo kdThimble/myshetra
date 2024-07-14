@@ -8,7 +8,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_holo_date_picker/date_picker.dart';
+import 'package:flutter_holo_date_picker/date_picker_theme.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
+import 'package:flutter_holo_date_picker/widget/date_picker_widget.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:myshetra/Controller/loadingController.dart';
@@ -113,6 +115,8 @@ class _SignUpFormState extends State<SignUpForm> {
   final TextEditingController _mobileNumberController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController dateOfBirthController = TextEditingController();
+  final SignupController signupController = Get.put(SignupController());
+  final LoadingController loadingController = Get.put(LoadingController());
   final List<TextEditingController> _controllers =
       List.generate(6, (index) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
@@ -260,29 +264,69 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    var datePicked = await DatePicker.showSimpleDatePicker(
-      context,
-      backgroundColor: Color.fromARGB(255, 248, 185, 185),
-      // initialDate: DateTime(2020),
-      firstDate: DateTime(1924),
-      lastDate: DateTime(2023),
-      dateFormat: "dd-MMMM-yyyy",
-      locale: DateTimePickerLocale.en_us,
-      looping: true,
-      itemTextStyle: TextStyle(
-        // Customize picker item text style
-        color: Colors.blue,
-        fontWeight: FontWeight.bold,
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      textColor: Colors.black,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          height: 300,
+          child: Column(
+            children: <Widget>[
+              Text(
+                'Select Date of Birth',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.black,
+                ),
+              ),
+              Expanded(
+                child: DatePickerWidget(
+                  locale: DateTimePickerLocale.en_us,
+                  pickerTheme: DateTimePickerTheme(
+                    backgroundColor: Colors.white,
+                    itemTextStyle: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    cancelTextStyle: TextStyle(color: Colors.black),
+                    confirmTextStyle: TextStyle(color: Colors.black),
+                    itemHeight: 40,
+                  ),
+                  dateFormat: 'dd-MMMM-yyyy',
+                  // minDateTime: DateTime(1940),
+                  // maxDateTime: DateTime(2006),
+                  onChange: (date, _) {
+                    setState(() {
+                      dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(date);
+                    });
+                  },
+                  onConfirm: (date, _) {
+                    if (date.year < 1940 || date.year > 2006) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Birthdate must be between 1940 and 2006.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(date);
+                      });
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
-
-    if (datePicked != null) {
-      setState(() {
-        dateOfBirthController.text =
-            DateFormat('yyyy-MM-dd').format(datePicked);
-      });
-    }
   }
 
   String _mobileNumber = '';
@@ -355,7 +399,7 @@ class _SignUpFormState extends State<SignUpForm> {
   int otpValidity = 0;
   Future<void> generateSignupOTP(String mobileNumber) async {
     print("OTP number $mobileNumber");
-    Get.find<LoadingController>().startLoading();
+    loadingController.startLoading();
     var request = http.Request(
       'POST',
       Uri.parse(
@@ -371,15 +415,12 @@ class _SignUpFormState extends State<SignUpForm> {
       print("OTP DATA $otpData");
 
       // Assuming the OTP is part of the response, extract it
+      // Make sure to update the state variables accordingly
+      // You can set these variables in a stateful widget or manage the state with GetX
 
-      setState(() {
-        attemptsLeft = otpData['data']['attempts_left'] ?? 0;
-        otpValidity = otpData['data']['otp_validity'] ?? 0;
-      });
-      print("otpValidity:$otpValidity");
       Get.find<LoadingController>().stopLoading();
       showModalBottomSheet(
-        context: context,
+        context: Get.context!,
         isScrollControlled: true,
         builder: (BuildContext context) {
           return SingleChildScrollView(
@@ -388,8 +429,8 @@ class _SignUpFormState extends State<SignUpForm> {
                   bottom: MediaQuery.of(context).viewInsets.bottom),
               child: OtpScreen(
                 mobileNumber: _mobileNumberController.text,
-                attemptsLeft: attemptsLeft.toString(),
-                otpValidity: otpValidity.toString(),
+                attemptsLeft: otpData['data']['attempts_left'].toString(),
+                otpValidity: otpData['data']['otp_validity'].toString(),
                 onOtpVerification: (otp2) {
                   verifySignupOTP(
                     mobileNumber: mobileNumber,
@@ -405,7 +446,8 @@ class _SignUpFormState extends State<SignUpForm> {
         },
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      loadingController.stopLoading();
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
         const SnackBar(
           content: Text('Failed to generate OTP. Please try again.'),
           backgroundColor: Colors.red,
@@ -413,7 +455,6 @@ class _SignUpFormState extends State<SignUpForm> {
       );
     }
   }
-
   Future<void> verifySignupOTP({
     required String mobileNumber,
     required String otp,
@@ -488,6 +529,15 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
+    _mobileNumberController.addListener(() {
+      signupController.mobileNumber.value = _mobileNumberController.text;
+    });
+    nameController.addListener(() {
+      signupController.name.value = nameController.text;
+    });
+    dateOfBirthController.addListener(() {
+      signupController.dateOfBirth.value = dateOfBirthController.text;
+    });
     return BlocListener<SignupBloc, SignupState>(
       listener: (context, state) {
         if (state.otpStatus == OTPStatus.otpSent && _isOtpBottomSheetShown) {
@@ -647,7 +697,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     ),
                   ),
                   SizedBox(
-                    height: height * 0.02,
+                    height: height * 0.005,
                   ),
                   BlocBuilder<SignupBloc, SignupState>(
                     builder: (context, state) {
@@ -731,44 +781,49 @@ class _SignUpFormState extends State<SignUpForm> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Obx(() => SizedBox(
-                        width: double.infinity,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextButton(
-                            style: ButtonStyle(
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    side: const BorderSide(color: Colors.black),
-                                  ),
-                                ),
-                                backgroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                  primaryColor,
-                                )),
-                            onPressed: () {
-                              generateSignupOTP(_mobileNumberController.text);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child:
-                                  Get.find<LoadingController>().isLoading.value
-                                      ? CircularProgressIndicator(
-                                          color: Colors.white,
-                                        )
-                                      : Text(
-                                          'create_account_button_text'.tr,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 25),
-                                        ),
-                            ),
+            Obx(() {
+              final bool isFormValid = nameController.text.isNotEmpty && _mobileNumberController.text.isNotEmpty && dateOfBirthController.text.isNotEmpty && gender != null;
+              return SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextButton(
+                    style: ButtonStyle(
+                        shape: MaterialStateProperty.all<
+                            RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            side: const BorderSide(color: Colors.black),
                           ),
                         ),
-                      )),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          isFormValid ? primaryColor : Colors.grey, // Change to your primary color
+                        ),
+                        ),
+                    onPressed: isFormValid
+                        ? () {
+                      generateSignupOTP(_mobileNumberController.text);
+                    }
+                        : null,
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: loadingController.isLoading.value
+                          ? CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                          : Text(
+                        'create_account_button_text'.tr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
                   SizedBox(height: height * 0.02),
                   Center(
                     child: RichText(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Pages/AuthPage.dart';
+import 'package:myshetra/Pages/Editprofile.dart';
 import 'package:myshetra/Pages/map_page.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:http/http.dart' as http;
@@ -71,6 +72,11 @@ class _HomePageState extends State<HomePage> {
           SizedBox(
             height: 20,
           ),
+          MyButton(
+              onTap: () {
+                Get.to(EditProfilePage());
+              },
+              text: "Edit Profile"),
           MyButton(
               onTap: () {
                 Get.to(MapPage());
