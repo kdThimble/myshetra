@@ -41,7 +41,8 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
     if (_otp.isEmpty || _otp.length < 6) {
       Get.snackbar(
         "Error",
-        "Please enter the OTP",
+        "Please enter the OTP"
+        , backgroundColor:Colors.red, colorText: Colors.white 
       );
       // ScaffoldMessenger.of(context).showSnackBar(
       //   const SnackBar(
@@ -76,7 +77,7 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
       print("OTP DATA $otpData");
       Get.snackbar(
         "Success",
-        "OTP sent successfully",
+        "OTP sent successfully", backgroundColor:Colors.red, colorText: Colors.white 
       );
 
       // Assuming the OTP is part of the response, extract it
@@ -90,6 +91,7 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
       Get.snackbar(
         "Error",
         "Please enter the OTP",
+       backgroundColor:Colors.red, colorText: Colors.white 
       );
     }
   }

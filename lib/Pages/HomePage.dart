@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
       print(responseData);
       print(response.statusCode);
       print(response.toString());
-      Get.snackbar('Error', response.reasonPhrase ?? "Server Error");
+      Get.snackbar('', response.reasonPhrase ?? "Server Error", backgroundColor:Colors.red, colorText: Colors.white );
     }
   }
 

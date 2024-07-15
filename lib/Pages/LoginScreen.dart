@@ -251,10 +251,10 @@ class _LoginFormState extends State<LoginForm> {
           },
         );
       } else {
-        Get.snackbar('Error', '${otpData['message']}');
+        Get.snackbar('', '${otpData['message']}', backgroundColor:Colors.red, colorText: Colors.white );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Something went wrong');
+      Get.snackbar('Error', 'Something went wrong', backgroundColor:Colors.red, colorText: Colors.white );
       Get.find<LoadingController>().stopLoading();
     }
   }
@@ -294,7 +294,7 @@ class _LoginFormState extends State<LoginForm> {
           await prefs.setString('token', authResponse.token);
           await prefs.setString('refreshToken', authResponse.refreshToken);
         } else {
-          Get.snackbar('Error', '${jsonData['message']}');
+          Get.snackbar('', '${jsonData['message']}', backgroundColor:Colors.red, colorText: Colors.white );
           if (kDebugMode) {
             print('Failed to authenticate');
           }
@@ -308,11 +308,11 @@ class _LoginFormState extends State<LoginForm> {
         );
       } else {
         Get.find<LoadingController>().stopLoading();
-        Get.snackbar('Error', '${jsonData['message']}');
+        Get.snackbar('', '${jsonData['message']}', backgroundColor:Colors.red, colorText: Colors.white );
       }
     } catch (e) {
       Get.find<LoadingController>().stopLoading();
-      Get.snackbar('Error', 'Something went wrong');
+      Get.snackbar('Error', 'Something went wrong', backgroundColor:Colors.red, colorText: Colors.white );
     }
   }
 

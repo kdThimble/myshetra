@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -30,14 +31,16 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   location.Location _locationController = location.Location();
   final authService = Get.find<AuthService>();
-
+  double ? latitude ;
+  double ? longitude;
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
-
   LatLng? _currentP;
   String _currentAddress =
       'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
   String _formattedCoordinates = "";
+  late MapController controller;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +53,7 @@ class _MapPageState extends State<MapPage> {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     print("_formattedCoordinates:$_formattedCoordinates");
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -95,48 +99,64 @@ class _MapPageState extends State<MapPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 0),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Choose you sector location',
-                style: TextStyle(
-                    fontSize: width * 0.06, fontWeight: FontWeight.bold),
-              ),
+            Text(
+              'Choose your sector location',
+              style: TextStyle(
+                  fontSize: width * 0.06, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 0),
-            // Text(_formattedCoordinates),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Please Select your location',
-                style: TextStyle(fontSize: 18, color: greyColor),
+            Text(
+              'Please Select your location',
+              style: TextStyle(fontSize: 18, color: greyColor),
+            ),
+            // Ensure the OSMFlutter widget is properly constrained
+            Expanded(
+              child: OSMFlutter(
+                controller: controller,
+                osmOption: OSMOption(
+                  userTrackingOption: UserTrackingOption(
+                    enableTracking: true,
+                    unFollowUser: false,
+                  ),
+                  zoomOption: ZoomOption(
+                    initZoom: 8,
+                    minZoomLevel: 3,
+                    maxZoomLevel: 19,
+                    stepZoom: 1.0,
+                  ),
+                  userLocationMarker: UserLocationMaker(
+                    personMarker: MarkerIcon(
+                      icon: Icon(
+                        Icons.location_history_rounded,
+                        color: Colors.red,
+                        size: 48,
+                      ),
+                    ),
+                    directionArrowMarker: MarkerIcon(
+                      icon: Icon(
+                        Icons.double_arrow,
+                        size: 48,
+                      ),
+                    ),
+                  ),
+                  roadConfiguration: RoadOption(
+                    roadColor: Colors.yellowAccent,
+                  ),
+                  markerOption: MarkerOption(
+                    defaultMarker: MarkerIcon(
+                      icon: Icon(
+                        Icons.person_pin_circle,
+                        color: Colors.blue,
+                        size: 56,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
-            ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                    "assets/Screenshot 2024-07-12 at 12.14.58 AM.png")),
-            // GoogleMap(
-            //   onMapCreated: ((GoogleMapController controller) =>
-            //       _mapController.complete(controller)),
-            //   initialCameraPosition: CameraPosition(
-            //     target: _currentP ?? LatLng(0, 0),
-            //     zoom: 100, // Adjust the zoom level as needed
-            //   ),
-            //   markers: _currentP == null
-            //       ? {}
-            //       : {
-            //           Marker(
-            //             markerId: MarkerId("_currentLocation"),
-            //             icon: BitmapDescriptor.defaultMarkerWithHue(
-            //                 BitmapDescriptor
-            //                     .hueAzure), // Set marker color to black
-            //             position: _currentP!,
-            //           ),
-            //         },
-            // ),
           ],
         ),
       ),
@@ -152,6 +172,7 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
+
   Future<void> _cameraToPosition(LatLng pos) async {
     final GoogleMapController controller = await _mapController.future;
     CameraPosition _newCameraPosition = CameraPosition(
@@ -163,26 +184,72 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
+
   Future<void> getLocationUpdates() async {
     _locationController.onLocationChanged.listen(
-      (location.LocationData currentLocation) async {
-        if (currentLocation.latitude != null &&
-            currentLocation.longitude != null) {
+          (location.LocationData currentLocation) async {
+        if (currentLocation.latitude != null && currentLocation.longitude != null) {
           setState(() {
-            // _currentP =
-            //     LatLng(currentLocation.latitude!, currentLocation.longitude!);
-            // _cameraToPosition(_currentP!);
-            _formattedCoordinates = _convertToDMS(
-                currentLocation.latitude!, currentLocation.longitude!);
+            _formattedCoordinates = _convertToDMS(currentLocation.latitude!, currentLocation.longitude!);
+          });
+          print("_formattedCoordinates");
+          print(_formattedCoordinates);
+
+          // Parse the DMS coordinates to decimal degrees
+          var coordinates = _parseCoordinates(_formattedCoordinates);
+          setState(() {
+            latitude = coordinates['latitude']!;
+            longitude = coordinates['longitude']!;
+            controller = MapController(
+              initPosition: GeoPoint(
+                latitude: latitude!,
+                longitude: longitude!,
+              ),
+            );
           });
 
+          print(latitude);
+          print(longitude);
+          // Update the map controller's position
+          // controller.initPosition = GeoPoint(latitude: latitude, longitude: longitude);
+
           // Fetch address using geocoding
-          await _getAddressFromCoordinates(_currentP);
+          await _getAddressFromCoordinates(LatLng(latitude!, longitude!));
         }
       },
     );
   }
 
+  Map<String, double> _parseCoordinates(String dmsCoordinates) {
+    final regex = RegExp(r'(\d+)°(\d+)'+"'"+r'(\d+)"([NSEW])');
+    final matches = regex.allMatches(dmsCoordinates);
+
+    double parseDMS(int degrees, int minutes, int seconds, String direction) {
+      double decimal = degrees + (minutes / 60) + (seconds / 3600);
+      if (direction == 'S' || direction == 'W') {
+        decimal = -decimal;
+      }
+      return decimal;
+    }
+
+    double latitude = 0;
+    double longitude = 0;
+
+    for (final match in matches) {
+      int degrees = int.parse(match.group(1)!);
+      int minutes = int.parse(match.group(2)!);
+      int seconds = int.parse(match.group(3)!);
+      String direction = match.group(4)!;
+
+      if (direction == 'N' || direction == 'S') {
+        latitude = parseDMS(degrees, minutes, seconds, direction);
+      } else {
+        longitude = parseDMS(degrees, minutes, seconds, direction);
+      }
+    }
+
+    return {'latitude': latitude, 'longitude': longitude};
+  }
   String _convertToDMS(double latitude, double longitude) {
     String latDirection = latitude >= 0 ? "N" : "S";
     String lonDirection = longitude >= 0 ? "E" : "W";
@@ -612,7 +679,7 @@ class _LocationDetailsBottomSheetState
     } else {
       Get.snackbar(
         'Server Error',
-        'Failed to fetch representatives',
+        'Failed to fetch representatives', backgroundColor:Colors.red, colorText: Colors.white 
       );
       print('Request failed with status: ${response.statusCode}');
     }

@@ -139,10 +139,14 @@ class _SignUpFormState extends State<SignUpForm> {
   void _showOtpBottomSheet(BuildContext context) {
     void _onTextFieldChanged(int index, String value) {
       // Move to the next field if the current one is filled
-      if (value.isNotEmpty && index < 5) {
-        FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+      if (value.isNotEmpty && value.length == 1) {
+        if (index < _focusNodes.length - 1) {
+          _focusNodes[index + 1].requestFocus();
+        } else {
+          _focusNodes[index].unfocus();
+        }
       } else if (value.isEmpty && index > 0) {
-        FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+        _focusNodes[index - 1].requestFocus();
       }
 
       // Update the OTP
@@ -200,12 +204,21 @@ class _SignUpFormState extends State<SignUpForm> {
                         controller: _controllers[index],
                         focusNode: _focusNodes[index],
                         keyboardType: TextInputType.number,
-                        textCapitalization: TextCapitalization.characters,
                         textAlign: TextAlign.center,
+                        maxLength: 1,
                         decoration: InputDecoration(
                           counterText: "",
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Color(0xFF0E3D8B), width: 2.0),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.black45, width: 2.0),
+                          ),
                         ),
                         onChanged: (value) => _onTextFieldChanged(index, value),
                       ),
@@ -262,8 +275,11 @@ class _SignUpFormState extends State<SignUpForm> {
       },
     );
   }
+  DateTime? selectedDate;
 
   Future<void> _selectDate(BuildContext context) async {
+    DateTime initialDate = selectedDate ?? DateTime.now();
+
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -276,12 +292,15 @@ class _SignUpFormState extends State<SignUpForm> {
           height: 300,
           child: Column(
             children: <Widget>[
-              Text(
-                'Select Date of Birth',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Colors.black,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Text(
+                  'Select Date of Birth',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
                 ),
               ),
               Expanded(
@@ -298,10 +317,10 @@ class _SignUpFormState extends State<SignUpForm> {
                     itemHeight: 40,
                   ),
                   dateFormat: 'dd-MMMM-yyyy',
-                  // minDateTime: DateTime(1940),
-                  // maxDateTime: DateTime(2006),
+                  initialDate: initialDate,
                   onChange: (date, _) {
                     setState(() {
+                      selectedDate = date;
                       dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(date);
                     });
                   },
@@ -315,6 +334,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       );
                     } else {
                       setState(() {
+                        selectedDate = date;
                         dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(date);
                       });
                       Navigator.of(context).pop();
@@ -328,7 +348,6 @@ class _SignUpFormState extends State<SignUpForm> {
       },
     );
   }
-
   String _mobileNumber = '';
   @override
   void initState() {
@@ -501,7 +520,7 @@ class _SignUpFormState extends State<SignUpForm> {
           await prefs.setString('token', authResponse.token);
           await prefs.setString('refreshToken', authResponse.refreshToken);
         } else {
-          Get.snackbar('Error', 'Failed to authenticate');
+          Get.snackbar('Failed to authenticate', '' , backgroundColor:Colors.red , colorText: Colors.white ,);
           print('Failed to authenticate');
         }
 
@@ -514,12 +533,12 @@ class _SignUpFormState extends State<SignUpForm> {
       } else {
         print("ERROR");
         print(response.reasonPhrase);
-        Get.snackbar("Error", " ${jsonData['message'].toString()}");
+        Get.snackbar("", " ${jsonData['message'].toString()}", backgroundColor:Colors.red, colorText: Colors.white );
       }
     } catch (e) {
       Get.find<LoadingController>().stopLoading();
       Get.snackbar(
-          "Error", "Failed to verify OTP. Please try again. ${e.toString()}");
+          "Error", "Failed to verify OTP. Please try again. ${e.toString()}", backgroundColor:Colors.red, colorText: Colors.white );
     }
   }
 
@@ -627,7 +646,8 @@ class _SignUpFormState extends State<SignUpForm> {
                         width: 10,
                       ),
                       Container(
-                          // margin: const EdgeInsets.all(10.0),
+                          // margin: const EdgeInsets.all(2.0),
+                          // padding: const EdgeInsets.all(8),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 15, vertical: 20),
                           decoration: BoxDecoration(
@@ -643,7 +663,7 @@ class _SignUpFormState extends State<SignUpForm> {
                         builder: (context, state) {
                           return Expanded(
                             child: Container(
-                              margin: const EdgeInsets.all(10.0),
+                              margin: const EdgeInsets.all(8.0),
                               padding: const EdgeInsets.all(5),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
@@ -702,9 +722,9 @@ class _SignUpFormState extends State<SignUpForm> {
                   BlocBuilder<SignupBloc, SignupState>(
                     builder: (context, state) {
                       return Container(
-                        margin: const EdgeInsets.all(10.0),
+                        margin: const EdgeInsets.all(8.0),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 10),
+                            horizontal: 15.0, vertical: 10),
                         width: double.infinity,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
@@ -745,7 +765,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     height: height * 0.02,
                   ),
                   Container(
-                    margin: const EdgeInsets.all(10.0),
+                    margin: const EdgeInsets.all(8.0),
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),

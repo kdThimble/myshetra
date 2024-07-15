@@ -30,12 +30,12 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
 
   Future<void> _submitData() async {
     if (positioncontroller.text.isEmpty) {
-      Get.snackbar("Incomplete Form", "Please enter position name");
+      Get.snackbar("Incomplete Form", "Please enter position name", backgroundColor:Colors.red, colorText: Colors.white );
       return;
     }
 
     if (selectedFilePath == "") {
-      Get.snackbar("Incomplete Form", "Please select a file");
+      Get.snackbar("Incomplete Form", "Please select a file", backgroundColor:Colors.red, colorText: Colors.white );
       return;
     }
     try {
@@ -76,16 +76,16 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         String errorMessage = jsonResponse['message'];
 
         // Show SnackBar with the error message
-        Get.snackbar("Error", errorMessage);
+        Get.snackbar("", errorMessage, backgroundColor:Colors.red, colorText: Colors.white );
 
         print('Error: $errorMessage');
       } else {
-        Get.snackbar("Error", "Some Server Error");
+        Get.snackbar("", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
         // Handle other error responses
         print('Error: ${response.statusCode}');
       }
     } catch (error) {
-      Get.snackbar("Error", "Some Server Error");
+      Get.snackbar("Error", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
       print('Error: $error');
       Get.find<LoadingController>().stopLoading();
     }
@@ -110,7 +110,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         // Call uploadImage function with the selected image
         // await uploadImage(context, XFile(compressedImage.path));
       } else {
-        Get.snackbar("Error", "Some  Error Occured");
+        Get.snackbar("", "Some  Error Occured", backgroundColor:Colors.red, colorText: Colors.white );
         // Handle compression failure
         print("Compression failed");
       }

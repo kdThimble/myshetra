@@ -59,6 +59,7 @@ dependencies:
   newrelic_mobile: ^1.0.9
   connectivity_plus: ^5.0.2
   flutter_holo_date_picker: ^1.1.3
+  flutter_osm_plugin:
 dev_dependencies:
   flutter_test:
     sdk: flutter

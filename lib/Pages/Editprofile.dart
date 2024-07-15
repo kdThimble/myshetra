@@ -38,7 +38,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       var jsonResponse = json.decode(response.body);
       return UserProfile.fromJson(jsonResponse['data']);
     } else {
-      Get.snackbar('Error', 'Failed to fetch user profile');
+      Get.snackbar('', 'Failed to fetch user profile', backgroundColor:Colors.red, colorText: Colors.white );
       print(
           'Request failed with status: ${json.decode(response.body)['message']}');
       print("REfresg token ${authService.refreshToken} ");
