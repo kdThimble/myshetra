@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:hydrated_bloc/hydrated_bloc.dart';
@@ -112,7 +113,7 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
           loginStatus: LoginStatus.success,
         ));
       } else {
-        Get.snackbar('Error', '${data['message']}');
+        Get.snackbar('', '${data['message']}', backgroundColor:Colors.red, colorText: Colors.white );
         emit(state.copyWith(loginStatus: LoginStatus.error));
       }
     } catch (e) {
