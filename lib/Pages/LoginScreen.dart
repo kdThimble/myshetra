@@ -250,10 +250,17 @@ class _LoginFormState extends State<LoginForm> {
           },
         );
       } else {
-        Get.snackbar('', '${otpData['message']}', backgroundColor:Colors.red, colorText: Colors.white );
+        Get.snackbar('${otpData['message']}', '',
+            titleText: Text(
+              otpData['message'],
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            // backgroundColor: Colors.red,
+            colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Something went wrong', backgroundColor:Colors.red, colorText: Colors.white );
+      Get.snackbar('Something went wrong', '',
+          backgroundColor: Colors.red, colorText: Colors.white);
       Get.find<LoadingController>().stopLoading();
     }
   }
@@ -293,7 +300,8 @@ class _LoginFormState extends State<LoginForm> {
           await prefs.setString('token', authResponse.token);
           await prefs.setString('refreshToken', authResponse.refreshToken);
         } else {
-          Get.snackbar('', '${jsonData['message']}', backgroundColor:Colors.red, colorText: Colors.white );
+          Get.snackbar('', '${jsonData['message']}',
+              backgroundColor: Colors.red, colorText: Colors.white);
           if (kDebugMode) {
             print('Failed to authenticate');
           }
@@ -307,11 +315,13 @@ class _LoginFormState extends State<LoginForm> {
         );
       } else {
         Get.find<LoadingController>().stopLoading();
-        Get.snackbar('', '${jsonData['message']}', backgroundColor:Colors.red, colorText: Colors.white );
+        Get.snackbar('', '${jsonData['message']}',
+            backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e) {
       Get.find<LoadingController>().stopLoading();
-      Get.snackbar('Error', 'Something went wrong', backgroundColor:Colors.red, colorText: Colors.white );
+      Get.snackbar('Error', 'Something went wrong',
+          backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 
@@ -479,35 +489,38 @@ class _LoginFormState extends State<LoginForm> {
                 SizedBox(height: height * 0.05),
                 SizedBox(
                   width: double.infinity,
-                  child: TextButton(
-                    style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            side: const BorderSide(color: Colors.black),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextButton(
+                      style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              side: const BorderSide(color: Colors.black),
+                            ),
                           ),
-                        ),
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          primaryColor,
-                        )),
-                    onPressed: () =>
-                        {generateSignupOTP(_numberController.text)},
-                    // context.read<LoginBloc>().add(GenerateOtp()),
-                    child: Obx(() => Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Get.find<LoadingController>().isLoading.value
-                              ? CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : Text(
-                                  'initial_screen_login_button_text'.tr,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 25),
-                                ),
-                        )),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            primaryColor,
+                          )),
+                      onPressed: () =>
+                          {generateSignupOTP(_numberController.text)},
+                      // context.read<LoginBloc>().add(GenerateOtp()),
+                      child: Obx(() => Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: Get.find<LoadingController>().isLoading.value
+                                ? CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : Text(
+                                    'initial_screen_login_button_text'.tr,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 25),
+                                  ),
+                          )),
+                    ),
                   ),
                 ),
                 SizedBox(height: height * 0.02),

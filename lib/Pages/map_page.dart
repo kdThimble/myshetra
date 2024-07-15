@@ -31,8 +31,8 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   location.Location _locationController = location.Location();
   final authService = Get.find<AuthService>();
-  double ? latitude ;
-  double ? longitude;
+  double? latitude;
+  double? longitude;
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
   LatLng? _currentP;
@@ -172,7 +172,6 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-
   Future<void> _cameraToPosition(LatLng pos) async {
     final GoogleMapController controller = await _mapController.future;
     CameraPosition _newCameraPosition = CameraPosition(
@@ -184,13 +183,14 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-
   Future<void> getLocationUpdates() async {
     _locationController.onLocationChanged.listen(
-          (location.LocationData currentLocation) async {
-        if (currentLocation.latitude != null && currentLocation.longitude != null) {
+      (location.LocationData currentLocation) async {
+        if (currentLocation.latitude != null &&
+            currentLocation.longitude != null) {
           setState(() {
-            _formattedCoordinates = _convertToDMS(currentLocation.latitude!, currentLocation.longitude!);
+            _formattedCoordinates = _convertToDMS(
+                currentLocation.latitude!, currentLocation.longitude!);
           });
           print("_formattedCoordinates");
           print(_formattedCoordinates);
@@ -221,7 +221,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   Map<String, double> _parseCoordinates(String dmsCoordinates) {
-    final regex = RegExp(r'(\d+)°(\d+)'+"'"+r'(\d+)"([NSEW])');
+    final regex = RegExp(r'(\d+)°(\d+)' + "'" + r'(\d+)"([NSEW])');
     final matches = regex.allMatches(dmsCoordinates);
 
     double parseDMS(int degrees, int minutes, int seconds, String direction) {
@@ -250,6 +250,7 @@ class _MapPageState extends State<MapPage> {
 
     return {'latitude': latitude, 'longitude': longitude};
   }
+
   String _convertToDMS(double latitude, double longitude) {
     String latDirection = latitude >= 0 ? "N" : "S";
     String lonDirection = longitude >= 0 ? "E" : "W";
@@ -677,10 +678,8 @@ class _LocationDetailsBottomSheetState
       // Print or use _representatives as needed
       print('Representatives: $_representatives');
     } else {
-      Get.snackbar(
-        'Server Error',
-        'Failed to fetch representatives', backgroundColor:Colors.red, colorText: Colors.white 
-      );
+      Get.snackbar('Server Error', 'Failed to fetch representatives',
+          backgroundColor: Colors.red, colorText: Colors.white);
       print('Request failed with status: ${response.statusCode}');
     }
   }

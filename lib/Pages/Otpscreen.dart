@@ -7,6 +7,7 @@ import 'package:myshetra/Components/MyButton.dart';
 
 class OtpScreen extends StatefulWidget {
   final String mobileNumber;
+  final String title;
   final Function(String) onOtpVerification;
   final String otp;
   final String attemptsLeft;
@@ -15,6 +16,7 @@ class OtpScreen extends StatefulWidget {
       {required this.mobileNumber,
       required this.onOtpVerification,
       this.otp = '',
+      this.title = 'Verify login Details',
       required this.attemptsLeft,
       required this.otpValidity});
 
@@ -27,6 +29,7 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
       List.generate(6, (index) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
   String _otp = '';
+  String attemptsLeft = '';
 
   void _onTextFieldChanged(int index, String value) {
     if (value.isNotEmpty && index < 5) {
@@ -39,11 +42,8 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
   void _verifyOtp() {
     _otp = _controllers.map((controller) => controller.text).join();
     if (_otp.isEmpty || _otp.length < 6) {
-      Get.snackbar(
-        "Error",
-        "Please enter the OTP"
-        , backgroundColor:Colors.red, colorText: Colors.white 
-      );
+      Get.snackbar("Error", "Please enter the OTP",
+          backgroundColor: Colors.red, colorText: Colors.white);
       // ScaffoldMessenger.of(context).showSnackBar(
       //   const SnackBar(
       //     content: Text('Please enter the OTP'),
@@ -75,24 +75,22 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
       var responseData = await response.stream.bytesToString();
       var otpData = json.decode(responseData);
       print("OTP DATA $otpData");
-      Get.snackbar(
-        "Success",
-        "OTP sent successfully", backgroundColor:Colors.red, colorText: Colors.white 
-      );
+      Get.snackbar("Success", "OTP sent successfully",
+          backgroundColor: Colors.red, colorText: Colors.white);
 
       // Assuming the OTP is part of the response, extract it
       String otp = otpData['otp'] ?? '';
+      setState(() {
+        attemptsLeft = otpData['data']['attempts_left'] ?? 0;
+      });
       // setState(() {
       //   attemptsLeft = otpData['data']['attempts_left'] ?? 0;
       //   otpValidity = otpData['data']['otp_validity'] ?? 0;
       // });
       // print("otpValidity:$otpValidity");
     } else {
-      Get.snackbar(
-        "Error",
-        "Please enter the OTP",
-       backgroundColor:Colors.red, colorText: Colors.white 
-      );
+      Get.snackbar("Error", "Please enter the OTP",
+          backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 
@@ -130,6 +128,7 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
         (int.parse(widget.otpValidity) / 60).truncate();
     _remainingTimeInSeconds = otpValidityInMinutes * 60;
     _startTimer();
+    attemptsLeft = widget.attemptsLeft;
   }
 
   @override
@@ -160,9 +159,9 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
               const SizedBox(
                 height: 25,
               ),
-              const Center(
+              Center(
                   child: Text(
-                'Verify login details',
+                widget.title,
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               )),
               const Center(child: Text('We have sent a verification code to')),
@@ -173,11 +172,16 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Center(
-                child: Text(
-                  'change number?',
-                  style: TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.bold),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: const Center(
+                  child: Text(
+                    'change number?',
+                    style: TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -199,11 +203,13 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Color(0xFF0E3D8B), width: 2.0),
+                          borderSide:
+                              BorderSide(color: Color(0xFF0E3D8B), width: 2.0),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.black45, width: 2.0),
+                          borderSide:
+                              BorderSide(color: Colors.black45, width: 2.0),
                         ),
                       ),
                       onChanged: (value) => _onTextFieldChanged(index, value),
@@ -234,7 +240,7 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
               ),
               Center(
                 child: Text(
-                  'You have ${widget.attemptsLeft} Attempts left',
+                  'You have ${attemptsLeft} Attempts left',
                   style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
