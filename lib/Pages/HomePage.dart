@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Pages/AuthPage.dart';
@@ -52,7 +53,12 @@ class _HomePageState extends State<HomePage> {
       print(responseData);
       print(response.statusCode);
       print(response.toString());
-      Get.snackbar('', response.reasonPhrase ?? "Server Error", backgroundColor:Colors.red, colorText: Colors.white );
+
+      Fluttertoast.showToast(
+          msg: response.reasonPhrase ?? "Server Error",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
     }
   }
 

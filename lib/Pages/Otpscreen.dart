@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -43,8 +44,11 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
   void _verifyOtp() {
     _otp = _controllers.map((controller) => controller.text).join();
     if (_otp.isEmpty || _otp.length < 6) {
-      Get.snackbar("Error", "Please enter the OTP",
-          backgroundColor: Colors.red, colorText: Colors.white);
+      Fluttertoast.showToast(
+          msg: "Please enter the OTP",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
       // ScaffoldMessenger.of(context).showSnackBar(
       //   const SnackBar(
       //     content: Text('Please enter the OTP'),
@@ -64,9 +68,11 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
   Future<void> generateSignupOTP(String mobileNumber) async {
     print("OTP number $mobileNumber");
     if (attemptsLeft == '0') {
-      Get.snackbar(
-          "Error", "You have exceeded the number of attempts Try again later",
-          backgroundColor: Colors.red, colorText: Colors.white);
+      Fluttertoast.showToast(
+          msg: "You have exceeded the number of attempts Try again later",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
       return;
     }
     var request = http.Request(
@@ -82,8 +88,12 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
       var responseData = await response.stream.bytesToString();
       var otpData = json.decode(responseData);
       print("OTP DATA $otpData");
-      Get.snackbar("Success", "OTP sent successfully",
-          backgroundColor: Colors.red, colorText: Colors.white);
+
+      Fluttertoast.showToast(
+          msg: "OTP sent successfully",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
 
       // Assuming the OTP is part of the response, extract it
       String otp = otpData['otp'] ?? '';

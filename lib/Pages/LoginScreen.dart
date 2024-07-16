@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:myshetra/Components/LinkText.dart';
 import 'package:myshetra/Components/MyButton.dart';
@@ -250,17 +251,19 @@ class _LoginFormState extends State<LoginForm> {
           },
         );
       } else {
-        Get.snackbar('${otpData['message']}', '',
-            titleText: Text(
-              otpData['message'],
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            // backgroundColor: Colors.red,
-            colorText: Colors.white);
+        Fluttertoast.showToast(
+            msg: '${otpData['message']}',
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            gravity: ToastGravity.TOP);
       }
     } catch (e) {
-      Get.snackbar('Something went wrong', '',
-          backgroundColor: Colors.red, colorText: Colors.white);
+      Fluttertoast.showToast(
+          msg: 'Something Went Wrong',
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
+
       Get.find<LoadingController>().stopLoading();
     }
   }

@@ -176,9 +176,12 @@ class _ManualPageState extends State<ManualPage> {
       // Print or use _representatives as needed
       print('Representatives: $_representatives');
     } else {
-      Get.snackbar('', jsonData['message'] ?? "Server Error",
-          backgroundColor: Colors.red, colorText: Colors.white);
       print(response.reasonPhrase);
+      Fluttertoast.showToast(
+          msg: jsonData['message'] ?? "Server Error",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
     }
   }
 
