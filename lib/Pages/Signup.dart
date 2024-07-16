@@ -430,33 +430,48 @@ class _SignUpFormState extends State<SignUpForm> {
         // You can set these variables in a stateful widget or manage the state with GetX
 
         Get.find<LoadingController>().stopLoading();
-        showModalBottomSheet(
-          context: Get.context!,
-          isScrollControlled: true,
-          builder: (BuildContext context) {
-            return SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom),
-                child: OtpScreen(
-                  title: "Verify Signup details",
-                  mobileNumber: _mobileNumberController.text,
-                  attemptsLeft: otpData['data']['attempts_left'].toString(),
-                  otpValidity: otpData['data']['otp_validity'].toString(),
-                  onOtpVerification: (otp2) {
-                    verifySignupOTP(
-                      mobileNumber: mobileNumber,
-                      otp: otp2,
-                      name: nameController.text,
-                      gender: gender,
-                      dateOfBirth: dateOfBirthController.text,
-                    );
-                  },
-                ),
-              ),
+        Get.to(OtpScreen(
+          title: "Verify Signup details",
+          mobileNumber: _mobileNumberController.text,
+          attemptsLeft: otpData['data']['attempts_left'].toString(),
+          otpValidity: otpData['data']['otp_validity'].toString(),
+          onOtpVerification: (otp2) {
+            verifySignupOTP(
+              mobileNumber: mobileNumber,
+              otp: otp2,
+              name: nameController.text,
+              gender: gender,
+              dateOfBirth: dateOfBirthController.text,
             );
           },
-        );
+        ));
+        // showModalBottomSheet(
+        //   context: Get.context!,
+        //   isScrollControlled: true,
+        //   builder: (BuildContext context) {
+        //     return SingleChildScrollView(
+        //       child: Container(
+        //         padding: EdgeInsets.only(
+        //             bottom: MediaQuery.of(context).viewInsets.bottom),
+        //         child: OtpScreen(
+        //           title: "Verify Signup details",
+        //           mobileNumber: _mobileNumberController.text,
+        //           attemptsLeft: otpData['data']['attempts_left'].toString(),
+        //           otpValidity: otpData['data']['otp_validity'].toString(),
+        //           onOtpVerification: (otp2) {
+        //             verifySignupOTP(
+        //               mobileNumber: mobileNumber,
+        //               otp: otp2,
+        //               name: nameController.text,
+        //               gender: gender,
+        //               dateOfBirth: dateOfBirthController.text,
+        //             );
+        //           },
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // );
       } else {
         loadingController.stopLoading();
         ScaffoldMessenger.of(Get.context!).showSnackBar(

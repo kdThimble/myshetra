@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Controller/loadingController.dart';
@@ -175,7 +176,8 @@ class _ManualPageState extends State<ManualPage> {
       // Print or use _representatives as needed
       print('Representatives: $_representatives');
     } else {
-      Get.snackbar('', jsonData['message'] ?? "Server Error", backgroundColor:Colors.red, colorText: Colors.white );
+      Get.snackbar('', jsonData['message'] ?? "Server Error",
+          backgroundColor: Colors.red, colorText: Colors.white);
       print(response.reasonPhrase);
     }
   }
@@ -276,7 +278,9 @@ class _ManualPageState extends State<ManualPage> {
                                     ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
-                                      value: _selectedState,
+                                      focusColor: Colors.blue,
+
+                                      // value: _selectedState,
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedState = newValue!;
@@ -398,6 +402,16 @@ class _ManualPageState extends State<ManualPage> {
                                     const SizedBox(height: 16),
                                     MyButton(
                                         onTap: () async {
+                                          if (_selectedLocalDivision1.isEmpty) {
+                                            Fluttertoast.showToast(
+                                                msg: 'Please select a location',
+                                                backgroundColor: Colors.red,
+                                                fontSize: 19,
+                                                textColor: Colors.white,
+                                                gravity: ToastGravity.TOP);
+
+                                            return;
+                                          }
                                           // Perform action on submit button press
                                           Get.to(MapPage(
                                             isRedirected: true,

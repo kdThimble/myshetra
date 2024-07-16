@@ -60,32 +60,6 @@ class _MapPageState extends State<MapPage> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.white,
         surfaceTintColor: Colors.white,
-        leading: Row(
-          children: [
-            const SizedBox(
-              width: 10,
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey), // Border color
-                  shape: BoxShape.circle, // Rounded shape
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: Icon(
-                    Icons.arrow_back, // Back icon
-                    color: Colors.black, // Icon color
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
         centerTitle: true,
         title: Text(
           "app_header_title".tr,
@@ -102,55 +76,72 @@ class _MapPageState extends State<MapPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 0),
-            Text(
-              'Choose your sector location',
-              style: TextStyle(
-                  fontSize: width * 0.06, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                'Choose your sector location',
+                style: TextStyle(
+                    fontSize: width * 0.06,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Okra"),
+              ),
             ),
-            const SizedBox(height: 0),
-            Text(
-              'Please Select your location',
-              style: TextStyle(fontSize: 18, color: greyColor),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                'Please Select your location',
+                style: TextStyle(fontSize: 18, color: greyColor),
+              ),
             ),
+            const SizedBox(height: 10),
             // Ensure the OSMFlutter widget is properly constrained
             Expanded(
-              child: OSMFlutter(
-                controller: controller,
-                osmOption: OSMOption(
-                  userTrackingOption: UserTrackingOption(
-                    enableTracking: true,
-                    unFollowUser: false,
-                  ),
-                  zoomOption: ZoomOption(
-                    initZoom: 8,
-                    minZoomLevel: 3,
-                    maxZoomLevel: 19,
-                    stepZoom: 1.0,
-                  ),
-                  userLocationMarker: UserLocationMaker(
-                    personMarker: MarkerIcon(
-                      icon: Icon(
-                        Icons.location_history_rounded,
-                        color: Colors.red,
-                        size: 48,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: OSMFlutter(
+                    controller: controller,
+                    osmOption: OSMOption(
+                      userTrackingOption: UserTrackingOption(
+                        enableTracking: true,
+                        unFollowUser: false,
                       ),
-                    ),
-                    directionArrowMarker: MarkerIcon(
-                      icon: Icon(
-                        Icons.double_arrow,
-                        size: 48,
+                      zoomOption: ZoomOption(
+                        initZoom: 8,
+                        minZoomLevel: 3,
+                        maxZoomLevel: 19,
+                        stepZoom: 1.0,
                       ),
-                    ),
-                  ),
-                  roadConfiguration: RoadOption(
-                    roadColor: Colors.yellowAccent,
-                  ),
-                  markerOption: MarkerOption(
-                    defaultMarker: MarkerIcon(
-                      icon: Icon(
-                        Icons.person_pin_circle,
-                        color: Colors.blue,
-                        size: 56,
+                      userLocationMarker: UserLocationMaker(
+                        personMarker: MarkerIcon(
+                          icon: Icon(
+                            Icons.location_history_rounded,
+                            color: Colors.red,
+                            size: 48,
+                          ),
+                        ),
+                        directionArrowMarker: MarkerIcon(
+                          icon: Icon(
+                            Icons.double_arrow,
+                            size: 48,
+                          ),
+                        ),
+                      ),
+                      roadConfiguration: RoadOption(
+                        roadColor: Colors.yellowAccent,
+                      ),
+                      markerOption: MarkerOption(
+                        defaultMarker: MarkerIcon(
+                          icon: Icon(
+                            Icons.person_pin_circle,
+                            color: Colors.blue,
+                            size: 56,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -161,7 +152,21 @@ class _MapPageState extends State<MapPage> {
         ),
       ),
       bottomSheet: Container(
-        color: Colors.white,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, -3),
+            ),
+          ],
+        ),
         height: height * 0.55,
         child: LocationDetailsBottomSheet(
           address: _currentAddress,
@@ -1006,10 +1011,10 @@ class _LocationDetailsBottomSheetState
                 // Divider(
                 //   thickness: 2,
                 // ),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       'Your repair Sector',
                       style:
@@ -1024,7 +1029,7 @@ class _LocationDetailsBottomSheetState
                         child: widget.representatives.isEmpty
                             ? Column(
                                 children: [
-                                  SizedBox(height: Get.height * 0.05),
+                                  SizedBox(height: Get.height * 0.08),
                                   Center(
                                       child: Text(
                                           "No representatives found in your area.",
@@ -1059,7 +1064,7 @@ class _LocationDetailsBottomSheetState
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(8),
-                                                color: Colors.grey,
+                                                // color: Colors.grey,
                                               ),
                                               child: Image.network(
                                                 rep['org_symbol_url'],
@@ -1100,7 +1105,7 @@ class _LocationDetailsBottomSheetState
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(height: 10),
+                                      const SizedBox(height: 20),
                                     ],
                                   );
                                 }).toList(),
@@ -1112,6 +1117,7 @@ class _LocationDetailsBottomSheetState
                             ? const Center(child: CircularProgressIndicator())
                             : Column(
                                 children: _representatives.map((rep) {
+                                  print("rep is ${rep.toString()}");
                                   return Column(
                                     children: [
                                       Container(
@@ -1126,56 +1132,83 @@ class _LocationDetailsBottomSheetState
                                         child: Row(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Container(
-                                              width: 60,
-                                              height: 60,
-                                              padding: const EdgeInsets.all(2),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                color: Colors.grey,
-                                              ),
-                                              child: Image.network(
-                                                rep['org_symbol_url'],
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            Container(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                              child: Row(
                                                 children: [
-                                                  Row(
+                                                  Container(
+                                                    width: 60,
+                                                    height: 60,
+                                                    padding:
+                                                        const EdgeInsets.all(2),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                    child: Image.network(
+                                                      rep['image_url'] ??
+                                                          "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            rep['name'],
+                                                            style: const TextStyle(
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(height: 3),
                                                       Text(
-                                                        rep['name'],
+                                                        rep['division_name'],
                                                         style: const TextStyle(
-                                                            fontSize: 15,
+                                                            fontSize: 14,
+                                                            color: Colors.grey,
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold),
                                                       ),
-                                                      const SizedBox(width: 5),
                                                     ],
                                                   ),
-                                                  const SizedBox(height: 3),
-                                                  Text(
-                                                    rep['division_name'],
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: Colors.grey,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
                                                 ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Container(
+                                                width: 60,
+                                                height: 60,
+                                                padding:
+                                                    const EdgeInsets.all(2),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Image.network(
+                                                  rep['org_symbol_url'],
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(height: 10),
+                                      const SizedBox(height: 20),
                                     ],
                                   );
                                 }).toList(),
@@ -1183,21 +1216,25 @@ class _LocationDetailsBottomSheetState
                       ),
 
                 const SizedBox(height: 0),
-                const Text(
-                  'Not your sector area?',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'Okra',
-                    fontWeight: FontWeight.w600,
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: const Text(
+                    'Not your sector area?',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'Okra',
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
+                const SizedBox(height: 8),
                 GestureDetector(
                   onTap: () {
                     Get.to(ManualPage());
                   },
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
                     child: Container(
                       decoration: ShapeDecoration(
                         color: const Color.fromARGB(255, 220, 231, 240),
@@ -1230,6 +1267,7 @@ class _LocationDetailsBottomSheetState
                     ),
                   ),
                 ),
+                const SizedBox(height: 8),
                 MyButton(
                     onTap: () {
                       // OrganizationProofScreen

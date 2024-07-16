@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
@@ -40,7 +41,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       Get.snackbar("Hurrah", "Profile fetched successfully");
       return UserProfile.fromJson(jsonResponse['data']);
     } else {
-      Get.snackbar('', 'Failed to fetch user profile', backgroundColor:Colors.red, colorText: Colors.white );
+      Get.snackbar('', 'Failed to fetch user profile',
+          backgroundColor: Colors.red, colorText: Colors.white);
       print(
           'Request failed with status: ${json.decode(response.body)['message']}');
       print("REfresg token ${authService.refreshToken} ");
@@ -95,9 +97,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
+      Fluttertoast.showToast(
+          msg: "Profile Picture Updated",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
       // Handle success
     } else {
       print(response.reasonPhrase);
+      Fluttertoast.showToast(
+          msg: "Could nor update Profile Picture",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
       // Handle failure
     }
   }
@@ -121,9 +133,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
+      Fluttertoast.showToast(
+          msg: "Banner Picture Updated",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
       // Handle success
     } else {
       print(response.reasonPhrase);
+      Fluttertoast.showToast(
+          msg: "Could nor update Banner Picture",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          gravity: ToastGravity.TOP);
       // Handle failure
     }
   }
