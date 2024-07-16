@@ -38,11 +38,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
       // Parse JSON response into UserProfile object
       var jsonResponse = json.decode(response.body);
       print("object $jsonResponse");
-      Get.snackbar("Hurrah", "Profile fetched successfully");
+      // Get.snackbar("Hurrah", "Profile fetched successfully");
+       ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Hurrah, Profile fetched successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
       return UserProfile.fromJson(jsonResponse['data']);
     } else {
-      Get.snackbar('', 'Failed to fetch user profile',
-          backgroundColor: Colors.red, colorText: Colors.white);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to fetch user profile'),
+              backgroundColor: Colors.red,
+            ),
+          );
+      // Get.snackbar('', 'Failed to fetch user profile',
+      //     backgroundColor: Colors.red, colorText: Colors.white);
       print(
           'Request failed with status: ${json.decode(response.body)['message']}');
       print("REfresg token ${authService.refreshToken} ");

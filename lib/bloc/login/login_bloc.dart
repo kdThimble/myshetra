@@ -113,6 +113,12 @@ class LoginBloc extends HydratedBloc<LoginEvent, LoginState> {
           loginStatus: LoginStatus.success,
         ));
       } else {
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(
+        //       content: Text('${data['message']}'),
+        //       backgroundColor: Colors.red,
+        //     ),
+        //   );
         Get.snackbar('', '${data['message']}', backgroundColor:Colors.red, colorText: Colors.white );
         emit(state.copyWith(loginStatus: LoginStatus.error));
       }

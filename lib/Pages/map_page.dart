@@ -39,7 +39,7 @@ class _MapPageState extends State<MapPage> {
   String _currentAddress =
       'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
   String _formattedCoordinates = "";
-  late MapController controller;
+   MapController ? controller;
 
   @override
   void initState() {
@@ -96,6 +96,7 @@ class _MapPageState extends State<MapPage> {
             ),
             const SizedBox(height: 10),
             // Ensure the OSMFlutter widget is properly constrained
+            controller != null?
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -104,7 +105,7 @@ class _MapPageState extends State<MapPage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: OSMFlutter(
-                    controller: controller,
+                    controller: controller!,
                     osmOption: OSMOption(
                       userTrackingOption: UserTrackingOption(
                         enableTracking: true,
@@ -147,7 +148,10 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ),
               ),
-            ),
+            ):
+                Center(
+                  child: CircularProgressIndicator(),
+                )
           ],
         ),
       ),
@@ -169,7 +173,7 @@ class _MapPageState extends State<MapPage> {
         ),
         height: height * 0.55,
         child: LocationDetailsBottomSheet(
-          address: _currentAddress,
+          address: _formattedCoordinates,
           isRedirected: widget.isRedirected!,
           representatives: widget.representatives!,
         ),
@@ -629,7 +633,7 @@ class _LocationSelectionBottomSheetState
 }
 
 class LocationDetailsBottomSheet extends StatefulWidget {
-  final String address;
+  String address;
   final bool isRedirected;
   final List<dynamic> representatives;
   LocationDetailsBottomSheet(
@@ -662,16 +666,60 @@ class _LocationDetailsBottomSheetState
   Map<String, String> _stateMap =
       {}; // Map to store state label and value pairs
 
-  void fetchRepresentatives123() async {
-    var headers = {'Authorization': '${authService.token}'};
-    var url = Uri.parse(
-        'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates?latitude=28°39\'17"N&longitude=77°07\'45"E');
+  // void fetchRepresentatives123(String lattitude , String longitude) async {
+  //   var headers = {'Authorization': '${authService.token}'};
+  //   var url = Uri.parse(
+  //       'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates?latitude=${lattitude}&longitude=$longitude');
+  //   var response = await http.get(url, headers: headers);
+  // print("url:$url");
+  //   if (response.statusCode == 200) {
+  //     // Parse JSON response
+  //     var jsonResponse = json.decode(response.body);
+  //
+  //     // Extract representatives data
+  //     var representatives = jsonResponse['data']['representatives'];
+  //
+  //     // Clear existing list and add new data
+  //     _representatives.clear();
+  //     _representatives.addAll(representatives);
+  //
+  //     // Print or use _representatives as needed
+  //     print('Representatives: $_representatives');
+  //   } else {
+  //     // Get.snackbar('Server Error', 'Failed to fetch representatives',
+  //     //     backgroundColor: Colors.red, colorText: Colors.white);
+  //          ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text('Failed to fetch representatives'),
+  //             backgroundColor: Colors.red,
+  //           ),
+  //         );
+  //     print('Request failed with status: ${response.statusCode}');
+  //   }
+  // }
+  Future<void> fetchRepresentatives123(String latitude, String longitude) async {
+    var headers = {
+      'Authorization': '${authService.token}'
+    };
 
-    var response = await http.get(url, headers: headers);
+    var request = http.MultipartRequest(
+      'GET',
+      Uri.parse(
+          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates'),
+    );
+
+    request.fields.addAll({
+      'latitude': latitude,
+      'longitude': longitude
+    });
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      // Parse JSON response
-      var jsonResponse = json.decode(response.body);
+      var responseBody = await response.stream.bytesToString();
+      var jsonResponse = json.decode(responseBody);
 
       // Extract representatives data
       var representatives = jsonResponse['data']['representatives'];
@@ -683,12 +731,30 @@ class _LocationDetailsBottomSheetState
       // Print or use _representatives as needed
       print('Representatives: $_representatives');
     } else {
-      Get.snackbar('Server Error', 'Failed to fetch representatives',
-          backgroundColor: Colors.red, colorText: Colors.white);
-      print('Request failed with status: ${response.statusCode}');
+      print("ERROR");
+      print(response.reasonPhrase);
+
+      var responseBody = await response.stream.bytesToString();
+      var jsonData = json.decode(responseBody);
+
+      if (jsonData.containsKey('message')) {
+        String message = jsonData['message'];
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(
+            content: Text("An unknown error occurred."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
-
   void _fetchStates() async {
     var headers = {'Authorization': '${authService.token}'};
     var request = http.Request(
@@ -988,16 +1054,57 @@ class _LocationDetailsBottomSheetState
       },
     );
   }
+  String _formattedCoordinates = "";
+  String _convertToDMSHelper(double coordinate) {
+    int degrees = coordinate.floor();
+    double minutesDecimal = (coordinate - degrees) * 60;
+    int minutes = minutesDecimal.floor();
+    int seconds = ((minutesDecimal - minutes) * 60).round();
 
+    // Adjust minutes and degrees if seconds are 60
+    if (seconds == 60) {
+      seconds = 0;
+      minutes += 1;
+    }
+    if (minutes == 60) {
+      minutes = 0;
+      degrees += 1;
+    }
+
+    return "${degrees}°${minutes}'${seconds}\"";
+  }
+  String _convertToDMS(double latitude, double longitude) {
+    String latDirection = latitude >= 0 ? "N" : "S";
+    String lonDirection = longitude >= 0 ? "E" : "W";
+
+    String latDMS = _convertToDMSHelper(latitude.abs());
+    String lonDMS = _convertToDMSHelper(longitude.abs());
+
+    return "$latDMS$latDirection, $lonDMS$lonDirection";
+  }
+  String latitudeString = "";
+  String longitudeString = "";
   @override
   void initState() {
     super.initState();
-    fetchRepresentatives123();
+    setState(() {
+       latitudeString = widget.address.split(',')[0];
+       longitudeString = widget.address.split(',')[1];
+
+    });
+    print("lattitude");
+    print(latitudeString);
+    print(longitudeString);
+    fetchRepresentatives123(latitudeString ,longitudeString );
     _fetchStates();
   }
 
   @override
   Widget build(BuildContext context) {
+    print("lattitude");
+    print(latitudeString);
+    print(longitudeString);
+    print(authService.token);
     return Stack(
       children: [
         Container(
@@ -1114,7 +1221,7 @@ class _LocationDetailsBottomSheetState
                     : Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: _representatives.isEmpty
-                            ? const Center(child: CircularProgressIndicator())
+                            ? const Center(child: Text("No representative found in your Area"))
                             : Column(
                                 children: _representatives.map((rep) {
                                   print("rep is ${rep.toString()}");

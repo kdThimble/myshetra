@@ -46,11 +46,11 @@ class Language extends Translations {
           'signup_screen_signup_conditions_policy_hyperlink': 'Privacy Policy',
           'signup_screen_signup_conditions_separator': 'and',
           'signup_screen_signup_conditions_cookie_use_hyperlink': 'Cookie Use',
-          'choose_location_title': 'Choose your constituency location',
+          'choose_location_title': 'Select your Shetra',
+          'choose_location_sub_title': "Discover what's happening and connect with representatives in your Shetra",
           'choose_location_snackbar_title': 'Your Representatives',
-          'choose_location_snackbar_not_your_representatives_text':
-              'Not your representatives?',
-          'choose_location_snackbar_enter_manually_text': 'Enter Manually',
+          'choose_location_snackbar_not_your_representatives_text': 'Not your representatives?',
+          'choose_location_snackbar_enter_manually_text': 'Choose manually',
           'choose_location_snackbar_button_text': 'Next',
           'choose_location_manually_snackbar_title': 'Enter Manually',
           'choose_location_manually_snackbar_state_placeholder': 'Select State',
@@ -90,6 +90,11 @@ class Language extends Translations {
         },
         'hi_IN': {
           'app_header_title': 'मेरा क्षेत्र',
+          'choose_location_title': 'अपना क्षेत्र चुनें',
+          'choose_location_sub_title': 'अपने क्षेत्र में हो रही घटनाओं को जानें और अपने प्रतिनिधियों से जुड़ें',
+          'choose_location_snackbar_title': 'आपके प्रतिनिधि',
+          'choose_location_snackbar_not_your_representatives_text': 'आपके प्रतिनिधि नहीं?',
+          'choose_location_snackbar_enter_manually_text': 'मैन्युअल रूप से चुनें',
           'choose_language_snackbar_title': 'भाषा चुनें',
           'choose_language_snackbar_sub_title':
               'कृपया अपनी पसंद के अनुसार भाषा चुनें',
@@ -131,12 +136,6 @@ class Language extends Translations {
           'signup_screen_signup_conditions_policy_hyperlink': 'गोपनीयता नीति',
           'signup_screen_signup_conditions_separator': 'और',
           'signup_screen_signup_conditions_cookie_use_hyperlink': 'कुकी उपयोग',
-          'choose_location_title': 'अपने निर्वाचन क्षेत्र का चयन करें',
-          'choose_location_snackbar_title': 'आपके प्रतिनिधि',
-          'choose_location_snackbar_not_your_representatives_text':
-              'आपके प्रतिनिधि नहीं?',
-          'choose_location_snackbar_enter_manually_text':
-              'मैन्युअल रूप से दर्ज करें',
           'choose_location_snackbar_button_text': 'अगला',
           'choose_location_manually_snackbar_title':
               'मैन्युअल रूप से दर्ज करें',
@@ -218,11 +217,11 @@ class Language extends Translations {
           'signup_screen_signup_conditions_policy_hyperlink': 'ਨਿੱਜਤਾ ਨੀਤੀ',
           'signup_screen_signup_conditions_separator': 'ਅਤੇ',
           'signup_screen_signup_conditions_cookie_use_hyperlink': 'ਕੁਕੀ ਵਰਤੋਂ',
-          'choose_location_title': 'ਆਪਣਾ ਹਲਕਾ ਚੁਣੋ',
-          'choose_location_snackbar_title': 'ਤੁਹਾਡੇ ਪ੍ਰਤੀਨਿਧੀ',
-          'choose_location_snackbar_not_your_representatives_text':
-              'ਤੁਹਾਡੇ ਪ੍ਰਤੀਨਿਧੀ ਨਹੀਂ?',
-          'choose_location_snackbar_enter_manually_text': 'ਹੱਥੋਂ ਦਰਜ ਕਰੋ',
+          'choose_location_title': 'ਆਪਣਾ ਖੇਤਰ ਚੁਣੋ',
+          'choose_location_sub_title': 'ਆਪਣੇ ਖੇਤਰ ਵਿੱਚ ਹੋ ਰਹੀਆਂ ਘਟਨਾਵਾਂ ਨੂੰ ਜਾਣੋ ਅਤੇ ਆਪਣੇ ਪ੍ਰਤਿਨਿਧੀਆਂ ਨਾਲ ਜੁੜੋ',
+          'choose_location_snackbar_title': 'ਤੁਹਾਡੇ ਪ੍ਰਤਿਨਿਧੀ',
+          'choose_location_snackbar_not_your_representatives_text': 'ਤੁਹਾਡੇ ਪ੍ਰਤਿਨਿਧੀ ਨਹੀਂ?',
+          'choose_location_snackbar_enter_manually_text': 'ਹੱਥੋਂ ਹੱਥ ਚੁਣੋ',
           'choose_location_snackbar_button_text': 'ਅਗਲਾ',
           'choose_location_manually_snackbar_title': 'ਹੱਥੋਂ ਦਰਜ ਕਰੋ',
           'choose_location_manually_snackbar_state_placeholder': 'ਰਾਜ ਚੁਣੋ',

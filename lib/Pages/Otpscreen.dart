@@ -108,8 +108,14 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
       // });
       // print("otpValidity:$otpValidity");
     } else {
-      Get.snackbar("Error", "Please enter the OTP",
-          backgroundColor: Colors.red, colorText: Colors.white);
+      // Get.snackbar("Error", "Please enter the OTP",
+      //     backgroundColor: Colors.red, colorText: Colors.white);
+           ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Please enter the OTP"),
+              backgroundColor: Colors.red,
+            ),
+          );
     }
   }
 
@@ -194,112 +200,114 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                       topRight: Radius.circular(30),
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      Center(
-                          child: Text(
-                        widget.title,
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      )),
-                      const Center(
-                          child: Text('We have sent a verification code to')),
-                      Center(
-                        child: Text(
-                          '+91-${widget.mobileNumber}',
-                          style: const TextStyle(color: Colors.blue),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 25,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Center(
+                        Center(
+                            child: Text(
+                          widget.title,
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        )),
+                        const Center(
+                            child: Text('We have sent a verification code to')),
+                        Center(
                           child: Text(
-                            'change number?',
-                            style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold),
+                            '+91-${widget.mobileNumber}',
+                            style: const TextStyle(color: Colors.blue),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: List.generate(6, (index) {
-                          return Container(
-                            width: 53,
-                            child: TextFormField(
-                              controller: _controllers[index],
-                              focusNode: _focusNodes[index],
-                              keyboardType: TextInputType.number,
-                              maxLength: 1,
-                              textCapitalization: TextCapitalization.characters,
-                              textAlign: TextAlign.center,
-                              decoration: InputDecoration(
-                                counterText: "",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      color: Color(0xFF0E3D8B), width: 2.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      color: Colors.black45, width: 2.0),
-                                ),
-                              ),
-                              onChanged: (value) =>
-                                  _onTextFieldChanged(index, value),
-                            ),
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 10),
-                      Center(
-                        child: Text(
-                          'Valid up to $_remainingTimeInSeconds seconds',
-                          style:
-                              const TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      ),
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
-                            generateSignupOTP(widget.mobileNumber);
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
                           },
-                          child: const Text(
-                            'Resend OTP',
-                            style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue),
+                          child: const Center(
+                            child: Text(
+                              'change number?',
+                              style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
-                      ),
-                      Center(
-                        child: Text(
-                          'You have $attemptsLeft Attempts left',
-                          style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFFF5252)),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.generate(6, (index) {
+                            return Container(
+                              width: 53,
+                              child: TextFormField(
+                                controller: _controllers[index],
+                                focusNode: _focusNodes[index],
+                                keyboardType: TextInputType.number,
+                                maxLength: 1,
+                                textCapitalization: TextCapitalization.characters,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  counterText: "",
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        color: Color(0xFF0E3D8B), width: 2.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        color: Colors.black45, width: 2.0),
+                                  ),
+                                ),
+                                onChanged: (value) =>
+                                    _onTextFieldChanged(index, value),
+                              ),
+                            );
+                          }),
                         ),
-                      ),
-                      // SizedBox(height: 10),
-                      SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: MyButton(onTap: _verifyOtp, text: "Submit"),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Center(
+                          child: Text(
+                            'Valid up to $_remainingTimeInSeconds seconds',
+                            style:
+                                const TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              generateSignupOTP(widget.mobileNumber);
+                            },
+                            child: const Text(
+                              'Resend OTP',
+                              style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue),
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            'You have $attemptsLeft Attempts left',
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFFF5252)),
+                          ),
+                        ),
+                        // SizedBox(height: 10),
+                        SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: MyButton(onTap: _verifyOtp, text: "Submit"),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

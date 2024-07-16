@@ -77,7 +77,13 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
           // Parse the response data to get the error message
           var jsonResponse = json.decode(responseData);
           String errorMessage = jsonResponse['message'];
-          Get.snackbar("", errorMessage, backgroundColor:Colors.red, colorText: Colors.white );
+          // Get.snackbar("", errorMessage, backgroundColor:Colors.red, colorText: Colors.white );
+           ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
           // Show SnackBar with the error message
           // ScaffoldMessenger.of(context).showSnackBar(
           //   SnackBar(
@@ -92,12 +98,24 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         }
       } catch (error) {
         print('Error: $error');
-        Get.snackbar("", "Error while uploading data", backgroundColor:Colors.red, colorText: Colors.white );
+         ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error while uploading data'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        // Get.snackbar("", "Error while uploading data", backgroundColor:Colors.red, colorText: Colors.white );
         Get.find<LoadingController>().stopLoading();
       }
     } else {
       // Handle validation error
-      Get.snackbar("Error", "Please select an organization and an image", backgroundColor:Colors.red, colorText: Colors.white );
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Please select an organization and an image"),
+              backgroundColor: Colors.red,
+            ),
+          );
+      // Get.snackbar("Error", "Please select an organization and an image", backgroundColor:Colors.red, colorText: Colors.white );
     }
   }
 
@@ -116,10 +134,23 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         return OrganisationModel.fromJson(jsonDecode(response.body)['data']);
       }
     } catch (error) {
-      Get.snackbar("Error", "Error while fetching data", backgroundColor:Colors.red, colorText: Colors.white );
+      // Get.snackbar("Error", "Error while fetching data", backgroundColor:Colors.red, colorText: Colors.white );
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error while fetching data'),
+              backgroundColor: Colors.red,
+            ),
+          );
       throw Exception('error fetching data');
     }
-    Get.snackbar("Error", "Error while fetching data", backgroundColor:Colors.red, colorText: Colors.white );
+    // Get.snackbar("Error", "Error while fetching data", backgroundColor:Colors.red, colorText: Colors.white );
+      ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error while fetching data'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        
     throw Exception('error fetching data');
   }
 
@@ -139,7 +170,13 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
           selectedFilePath = compressedImage.path;
         });
         print(selectedFilePath);
-        Get.snackbar("", "Image Captured Successfully", backgroundColor:Colors.green, colorText: Colors.white );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Image Captured Successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        // Get.snackbar("", "Image Captured Successfully", backgroundColor:Colors.green, colorText: Colors.white );
         // ScaffoldMessenger.of(context).showSnackBar(
         //   const SnackBar(
         //     content: Text('Image captured and compressed successfully'),
@@ -168,7 +205,13 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
           selectedFilePath = compressedImage.path;
         });
         print(selectedFilePath);
-        Get.snackbar("", "Image Uploaded Successfully", backgroundColor:Colors.green, colorText: Colors.white );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Image Uploaded Successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        // Get.snackbar("", "Image Uploaded Successfully", backgroundColor:Colors.green, colorText: Colors.white );
         // ScaffoldMessenger.of(context).showSnackBar(
         //   const SnackBar(
         //     content: Text('Image selected and compressed successfully'),
@@ -177,7 +220,13 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         // Call uploadImage function with the selected image
         // await uploadImage(context, XFile(compressedImage.path));
       } else {
-        Get.snackbar("", "Could not upload Image ", backgroundColor:Colors.red, colorText: Colors.white );
+        // Get.snackbar("", "Could not upload Image ", backgroundColor:Colors.red, colorText: Colors.white );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Could not upload Image'),
+              backgroundColor: Colors.red,
+            ),
+          );
         // Handle compression failure
         print("Compression failed");
       }

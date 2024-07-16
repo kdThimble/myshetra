@@ -489,7 +489,7 @@ class _SignUpFormState extends State<SignUpForm> {
           backgroundColor: Colors.red,
         ),
       );
-      Get.snackbar("Error", "Mobile number is not available");
+      // Get.snackbar("Error", "Mobile number is not available");
     }
   }
 
@@ -539,7 +539,13 @@ class _SignUpFormState extends State<SignUpForm> {
           await prefs.setString('token', authResponse.token);
           await prefs.setString('refreshToken', authResponse.refreshToken);
         } else {
-          Get.snackbar('Error', 'Failed to authenticate');
+          // Get.snackbar('Error', 'Failed to authenticate');
+           ScaffoldMessenger.of(Get.context!).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to authenticate'),
+          backgroundColor: Colors.red,
+        ),
+      );
           print('Failed to authenticate');
         }
 
@@ -552,12 +558,24 @@ class _SignUpFormState extends State<SignUpForm> {
       } else {
         print("ERROR");
         print(response.reasonPhrase);
-        Get.snackbar("Error", " ${jsonData['message'].toString()}");
+        Get.snackbar("Error", " ${jsonData['message'].toString()}" , backgroundColor: Colors.red , colorText: Colors.white);
+      //     ScaffoldMessenger.of(Get.context!).showSnackBar(
+      //   const SnackBar(
+      //     content: Text(jsonData['message'].toString()),
+      //     backgroundColor: Colors.red,
+      //   ),
+      // );
       }
     } catch (e) {
       Get.find<LoadingController>().stopLoading();
-      Get.snackbar(
-          "Error", "Failed to verify OTP. Please try again. ${e.toString()}");
+      // Get.snackbar(
+      //     "Error", "Failed to verify OTP. Please try again. ${e.toString()}");
+            ScaffoldMessenger.of(Get.context!).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to verify OTP. Please try again'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

@@ -30,12 +30,24 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
 
   Future<void> _submitData() async {
     if (positioncontroller.text.isEmpty) {
-      Get.snackbar("Incomplete Form", "Please enter position name", backgroundColor:Colors.red, colorText: Colors.white );
+      // Get.snackbar("Incomplete Form", "Please enter position name", backgroundColor:Colors.red, colorText: Colors.white );
+       ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Please enter position name"),
+              backgroundColor: Colors.red,
+            ),
+          );
       return;
     }
 
     if (selectedFilePath == "") {
-      Get.snackbar("Incomplete Form", "Please select a file", backgroundColor:Colors.red, colorText: Colors.white );
+      // Get.snackbar("Incomplete Form", "Please select a file", backgroundColor:Colors.red, colorText: Colors.white );
+       ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Please select a file'),
+              backgroundColor: Colors.red,
+            ),
+          );
       return;
     }
     try {
@@ -76,16 +88,34 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         String errorMessage = jsonResponse['message'];
 
         // Show SnackBar with the error message
-        Get.snackbar("", errorMessage, backgroundColor:Colors.red, colorText: Colors.white );
-
+        // Get.snackbar("", errorMessage, backgroundColor:Colors.red, colorText: Colors.white );
+ ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
         print('Error: $errorMessage');
       } else {
-        Get.snackbar("", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
+        // Get.snackbar("", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Some Server Error'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        
         // Handle other error responses
         print('Error: ${response.statusCode}');
       }
     } catch (error) {
-      Get.snackbar("Error", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
+      // Get.snackbar("Error", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
+       ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Some Server Error'),
+              backgroundColor: Colors.red,
+            ),
+          );
       print('Error: $error');
       Get.find<LoadingController>().stopLoading();
     }
@@ -112,6 +142,12 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
       } else {
         Get.snackbar("", "Some  Error Occured", backgroundColor:Colors.red, colorText: Colors.white );
         // Handle compression failure
+         ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Some  Error Occured'),
+              backgroundColor: Colors.red,
+            ),
+          );
         print("Compression failed");
       }
     }

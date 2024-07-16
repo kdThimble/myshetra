@@ -303,8 +303,14 @@ class _LoginFormState extends State<LoginForm> {
           await prefs.setString('token', authResponse.token);
           await prefs.setString('refreshToken', authResponse.refreshToken);
         } else {
-          Get.snackbar('', '${jsonData['message']}',
-              backgroundColor: Colors.red, colorText: Colors.white);
+          // Get.snackbar('', '${jsonData['message']}',
+          //     backgroundColor: Colors.red, colorText: Colors.white);
+              ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${jsonData['message']}'),
+              backgroundColor: Colors.red,
+            ),
+          );
           if (kDebugMode) {
             print('Failed to authenticate');
           }
@@ -318,13 +324,25 @@ class _LoginFormState extends State<LoginForm> {
         );
       } else {
         Get.find<LoadingController>().stopLoading();
-        Get.snackbar('', '${jsonData['message']}',
-            backgroundColor: Colors.red, colorText: Colors.white);
+        // Get.snackbar('', '${jsonData['message']}',
+        //     backgroundColor: Colors.red, colorText: Colors.white);
+              ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${jsonData['message']}'),
+              backgroundColor: Colors.red,
+            ),
+          );
       }
     } catch (e) {
       Get.find<LoadingController>().stopLoading();
-      Get.snackbar('Error', 'Something went wrong',
-          backgroundColor: Colors.red, colorText: Colors.white);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Something went wrong'),
+              backgroundColor: Colors.red,
+            ),
+          );
+      // Get.snackbar('Error', 'Something went wrong',
+      //     backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 
