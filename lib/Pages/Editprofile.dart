@@ -1,16 +1,22 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_holo_date_picker/date_picker_theme.dart';
+import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
+import 'package:flutter_holo_date_picker/widget/date_picker_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Pages/HomePage.dart';
 
 import '../Services/Authservices.dart';
+import 'Oranisation.dart';
+import 'Positionproof.dart';
 
 class EditProfilePage extends StatefulWidget {
   @override
@@ -164,19 +170,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   String? profileimage;
   String? bannerimage;
+  String profileimage1='';
+  String bannerimage1 ='';
+  String formatDateString(String dateStr) {
+    // Parse the date string to DateTime
+    DateTime parsedDate = DateTime.parse(dateStr);
+    // Format the DateTime to the desired format
+    String formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
+    return formattedDate;
+  }
   void SetUserProfile() async {
     // Set retrieved data to text controllers
     UserProfile user = await fetchUserProfile() as UserProfile;
     print(user);
+    print("image:${user.profileImageUrl}");
+    setState(() {
     nameController.text = user.name ?? "";
     handleNameController.text = user.handleName ?? "";
     bioController.text = user.bioInfo ?? "";
-    localityController.text = user.localDivisionName ?? "";
-    dobController.text = user.dateOfBirth.toString() ?? "";
+    // localityController.text = user.localDivisionName ?? "";
+    dobController.text = user.dateOfBirth != null ? formatDateString(user.dateOfBirth.toString()) : "";
     positionController.text = user.currentPosition ?? "";
     organizationController.text = user.userOrganization ?? "";
-    profileimage = user.profileImageUrl ?? "";
-    bannerimage = user.bannerImageUrl ?? "";
+    profileimage1 = user.profileImageUrl ?? "";
+    bannerimage1 = user.bannerImageUrl ?? "";
+    });
+    print("profileunage:$profileimage1");
   }
 
   void initState() {
@@ -200,6 +219,80 @@ class _EditProfilePageState extends State<EditProfilePage> {
     // });
 
     print("profileimage: $profileimage");
+  }
+  Future<void> _selectDate(BuildContext context) async {
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          height: 300,
+          child: Column(
+            children: <Widget>[
+              SizedBox(
+                height: 10,
+              ),
+              const Text(
+                'Select Date of Birth',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+              ),
+              Expanded(
+                child: DatePickerWidget(
+                  locale: DateTimePickerLocale.en_us,
+
+                  pickerTheme: DateTimePickerTheme(
+                    backgroundColor: Colors.white.withOpacity(0.0),
+                    // titleHeight: 100,
+                    showTitle: false,
+                    itemTextStyle: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    cancelTextStyle: TextStyle(color: Colors.black),
+                    confirmTextStyle: TextStyle(color: Colors.black),
+                    itemHeight: 40,
+                  ),
+                  dateFormat: 'dd-MMMM-yyyy',
+                  // minDateTime: DateTime(1940),
+                  // maxDateTime: DateTime(2006),
+                  onChange: (date, _) {
+                    setState(() {
+                      dobController.text =
+                          DateFormat('yyyy-MM-dd').format(date);
+                    });
+                  },
+                  onConfirm: (date, _) {
+                    if (date.year < 1940 || date.year > 2006) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                          Text('Birthdate must be between 1940 and 2006.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        dobController.text =
+                            DateFormat('yyyy-MM-dd').format(date);
+                      });
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -238,15 +331,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     Center(
                       child: _bannerImage != null
                           ? Image(
-                              image: FileImage(_bannerImage!)
-                                  as ImageProvider<Object>)
-                          : Image(
-                              image: NetworkImage(
-                                  "https://static.vecteezy.com/system/resources/previews/002/909/206/original/abstract-background-for-landing-pages-banner-placeholder-cover-book-and-print-geometric-pettern-on-screen-gradient-colors-design-vector.jpg"),
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                            ),
+                          image: FileImage(_bannerImage!) as ImageProvider<Object>)
+                          : bannerimage1 != "https://dev-my-shetra.blr1.cdn.digitaloceanspaces.com/admin_files/FallBackBannerImage.png"
+                          ? Image.network(
+                        bannerimage1,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      )
+                          : Image.network(
+                        "https://static.vecteezy.com/system/resources/previews/002/909/206/original/abstract-background-for-landing-pages-banner-placeholder-cover-book-and-print-geometric-pettern-on-screen-gradient-colors-design-vector.jpg",
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
                     ),
                     Positioned(
                       bottom: 10,
@@ -282,13 +380,44 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         _buildProfileField('edit_profile_header_name_ttitle'.tr,
                             handleNameController),
                         _buildProfileField('Bio', bioController),
-                        _buildProfileField('Locality', localityController),
-                        _buildProfileField(
-                            'edit_profile_dob_title'.tr, dobController),
-                        _buildProfileField('edit_profile_position_title'.tr,
-                            positionController),
-                        _buildProfileField('edit_profile_organization_title'.tr,
-                            organizationController),
+                        // _buildProfileField('Locality', localityController),
+                        _buildProfileFieldWithSuffix(
+                            'edit_profile_dob_title'.tr,
+                            dobController,
+                                () {
+                              // Add your change text functionality for DOB here
+                                  _selectDate(context);
+                                  print("Change");
+                            }
+                        ),
+                        _buildProfileFieldWithSuffix(
+                            'edit_profile_position_title'.tr,
+                            positionController,
+                                () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PositionProofScreen(),
+                                    ),
+                                  );
+                              // Add your change text functionality for Position here
+                              print("Change");
+                            }
+                        ),
+                        _buildProfileFieldWithSuffix(
+                            'edit_profile_organization_title'.tr,
+                            organizationController,
+                                () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => OrganizationProofScreen(),
+                                    ),
+                                  );
+                              // Add your change text functionality for Organization here
+                              print("Change");
+                            }
+                        ),
                         MyButton(
                             onTap: () {
                               // Implement save logic
@@ -328,8 +457,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       backgroundColor: Colors.white, // Adjust as needed
                       backgroundImage: _profileImage != null
                           ? FileImage(_profileImage!) as ImageProvider<Object>
-                          : NetworkImage(
-                              'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph'),
+        : profileimage1 != "https://dev-my-shetra.blr1.cdn.digitaloceanspaces.com/admin_files/FallBackProfileImage.jpeg"
+                  ? NetworkImage(profileimage1)
+                      :NetworkImage(
+                          'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph'
+                      ),
                     ),
                     // Camera icon for changing profile image
                     Positioned(
@@ -377,6 +509,39 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ],
     );
   }
+  Widget _buildProfileField1(String label, TextEditingController controller, {Widget? suffix}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$label: ',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Enter $label',
+            suffixIcon: suffix,
+          ),
+        ),
+        SizedBox(height: 12),
+      ],
+    );
+  }
+
+  Widget _buildProfileFieldWithSuffix(String label, TextEditingController controller, VoidCallback onPressed) {
+    return _buildProfileField1(
+      label,
+      controller,
+      suffix: TextButton(
+        onPressed: onPressed,
+        child: Text('Change'),
+      ),
+    );
+  }
+
 }
 
 class UserProfile {
