@@ -48,6 +48,7 @@ class _MapPageState extends State<MapPage> {
     print(authService.token);
     getLocationUpdates();
   }
+  final LatLng _initialPosition = LatLng(37.7749, -122.4194); // Set your initial position
 
   @override
   Widget build(BuildContext context) {
@@ -105,47 +106,23 @@ class _MapPageState extends State<MapPage> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: OSMFlutter(
-                    controller: controller!,
-                    osmOption: OSMOption(
-                      userTrackingOption: UserTrackingOption(
-                        enableTracking: true,
-                        unFollowUser: false,
-                      ),
-                      zoomOption: ZoomOption(
-                        initZoom: 8,
-                        minZoomLevel: 3,
-                        maxZoomLevel: 19,
-                        stepZoom: 1.0,
-                      ),
-                      userLocationMarker: UserLocationMaker(
-                        personMarker: MarkerIcon(
-                          icon: Icon(
-                            Icons.location_history_rounded,
-                            color: Colors.red,
-                            size: 48,
-                          ),
-                        ),
-                        directionArrowMarker: MarkerIcon(
-                          icon: Icon(
-                            Icons.double_arrow,
-                            size: 48,
-                          ),
-                        ),
-                      ),
-                      roadConfiguration: RoadOption(
-                        roadColor: Colors.yellowAccent,
-                      ),
-                      markerOption: MarkerOption(
-                        defaultMarker: MarkerIcon(
-                          icon: Icon(
-                            Icons.person_pin_circle,
-                            color: Colors.blue,
-                            size: 56,
-                          ),
-                        ),
-                      ),
+                  child: GoogleMap(
+                    onMapCreated: ((GoogleMapController controller) =>
+                        _mapController.complete(controller)),
+                    initialCameraPosition: CameraPosition(
+                      target: _currentP ?? LatLng(0, 0),
+                      zoom: 100, // Adjust the zoom level as needed
                     ),
+                    markers: _currentP == null
+                        ? {}
+                        : {
+                      Marker(
+                        markerId: MarkerId("_currentLocation"),
+                        icon: BitmapDescriptor.defaultMarkerWithHue(
+                            BitmapDescriptor.hueAzure), // Set marker color to black
+                        position: _currentP!,
+                      ),
+                    },
                   ),
                 ),
               ),

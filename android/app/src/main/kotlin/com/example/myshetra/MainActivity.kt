@@ -1,4 +1,4 @@
-package com.example.myshetra
+package com.app.myshetra
 
 import io.flutter.embedding.android.FlutterActivity
 
