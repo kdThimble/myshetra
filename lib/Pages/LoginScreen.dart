@@ -12,6 +12,7 @@ import 'package:myshetra/Components/LinkText.dart';
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Controller/loadingController.dart';
 import 'package:myshetra/Models/Authmodel.dart';
+import 'package:myshetra/Pages/AuthPage.dart';
 import 'package:myshetra/Pages/HomePage.dart';
 import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
@@ -305,7 +306,7 @@ class _LoginFormState extends State<LoginForm> {
         } else {
           // Get.snackbar('', '${jsonData['message']}',
           //     backgroundColor: Colors.red, colorText: Colors.white);
-              ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${jsonData['message']}'),
               backgroundColor: Colors.red,
@@ -326,21 +327,21 @@ class _LoginFormState extends State<LoginForm> {
         Get.find<LoadingController>().stopLoading();
         // Get.snackbar('', '${jsonData['message']}',
         //     backgroundColor: Colors.red, colorText: Colors.white);
-              ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${jsonData['message']}'),
-              backgroundColor: Colors.red,
-            ),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${jsonData['message']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       Get.find<LoadingController>().stopLoading();
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Something went wrong'),
-              backgroundColor: Colors.red,
-            ),
-          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Something went wrong'),
+          backgroundColor: Colors.red,
+        ),
+      );
       // Get.snackbar('Error', 'Something went wrong',
       //     backgroundColor: Colors.red, colorText: Colors.white);
     }
@@ -385,7 +386,7 @@ class _LoginFormState extends State<LoginForm> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Get.to(const LanguageSelectionPage());
+                        Get.to(const AuthPage());
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -454,70 +455,62 @@ class _LoginFormState extends State<LoginForm> {
                 const SizedBox(
                   height: 20,
                 ),
-                Container(
-                  margin: const EdgeInsets.all(10.0),
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 10),
-                      const Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8.0, vertical: 10),
-                        child: Text(
-                          '+91',
-                          style: TextStyle(
-                              fontSize: 20.0, fontWeight: FontWeight.w400),
-                        ),
-                      ),
-                      BlocBuilder<LoginBloc, LoginState>(
-                        buildWhen: (current, previous) =>
-                            current.number == previous.number,
-                        builder: (context, state) {
-                          return Expanded(
-                            child: TextField(
-                                maxLength: 10,
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.black),
-                                controller: _numberController,
-                                decoration: InputDecoration(
-                                  counter: SizedBox.shrink(),
-                                  contentPadding: EdgeInsets.only(top: 5),
-                                  hintText:
-                                      'login_screen_mobile_input_placeholder'
-                                          .tr,
-                                  hintStyle: const TextStyle(
+                Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    BlocBuilder<LoginBloc, LoginState>(
+                      buildWhen: (current, previous) =>
+                          current.number == previous.number,
+                      builder: (context, state) {
+                        return Expanded(
+                          child: TextField(
+                              maxLength: 10,
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.black),
+                              controller: _numberController,
+                              decoration: InputDecoration(
+                                counter: SizedBox.shrink(),
+                                contentPadding: const EdgeInsets.only(
+                                    left: 15, top: 15, bottom: 15),
+                                label: Text(
+                                  'login_screen_mobile_input_placeholder'.tr,
+                                  style: const TextStyle(
                                       fontSize: 21.0,
                                       fontWeight: FontWeight.w400),
-                                  border: InputBorder.none,
                                 ),
-                                keyboardType: TextInputType.phone,
-                                key: const Key("value"),
-                                onChanged: (value) => {
-                                      context
-                                          .read<LoginBloc>()
-                                          .add(NumberChanged(number: value)),
-                                    }),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                                prefix: Text(
+                                  '+91',
+                                  style: const TextStyle(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                              keyboardType: TextInputType.phone,
+                              key: const Key("value"),
+                              onChanged: (value) => {
+                                    context
+                                        .read<LoginBloc>()
+                                        .add(NumberChanged(number: value)),
+                                  }),
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 SizedBox(height: height * 0.05),
                 SizedBox(
                   width: double.infinity,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(08.0),
                     child: TextButton(
                       style: ButtonStyle(
                           shape:
                               MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
+                              borderRadius: BorderRadius.circular(12.0),
                               side: const BorderSide(color: Colors.black),
                             ),
                           ),
@@ -528,7 +521,7 @@ class _LoginFormState extends State<LoginForm> {
                           {generateSignupOTP(_numberController.text)},
                       // context.read<LoginBloc>().add(GenerateOtp()),
                       child: Obx(() => Padding(
-                            padding: const EdgeInsets.all(6.0),
+                            padding: const EdgeInsets.all(4.0),
                             child: Get.find<LoadingController>().isLoading.value
                                 ? CircularProgressIndicator(
                                     color: Colors.white,

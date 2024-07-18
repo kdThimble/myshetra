@@ -125,7 +125,7 @@ class MyApp extends StatelessWidget {
           cursorColor: Colors.black,
           // Set the cursor color to black
         ),
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFFF5252)),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF0E3D8B)),
         useMaterial3: true,
       ),
       home: const SplashScreen(),

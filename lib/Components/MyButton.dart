@@ -15,7 +15,7 @@ class MyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       child: TextButton(
         onPressed: onTap,
         style: ButtonStyle(
@@ -24,7 +24,7 @@ class MyButton extends StatelessWidget {
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
               borderRadius:
-                  BorderRadius.circular(10), // Make the button rounded
+                  BorderRadius.circular(12), // Make the button rounded
             ),
           ),
           elevation: MaterialStateProperty.resolveWith<double>((states) {
@@ -36,12 +36,12 @@ class MyButton extends StatelessWidget {
           padding: MaterialStateProperty.all<EdgeInsets>(
               const EdgeInsets.all(1)), // Add padding
           minimumSize: MaterialStateProperty.all<Size>(
-              const Size(double.infinity, 50)), // Set width to full
+              const Size(double.infinity, 30)), // Set width to full
           // side: MaterialStateProperty.all<BorderSide>(
           //     BorderSide(color: Colors.blue)), // Add border
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15.0),
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
           child: Obx(() => Get.find<LoadingController>().isLoading.value
               ? CircularProgressIndicator(
                   color: Colors.white,

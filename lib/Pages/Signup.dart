@@ -278,11 +278,11 @@ class _SignUpFormState extends State<SignUpForm> {
               SizedBox(
                 height: 10,
               ),
-              const Text(
-                'Select Date of Birth',
-                style: TextStyle(
+              Text(
+                'create_account_dob_modal_text'.tr,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  fontSize: 25,
                   color: Colors.black,
                 ),
               ),
@@ -311,6 +311,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           DateFormat('yyyy-MM-dd').format(date);
                     });
                   },
+
                   onConfirm: (date, _) {
                     if (date.year < 1940 || date.year > 2006) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -369,7 +370,7 @@ class _SignUpFormState extends State<SignUpForm> {
       print("response ${responseData}");
       if (status) {
         setState(() {
-          numberText = "Mobile number available";
+          numberText = "mobile_number_available".tr;
           isAvailable = true;
         });
 
@@ -380,7 +381,7 @@ class _SignUpFormState extends State<SignUpForm> {
         // ));
       } else {
         setState(() {
-          numberText = "Mobile number is not available";
+          numberText = "mobile_not_number_available".tr;
           isAvailable = false;
         });
         // ScaffoldMessenger.of(context).showSnackBar(
@@ -393,7 +394,7 @@ class _SignUpFormState extends State<SignUpForm> {
       }
     } else {
       setState(() {
-        numberText = "Mobile number is not available";
+        numberText = "mobile_not_number_available".tr;
         isAvailable = false;
       });
       // ScaffoldMessenger.of(context).showSnackBar(
@@ -540,12 +541,12 @@ class _SignUpFormState extends State<SignUpForm> {
           await prefs.setString('refreshToken', authResponse.refreshToken);
         } else {
           // Get.snackbar('Error', 'Failed to authenticate');
-           ScaffoldMessenger.of(Get.context!).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to authenticate'),
-          backgroundColor: Colors.red,
-        ),
-      );
+          ScaffoldMessenger.of(Get.context!).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to authenticate'),
+              backgroundColor: Colors.red,
+            ),
+          );
           print('Failed to authenticate');
         }
 
@@ -558,19 +559,20 @@ class _SignUpFormState extends State<SignUpForm> {
       } else {
         print("ERROR");
         print(response.reasonPhrase);
-        Get.snackbar("Error", " ${jsonData['message'].toString()}" , backgroundColor: Colors.red , colorText: Colors.white);
-      //     ScaffoldMessenger.of(Get.context!).showSnackBar(
-      //   const SnackBar(
-      //     content: Text(jsonData['message'].toString()),
-      //     backgroundColor: Colors.red,
-      //   ),
-      // );
+        Get.snackbar("Error", " ${jsonData['message'].toString()}",
+            backgroundColor: Colors.red, colorText: Colors.white);
+        //     ScaffoldMessenger.of(Get.context!).showSnackBar(
+        //   const SnackBar(
+        //     content: Text(jsonData['message'].toString()),
+        //     backgroundColor: Colors.red,
+        //   ),
+        // );
       }
     } catch (e) {
       Get.find<LoadingController>().stopLoading();
       // Get.snackbar(
       //     "Error", "Failed to verify OTP. Please try again. ${e.toString()}");
-            ScaffoldMessenger.of(Get.context!).showSnackBar(
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
         const SnackBar(
           content: Text('Failed to verify OTP. Please try again'),
           backgroundColor: Colors.red,
@@ -635,43 +637,39 @@ class _SignUpFormState extends State<SignUpForm> {
                 ),
                 BlocBuilder<SignupBloc, SignupState>(
                   builder: (context, state) {
-                    return Container(
-                      margin: const EdgeInsets.all(10.0),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: TextField(
-                          controller: nameController,
-                          style: const TextStyle(
-                              fontSize: 20, color: Colors.black),
-                          decoration: InputDecoration(
+                    return TextField(
+                        controller: nameController,
+                        style:
+                            const TextStyle(fontSize: 20, color: Colors.black),
+                        decoration: InputDecoration(
+                            label: Text(
+                              'create_account_full_name_placeholder'.tr,
+                              style: TextStyle(fontSize: 20),
+                            ),
                             contentPadding: const EdgeInsets.only(
-                                left: 15, top: 5, bottom: 5),
-                            hintText: 'create_account_full_name_placeholder'.tr,
-                            hintStyle: const TextStyle(
-                                fontSize: 18.0, fontWeight: FontWeight.w200),
-                            border: InputBorder.none,
-                          ),
-                          keyboardType: TextInputType.name,
-                          onChanged: (value) => {
-                                context
-                                    .read<SignupBloc>()
-                                    .add(NameChanged(name: value)),
-                              }),
-                    );
+                                left: 15, top: 15, bottom: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            )),
+                        keyboardType: TextInputType.name,
+                        onChanged: (value) => {
+                              context
+                                  .read<SignupBloc>()
+                                  .add(NameChanged(name: value)),
+                            });
                   },
                 ),
+                const SizedBox(
+                  height: 30,
+                ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                      width: 10,
-                    ),
                     Container(
-                        // margin: const EdgeInsets.all(10.0),
+                        margin: const EdgeInsets.only(bottom: 10.0, right: 10),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 20),
+                            horizontal: 15, vertical: 15),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
                           border: Border.all(color: Colors.grey),
@@ -679,60 +677,53 @@ class _SignUpFormState extends State<SignUpForm> {
                         child: const Text(
                           '+91',
                           style: TextStyle(
-                              fontSize: 18.0, fontWeight: FontWeight.w400),
+                              fontSize: 20.0, fontWeight: FontWeight.w400),
                         )),
                     BlocBuilder<SignupBloc, SignupState>(
                       builder: (context, state) {
                         return Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.all(10.0),
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: TextField(
-                                controller: _mobileNumberController,
-                                maxLength: 10,
-                                style: const TextStyle(
-                                    fontSize: 20, color: Colors.black),
-                                onEditingComplete: _checkMobileNumber,
-                                decoration: InputDecoration(
+                          child: TextField(
+                              controller: _mobileNumberController,
+                              maxLength: 10,
+                              style: const TextStyle(
+                                  fontSize: 20, color: Colors.black),
+                              onEditingComplete: _checkMobileNumber,
+                              decoration: InputDecoration(
                                   counter: const SizedBox(
                                     height: 0,
                                   ),
-                                  hintText:
-                                      'create_account_mobile_number_placeholder'
-                                          .tr,
+                                  label: Text(
+                                    'create_account_mobile_number_placeholder'
+                                        .tr,
+                                    style: TextStyle(fontSize: 20),
+                                  ),
                                   contentPadding: const EdgeInsets.only(
-                                      left: 10, top: 5, bottom: 5),
+                                      left: 15, top: 15, bottom: 15),
                                   hintStyle: const TextStyle(
                                       fontSize: 18.0,
                                       fontWeight: FontWeight.w200),
-                                  border: InputBorder.none,
-                                ),
-                                keyboardType: TextInputType.phone,
-                                onChanged: (value) => {
-                                      context
-                                          .read<SignupBloc>()
-                                          .add(NumberChanged(number: value)),
-                                      if (value.length == 10)
-                                        {
-                                          context
-                                              .read<SignupBloc>()
-                                              .add(CheckNumber()),
-                                        }
-                                    }),
-                          ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  )),
+                              keyboardType: TextInputType.phone,
+                              onChanged: (value) => {
+                                    context
+                                        .read<SignupBloc>()
+                                        .add(NumberChanged(number: value)),
+                                    if (value.length == 10)
+                                      {
+                                        context
+                                            .read<SignupBloc>()
+                                            .add(CheckNumber()),
+                                      }
+                                  }),
                         );
                       },
                     ),
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-
-                  // padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.only(right: 0.0, bottom: 8),
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(
@@ -748,96 +739,88 @@ class _SignUpFormState extends State<SignUpForm> {
                 ),
                 BlocBuilder<SignupBloc, SignupState>(
                   builder: (context, state) {
-                    return Container(
-                      margin: const EdgeInsets.all(10.0),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 10),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: DropdownButton<String>(
-                        elevation: 3,
-                        isExpanded: true,
-                        underline: Container(),
-                        value: gender,
-                        hint: Text(
-                          "Gender",
+                    return DropdownButtonFormField<String>(
+                      elevation: 3,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        label: Text(
+                          "create_account_gender_select_placeholder".tr,
                           style: TextStyle(color: greyColor, fontSize: 20),
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            gender = value!;
-                          });
-                          context
-                              .read<SignupBloc>()
-                              .add(GenderChanged(gender: value!.toLowerCase()));
-                        },
-                        items: <String>['Male', 'Female'].map((String gender) {
-                          return DropdownMenuItem<String>(
-                            value: gender,
-                            child: Text(
-                              gender,
-                              style: const TextStyle(
-                                  fontSize: 20, color: Colors.black),
-                            ),
-                          );
-                        }).toList(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
                       ),
+                      value: gender,
+                      onChanged: (value) {
+                        setState(() {
+                          gender = value!;
+                        });
+                        context
+                            .read<SignupBloc>()
+                            .add(GenderChanged(gender: value!.toLowerCase()));
+                      },
+                      items: <String>['Male', 'Female'].map((String gender) {
+                        return DropdownMenuItem<String>(
+                          value: gender,
+                          child: Text(
+                            gender,
+                            style: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        );
+                      }).toList(),
                     );
                   },
                 ),
                 SizedBox(
-                  height: height * 0.02,
+                  height: height * 0.035,
                 ),
-                Container(
-                  margin: const EdgeInsets.all(10.0),
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: dateOfBirthController,
-                          style: const TextStyle(
-                              fontSize: 20, color: Colors.black),
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.calendar_month_outlined,
-                              color: greyColor,
-                            ),
-                            hintText:
-                                'create_account_dob_select_placeholder'.tr,
-                            hintStyle: const TextStyle(
-                                fontSize: 18.0, fontWeight: FontWeight.w200),
-                            border: InputBorder.none,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: dateOfBirthController,
+                        style:
+                            const TextStyle(fontSize: 20, color: Colors.black),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(
+                              left: 15, top: 15, bottom: 15, right: 15),
+                          prefixIcon: Icon(
+                            Icons.calendar_month_outlined,
+                            color: greyColor,
                           ),
-                          readOnly: true,
-                          onTap: () {
-                            _selectDate(context);
-                          },
+                          label: Text(
+                            'create_account_dob_select_placeholder'.tr,
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
                         ),
+                        readOnly: true,
+                        onTap: () {
+                          _selectDate(context);
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 const SizedBox(
-                  height: 10,
+                  height: 30,
                 ),
                 Obx(() {
                   final bool isFormValid = nameController.text.isNotEmpty &&
                       _mobileNumberController.text.isNotEmpty &&
                       dateOfBirthController.text.isNotEmpty &&
                       gender != null;
+
                   return SizedBox(
                     width: double.infinity,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(0.0),
                       child: TextButton(
                         style: ButtonStyle(
                           shape:

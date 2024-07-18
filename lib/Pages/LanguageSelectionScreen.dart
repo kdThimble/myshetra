@@ -175,13 +175,50 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                         selectedTileColor: blueColor.withOpacity(0.2),
                       ),
                     ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: RadioListTile(
+                        title: Text(
+                          'ਪੰਜਾਬੀ',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: width * 0.05,
+                          ),
+                        ),
+                        value: 'pa',
+                        groupValue: _selectedLanguage,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedLanguage = value as String;
+                            _selectedCountryCode = 'IN';
+                            _saveSelectedLanguage();
+                          });
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        tileColor: _selectedLanguage == 'pa'
+                            ? const Color(0xFFAFD9FF)
+                            : const Color(0xFFEFEFEF),
+                        selectedTileColor: blueColor.withOpacity(0.2),
+                      ),
+                    ),
                     const SizedBox(
                       height: 5,
                     ),
                     const Spacer(),
                     Container(
                       margin: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
+                          vertical: 8, horizontal: 20),
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.pushReplacement(
@@ -196,7 +233,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                               MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
-                                  10), // Make the button rounded
+                                  12), // Make the button rounded
                             ),
                           ),
                           elevation: MaterialStateProperty.resolveWith<double>(
@@ -210,12 +247,12 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                               const EdgeInsets.all(1)), // Add padding
                           minimumSize: MaterialStateProperty.all<Size>(
                               const Size(
-                                  double.infinity, 65)), // Set width to full
+                                  double.infinity, 60)), // Set width to full
                           // side: MaterialStateProperty.all<BorderSide>(
                           //     BorderSide(color: Colors.blue)), // Add border
                         ),
                         child: Text(
-                          'Choose',
+                          'choose_language_snackbar_submit_button'.tr,
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           fontWeight: FontWeight.bold,
                           color: Colors.white)),
                   SizedBox(height: 10),
-                  Text('Together we shape fututre',
+                  Text('initial_screen_title'.tr,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: width * 0.05,

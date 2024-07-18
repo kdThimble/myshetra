@@ -8,10 +8,11 @@ class Language extends Translations {
           'choose_language_snackbar_title': 'Choose Language',
           'choose_language_snackbar_sub_title':
               'Please select language as per your choice',
+          'choose_language_snackbar_submit_button': 'Choose',
           'choose_language_snackbar_english_option': 'English',
           'choose_language_snackbar_hindi_option': 'Hindi',
           'choose_language_snackbar_punjabi_option': 'Punjabi',
-          'initial_screen_title': 'Some title',
+          'initial_screen_title': 'Together we shape future',
           'initial_screen_sub_title': 'Some sub title',
           'initial_screen_signup_button_text': 'Sign Up',
           'initial_screen_login_button_text': 'Login',
@@ -23,6 +24,8 @@ class Language extends Translations {
           'login_screen_donot_have_account_question': 'Don’t have an account?',
           'login_screen_signup_hyperlink_text': 'Sign Up',
           'verify_login_otp_title': 'Verify login details',
+          'mobile_number_available': 'Mobile number available',
+          'mobile_not_number_available': 'Mobile number not available',
           'verify_login_otp_sub_title': 'We have sent a verification code to',
           'verify_login_resend_counter_text':
               'You can resend the code in 56 seconds',
@@ -36,6 +39,7 @@ class Language extends Translations {
           'create_account_mobile_number_placeholder': 'Enter Phone Number',
           'create_account_gender_select_placeholder': 'Select your gender',
           'create_account_dob_select_placeholder': 'Enter your Date of Birth',
+          'create_account_dob_modal_text': 'Select Date of Birth',
           'create_account_button_text': 'Create Account',
           'signup_screen_already_have_account_question':
               'Already have an account?',
@@ -47,9 +51,11 @@ class Language extends Translations {
           'signup_screen_signup_conditions_separator': 'and',
           'signup_screen_signup_conditions_cookie_use_hyperlink': 'Cookie Use',
           'choose_location_title': 'Select your Shetra',
-          'choose_location_sub_title': "Discover what's happening and connect with representatives in your Shetra",
+          'choose_location_sub_title':
+              "Discover what's happening and connect with representatives in your Shetra",
           'choose_location_snackbar_title': 'Your Representatives',
-          'choose_location_snackbar_not_your_representatives_text': 'Not your representatives?',
+          'choose_location_snackbar_not_your_representatives_text':
+              'Not your representatives?',
           'choose_location_snackbar_enter_manually_text': 'Choose manually',
           'choose_location_snackbar_button_text': 'Next',
           'choose_location_manually_snackbar_title': 'Enter Manually',
@@ -91,17 +97,21 @@ class Language extends Translations {
         'hi_IN': {
           'app_header_title': 'मेरा क्षेत्र',
           'choose_location_title': 'अपना क्षेत्र चुनें',
-          'choose_location_sub_title': 'अपने क्षेत्र में हो रही घटनाओं को जानें और अपने प्रतिनिधियों से जुड़ें',
+          'choose_location_sub_title':
+              'अपने क्षेत्र में हो रही घटनाओं को जानें और अपने प्रतिनिधियों से जुड़ें',
+          'choose_language_snackbar_submit_button': 'चुनें',
           'choose_location_snackbar_title': 'आपके प्रतिनिधि',
-          'choose_location_snackbar_not_your_representatives_text': 'आपके प्रतिनिधि नहीं?',
-          'choose_location_snackbar_enter_manually_text': 'मैन्युअल रूप से चुनें',
+          'choose_location_snackbar_not_your_representatives_text':
+              'आपके प्रतिनिधि नहीं?',
+          'choose_location_snackbar_enter_manually_text':
+              'मैन्युअल रूप से चुनें',
           'choose_language_snackbar_title': 'भाषा चुनें',
           'choose_language_snackbar_sub_title':
               'कृपया अपनी पसंद के अनुसार भाषा चुनें',
           'choose_language_snackbar_english_option': 'अंग्रेजी',
           'choose_language_snackbar_hindi_option': 'हिन्दी',
           'choose_language_snackbar_punjabi_option': 'पंजाबी',
-          'initial_screen_title': 'कुछ शीर्षक',
+          'initial_screen_title': 'साथ में हम भविष्य को आकार देते हैं',
           'initial_screen_sub_title': 'कुछ उपशीर्षक',
           'initial_screen_signup_button_text': 'साइन अप करें',
           'initial_screen_login_button_text': 'लॉगिन करें',
@@ -127,7 +137,10 @@ class Language extends Translations {
           'create_account_mobile_number_placeholder': 'फोन नंबर दर्ज करें',
           'create_account_gender_select_placeholder': 'अपना लिंग चुनें',
           'create_account_dob_select_placeholder': 'अपनी जन्मतिथि दर्ज करें',
+          'create_account_dob_modal_text': 'जन्म तिथि चुनें ',
           'create_account_button_text': 'खाता बनाएं',
+          'mobile_number_available': 'मोबाइल नंबर उपलब्ध',
+          'mobile_not_number_available': 'मोबाइल नंबर उपलब्ध नहीं है',
           'signup_screen_already_have_account_question': 'पहले से खाता है?',
           'signup_screen_login_hyperlink_text': 'लॉगिन करें',
           'signup_screen_signup_conditions_pretext':
@@ -179,10 +192,11 @@ class Language extends Translations {
           'choose_language_snackbar_title': 'ਭਾਸ਼ਾ ਚੁਣੋ',
           'choose_language_snackbar_sub_title':
               'ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਪਸੰਦ ਦੇ ਅਨੁਸਾਰ ਭਾਸ਼ਾ ਚੁਣੋ',
+          'choose_language_snackbar_submit_button': 'ਚੁਣੋ',
           'choose_language_snackbar_english_option': 'ਅੰਗਰੇਜ਼ੀ',
           'choose_language_snackbar_hindi_option': 'ਹਿੰਦੀ',
           'choose_language_snackbar_punjabi_option': 'ਪੰਜਾਬੀ',
-          'initial_screen_title': 'ਕੁਝ ਸਿਰਲੇਖ',
+          'initial_screen_title': 'ਸਾਥ ਵਿੱਚ ਅਸਤਿਤਵ ਨੂੰ ਸ਼ਕਲ ਦਿਓ',
           'initial_screen_sub_title': 'ਕੁਝ ਉਪ ਸਿਰਲੇਖ',
           'initial_screen_signup_button_text': 'ਸਾਈਨ ਅਪ ਕਰੋ',
           'initial_screen_login_button_text': 'ਲੌਗਿਨ ਕਰੋ',
@@ -218,9 +232,11 @@ class Language extends Translations {
           'signup_screen_signup_conditions_separator': 'ਅਤੇ',
           'signup_screen_signup_conditions_cookie_use_hyperlink': 'ਕੁਕੀ ਵਰਤੋਂ',
           'choose_location_title': 'ਆਪਣਾ ਖੇਤਰ ਚੁਣੋ',
-          'choose_location_sub_title': 'ਆਪਣੇ ਖੇਤਰ ਵਿੱਚ ਹੋ ਰਹੀਆਂ ਘਟਨਾਵਾਂ ਨੂੰ ਜਾਣੋ ਅਤੇ ਆਪਣੇ ਪ੍ਰਤਿਨਿਧੀਆਂ ਨਾਲ ਜੁੜੋ',
+          'choose_location_sub_title':
+              'ਆਪਣੇ ਖੇਤਰ ਵਿੱਚ ਹੋ ਰਹੀਆਂ ਘਟਨਾਵਾਂ ਨੂੰ ਜਾਣੋ ਅਤੇ ਆਪਣੇ ਪ੍ਰਤਿਨਿਧੀਆਂ ਨਾਲ ਜੁੜੋ',
           'choose_location_snackbar_title': 'ਤੁਹਾਡੇ ਪ੍ਰਤਿਨਿਧੀ',
-          'choose_location_snackbar_not_your_representatives_text': 'ਤੁਹਾਡੇ ਪ੍ਰਤਿਨਿਧੀ ਨਹੀਂ?',
+          'choose_location_snackbar_not_your_representatives_text':
+              'ਤੁਹਾਡੇ ਪ੍ਰਤਿਨਿਧੀ ਨਹੀਂ?',
           'choose_location_snackbar_enter_manually_text': 'ਹੱਥੋਂ ਹੱਥ ਚੁਣੋ',
           'choose_location_snackbar_button_text': 'ਅਗਲਾ',
           'choose_location_manually_snackbar_title': 'ਹੱਥੋਂ ਦਰਜ ਕਰੋ',
@@ -236,6 +252,9 @@ class Language extends Translations {
           'select_organization_sub_title':
               'ਜੇਕਰ ਤੁਸੀਂ ਕਿਸੇ ਪਾਰਟੀ ਨਾਲ ਸਬੰਧਤ ਹੋ, ਤਾਂ ਕਿਰਪਾ ਕਰਕੇ ਚੁਣੋ ਅਤੇ ਪ੍ਰਮਾਣ ਪੱਤਰ ਅੱਪਲੋਡ ਕਰੋ',
           'select_organization_select_placeholder': 'ਸੰਗਠਨ ਚੁਣੋ',
+          'create_account_dob_modal_text': 'ਜਨਮ ਮਿਤੀ ਚੁਣੋ',
+          'mobile_number_available': 'ਮੋਬਾਈਲ ਨੰਬਰ ਉਪਲਬਧ',
+          'mobile_not_number_available': 'ਮੋਬਾਈਲ ਨੰਬਰ ਉਪਲਬਧ ਨਹੀਂ ਹੈ',
           'select_organization_upload_proof': 'ਪ੍ਰਮਾਣ ਅੱਪਲੋਡ ਕਰੋ',
           'select_organization_take_photo': 'ਫੋਟੋ ਖੀਚੋ',
           'select_organization_next_button_text': 'ਅਗਲਾ',
