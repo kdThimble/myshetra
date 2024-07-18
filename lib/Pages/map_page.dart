@@ -129,7 +129,33 @@ class _MapPageState extends State<MapPage> {
             ):
                 Center(
                   child: CircularProgressIndicator(),
-                )
+                ),
+            // Positioned(
+            //   top: height*0.6,
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       borderRadius: BorderRadius.only(
+            //         topLeft: Radius.circular(20),
+            //         topRight: Radius.circular(20),
+            //       ),
+            //       color: Colors.white,
+            //       boxShadow: [
+            //         BoxShadow(
+            //           color: Colors.grey.withOpacity(0.5),
+            //           spreadRadius: 5,
+            //           blurRadius: 7,
+            //           offset: Offset(0, -3),
+            //         ),
+            //       ],
+            //     ),
+            //     height: height * 0.45,
+            //     child: LocationDetailsBottomSheet(
+            //       address: _formattedCoordinates,
+            //       isRedirected: widget.isRedirected!,
+            //       representatives: widget.representatives!,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -149,7 +175,7 @@ class _MapPageState extends State<MapPage> {
             ),
           ],
         ),
-        height: height * 0.55,
+        height: height * 0.48,
         child: LocationDetailsBottomSheet(
           address: _formattedCoordinates,
           isRedirected: widget.isRedirected!,
@@ -644,38 +670,10 @@ class _LocationDetailsBottomSheetState
   Map<String, String> _stateMap =
       {}; // Map to store state label and value pairs
 
-  // void fetchRepresentatives123(String lattitude , String longitude) async {
-  //   var headers = {'Authorization': '${authService.token}'};
-  //   var url = Uri.parse(
-  //       'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates?latitude=${lattitude}&longitude=$longitude');
-  //   var response = await http.get(url, headers: headers);
-  // print("url:$url");
-  //   if (response.statusCode == 200) {
-  //     // Parse JSON response
-  //     var jsonResponse = json.decode(response.body);
-  //
-  //     // Extract representatives data
-  //     var representatives = jsonResponse['data']['representatives'];
-  //
-  //     // Clear existing list and add new data
-  //     _representatives.clear();
-  //     _representatives.addAll(representatives);
-  //
-  //     // Print or use _representatives as needed
-  //     print('Representatives: $_representatives');
-  //   } else {
-  //     // Get.snackbar('Server Error', 'Failed to fetch representatives',
-  //     //     backgroundColor: Colors.red, colorText: Colors.white);
-  //          ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             content: Text('Failed to fetch representatives'),
-  //             backgroundColor: Colors.red,
-  //           ),
-  //         );
-  //     print('Request failed with status: ${response.statusCode}');
-  //   }
-  // }
   Future<void> fetchRepresentatives123(String latitude, String longitude) async {
+    setState(() {
+      isLoading = true;
+    });
     var headers = {
       'Authorization': '${authService.token}'
     };
@@ -690,7 +688,7 @@ class _LocationDetailsBottomSheetState
       'latitude': latitude,
       'longitude': longitude
     });
-
+    print("fetchcalling");
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -705,13 +703,17 @@ class _LocationDetailsBottomSheetState
       // Clear existing list and add new data
       _representatives.clear();
       _representatives.addAll(representatives);
-
+      setState(() {
+        isLoading = false;
+      });
       // Print or use _representatives as needed
       print('Representatives: $_representatives');
     } else {
       print("ERROR");
       print(response.reasonPhrase);
-
+      setState(() {
+        isLoading = false;
+      });
       var responseBody = await response.stream.bytesToString();
       var jsonData = json.decode(responseBody);
 
@@ -898,140 +900,140 @@ class _LocationDetailsBottomSheetState
     }
   }
 
-  void _showLocationSelectionBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Container(
-              padding: const EdgeInsets.all(16),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'choose_location_snackbar_enter_manually_text'.tr,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedState,
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedState = newValue!;
-                          _selectedState1 = _stateMap[newValue]!;
-                          _fetchDistrictsByState(_stateMap[newValue]!);
-                        });
-                      },
-                      items: _states.map((state) {
-                        return DropdownMenuItem<String>(
-                          value: state,
-                          child: Text(state),
-                        );
-                      }).toList(),
-                      decoration: const InputDecoration(
-                        labelText: 'Select State',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedDistrict,
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedDistrict = newValue!;
-                          _selectedDistrict1 = _districtMap[newValue]!;
-                          _fetchSubDistrictsByDistrict(_districtMap[newValue]!);
-                        });
-                      },
-                      items: _districts.map((district) {
-                        return DropdownMenuItem<String>(
-                          value: district,
-                          child: Text(district),
-                        );
-                      }).toList(),
-                      decoration: const InputDecoration(
-                        labelText: 'Select District',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedSubDistrict,
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedSubDistrict = newValue!;
-                          _selectedSubDistrict1 = _subDistrictMap[newValue]!;
-                          _fetchLocalDivisionsBySubDistrict(
-                              _subDistrictMap[newValue]!);
-                        });
-                      },
-                      items: _subDistricts.map((subDistrict) {
-                        return DropdownMenuItem<String>(
-                          value: subDistrict,
-                          child: Text(subDistrict),
-                        );
-                      }).toList(),
-                      decoration: const InputDecoration(
-                        labelText: 'Select Sub District',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedLocalDivision,
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedLocalDivision = newValue!;
-                          _selectedLocalDivision1 =
-                              _localDivisionMap[newValue]!;
-                        });
-                      },
-                      items: _localDivisions.map((localDivision) {
-                        return DropdownMenuItem<String>(
-                          value: localDivision,
-                          child: Text(localDivision),
-                        );
-                      }).toList(),
-                      decoration: const InputDecoration(
-                        labelText: 'Select Local Division',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () async {
-                        // Perform action on submit button press
-                        await fetchRepresentatives(
-                            localDivisionId: _selectedLocalDivision1,
-                            subDistrictId: _selectedSubDistrict1,
-                            districtId: _selectedDistrict1);
-                        setState(() {}); // Refresh bottom sheet with new data
-                      },
-                      child: const Text('Submit'),
-                    ),
-                    const SizedBox(height: 16),
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : _representatives.isEmpty
-                            ? const Text(
-                                'No representatives found in your area.')
-                            : RepresentativeWidget(
-                                representatives: _representatives),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+  // void _showLocationSelectionBottomSheet(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (BuildContext context, StateSetter setState) {
+  //           return Container(
+  //             padding: const EdgeInsets.all(16),
+  //             child: SingleChildScrollView(
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   Text(
+  //                     'choose_location_snackbar_enter_manually_text'.tr,
+  //                     style: TextStyle(
+  //                       fontSize: 18,
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 16),
+  //                   DropdownButtonFormField<String>(
+  //                     value: _selectedState,
+  //                     onChanged: (newValue) {
+  //                       setState(() {
+  //                         _selectedState = newValue!;
+  //                         _selectedState1 = _stateMap[newValue]!;
+  //                         _fetchDistrictsByState(_stateMap[newValue]!);
+  //                       });
+  //                     },
+  //                     items: _states.map((state) {
+  //                       return DropdownMenuItem<String>(
+  //                         value: state,
+  //                         child: Text(state),
+  //                       );
+  //                     }).toList(),
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'Select State',
+  //                       border: OutlineInputBorder(),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 16),
+  //                   DropdownButtonFormField<String>(
+  //                     value: _selectedDistrict,
+  //                     onChanged: (newValue) {
+  //                       setState(() {
+  //                         _selectedDistrict = newValue!;
+  //                         _selectedDistrict1 = _districtMap[newValue]!;
+  //                         _fetchSubDistrictsByDistrict(_districtMap[newValue]!);
+  //                       });
+  //                     },
+  //                     items: _districts.map((district) {
+  //                       return DropdownMenuItem<String>(
+  //                         value: district,
+  //                         child: Text(district),
+  //                       );
+  //                     }).toList(),
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'Select District',
+  //                       border: OutlineInputBorder(),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 16),
+  //                   DropdownButtonFormField<String>(
+  //                     value: _selectedSubDistrict,
+  //                     onChanged: (newValue) {
+  //                       setState(() {
+  //                         _selectedSubDistrict = newValue!;
+  //                         _selectedSubDistrict1 = _subDistrictMap[newValue]!;
+  //                         _fetchLocalDivisionsBySubDistrict(
+  //                             _subDistrictMap[newValue]!);
+  //                       });
+  //                     },
+  //                     items: _subDistricts.map((subDistrict) {
+  //                       return DropdownMenuItem<String>(
+  //                         value: subDistrict,
+  //                         child: Text(subDistrict),
+  //                       );
+  //                     }).toList(),
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'Select Sub District',
+  //                       border: OutlineInputBorder(),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 16),
+  //                   DropdownButtonFormField<String>(
+  //                     value: _selectedLocalDivision,
+  //                     onChanged: (newValue) {
+  //                       setState(() {
+  //                         _selectedLocalDivision = newValue!;
+  //                         _selectedLocalDivision1 =
+  //                             _localDivisionMap[newValue]!;
+  //                       });
+  //                     },
+  //                     items: _localDivisions.map((localDivision) {
+  //                       return DropdownMenuItem<String>(
+  //                         value: localDivision,
+  //                         child: Text(localDivision),
+  //                       );
+  //                     }).toList(),
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'Select Local Division',
+  //                       border: OutlineInputBorder(),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 16),
+  //                   ElevatedButton(
+  //                     onPressed: () async {
+  //                       // Perform action on submit button press
+  //                       await fetchRepresentatives(
+  //                           localDivisionId: _selectedLocalDivision1,
+  //                           subDistrictId: _selectedSubDistrict1,
+  //                           districtId: _selectedDistrict1);
+  //                       setState(() {}); // Refresh bottom sheet with new data
+  //                     },
+  //                     child: const Text('Submit'),
+  //                   ),
+  //                   const SizedBox(height: 16),
+  //                   _isLoading
+  //                       ? const CircularProgressIndicator()
+  //                       : _representatives.isEmpty
+  //                           ? const Text(
+  //                               'No representatives found in your area.')
+  //                           : RepresentativeWidget(
+  //                               representatives: _representatives),
+  //                 ],
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
   String _formattedCoordinates = "";
   String _convertToDMSHelper(double coordinate) {
     int degrees = coordinate.floor();
@@ -1062,7 +1064,7 @@ class _LocationDetailsBottomSheetState
   }
   String latitudeString = "";
   String longitudeString = "";
-  bool isLoading = true;
+  bool isLoading = false;
 
   @override
   void didChangeDependencies() {
@@ -1079,7 +1081,7 @@ class _LocationDetailsBottomSheetState
     print(longitudeString);
 
     fetchRepresentatives123(latitudeString, longitudeString);
-    _fetchStates();
+    // _fetchStates();
     setState(() {
       isLoading = false;
     });
@@ -1114,6 +1116,8 @@ class _LocationDetailsBottomSheetState
     print(latitudeString);
     print(longitudeString);
     print(authService.token);
+    print(widget.representatives);
+    print(widget.isRedirected);
     return Stack(
       children: [
         Container(
@@ -1222,7 +1226,8 @@ class _LocationDetailsBottomSheetState
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: widget.representatives.isEmpty
-                            ? Column(
+                            ?
+                        Column(
                                 children: [
                                   SizedBox(height: Get.height * 0.08),
                                   Center(
@@ -1236,75 +1241,103 @@ class _LocationDetailsBottomSheetState
                                 ],
                               )
                             : Column(
-                                children: _representatives.map((rep) {
-                                  return Column(
+                          children: widget.representatives.map((rep) {
+                            print("rep is ${rep.toString()}");
+                            return Column(
+                              children: [
+                                Container(
+                                  // margin: EdgeInsets.only(bottom: 16),
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                    BorderRadius.circular(10),
+                                    border:
+                                    Border.all(color: Colors.black),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
-                                        // margin: EdgeInsets.only(bottom: 16),
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border:
-                                              Border.all(color: Colors.black),
-                                        ),
                                         child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
                                           children: [
                                             Container(
                                               width: 60,
                                               height: 60,
-                                              padding: const EdgeInsets.all(2),
+                                              padding:
+                                              const EdgeInsets.all(2),
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                    BorderRadius.circular(8),
-                                                // color: Colors.grey,
+                                                BorderRadius.circular(
+                                                    8),
                                               ),
                                               child: Image.network(
-                                                rep['org_symbol_url'],
+                                                rep['image_url'] ??
+                                                    "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
                                                 fit: BoxFit.cover,
                                               ),
                                             ),
-                                            const SizedBox(width: 16),
-                                            Container(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        rep['name'],
-                                                        style: const TextStyle(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 3),
-                                                  Text(
-                                                    rep['division_name'],
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: Colors.grey,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ],
-                                              ),
+                                            Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment
+                                                  .start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      rep['name'],
+                                                      style: const TextStyle(
+                                                          fontSize: 15,
+                                                          fontWeight:
+                                                          FontWeight
+                                                              .bold),
+                                                    ),
+                                                    const SizedBox(
+                                                        width: 5),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 3),
+                                                Text(
+                                                  rep['division_name'],
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.grey,
+                                                      fontWeight:
+                                                      FontWeight
+                                                          .bold),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(height: 20),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Container(
+                                          width: 60,
+                                          height: 60,
+                                          padding:
+                                          const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                            BorderRadius.circular(8),
+                                          ),
+                                          child: Image.network(
+                                            rep['org_symbol_url'],
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
                                     ],
-                                  );
-                                }).toList(),
-                              ),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+                            );
+                          }).toList(),
+                        ),
                       )
                     : Padding(
                         padding: const EdgeInsets.all(16.0),

@@ -13,8 +13,10 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Pages/HomePage.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../Services/Authservices.dart';
+import '../helpers/colors.dart';
 import 'Oranisation.dart';
 import 'Positionproof.dart';
 
@@ -172,6 +174,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? bannerimage;
   String profileimage1='';
   String bannerimage1 ='';
+  bool isloading = false;
   String formatDateString(String dateStr) {
     // Parse the date string to DateTime
     DateTime parsedDate = DateTime.parse(dateStr);
@@ -181,6 +184,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
   void SetUserProfile() async {
     // Set retrieved data to text controllers
+    setState(() {
+      isloading = true;
+    });
     UserProfile user = await fetchUserProfile() as UserProfile;
     print(user);
     print("image:${user.profileImageUrl}");
@@ -196,6 +202,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     bannerimage1 = user.bannerImageUrl ?? "";
     });
     print("profileunage:$profileimage1");
+    setState(() {
+      isloading = false;
+    });
   }
 
   void initState() {
@@ -316,7 +325,150 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
         ],
       ),
-      body: Stack(
+      body: isloading?
+      Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  width: 150,
+                  height: 20,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: List.generate(3, (_) => const SizedBox(height: 16, child: SizedBox.expand(child: DecoratedBox(decoration: BoxDecoration(color: Colors.grey)))),),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Container(
+                width: 150,
+                height: 20,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
+              child: Container(
+                decoration: ShapeDecoration(
+                  color: const Color.fromARGB(255, 220, 231, 240),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 1, color: primaryColor),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
+                  child: Row(
+                    children: [
+                      // Icon(Icons.add, color: primaryColor, weight: 26),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 150,
+                        height: 20,
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  width: 150,
+                  height: 20,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: List.generate(3, (_) => const SizedBox(height: 16, child: SizedBox.expand(child: DecoratedBox(decoration: BoxDecoration(color: Colors.grey)))),),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Container(
+                width: 150,
+                height: 20,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
+              child: Container(
+                decoration: ShapeDecoration(
+                  color: const Color.fromARGB(255, 220, 231, 240),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 1, color: primaryColor),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
+                  child: Row(
+                    children: [
+                      // Icon(Icons.add, color: primaryColor, weight: 26),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 150,
+                        height: 20,
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  width: 150,
+                  height: 20,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: List.generate(3, (_) => const SizedBox(height: 16, child: SizedBox.expand(child: DecoratedBox(decoration: BoxDecoration(color: Colors.grey)))),),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      )
+      :Stack(
         alignment: Alignment.center,
         children: <Widget>[
           // Background container for cover photo

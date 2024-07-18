@@ -166,7 +166,7 @@ class _ManualPageState extends State<ManualPage> {
     String responseBody = await response.stream.bytesToString();
     var jsonData = json.decode(responseBody);
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
+      // print(await response.stream.bytesToString());
       var representatives = jsonData['data']['representatives'];
 
       // Clear existing list and add new data
@@ -174,6 +174,11 @@ class _ManualPageState extends State<ManualPage> {
       _representatives.addAll(representatives);
 
       // Print or use _representatives as needed
+      // Fluttertoast.showToast(
+      //     msg: jsonData['message'] ?? "Server Error",
+      //     backgroundColor: Colors.red,
+      //     textColor: Colors.white,
+      //     gravity: ToastGravity.TOP);
       print('Representatives: $_representatives');
     } else {
       print(response.reasonPhrase);
