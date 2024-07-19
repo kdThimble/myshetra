@@ -672,6 +672,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         SizedBox(height: 8),
         TextFormField(
           controller: controller,
+          readOnly: true,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             hintText: 'Enter $label',

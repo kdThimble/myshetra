@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:myshetra/Pages/HomePage.dart';
 import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
+import 'package:myshetra/Pages/map_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -23,14 +24,24 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
+    var isSignupCompleted = prefs.getString('issignupcompleted');
 
     Future.delayed(Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                token != null ? HomePage() : LanguageSelectionPage()),
-      );
+      if (isSignupCompleted == 'true') {
+        // Navigate to Maps screen if signup is completed
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MapPage()),
+        );
+      } else {
+        // Navigate to HomePage if token is available, else to LanguageSelectionPage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => token != null ? HomePage() : LanguageSelectionPage(),
+          ),
+        );
+      }
     });
   }
 

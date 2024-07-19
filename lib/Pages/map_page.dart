@@ -34,19 +34,80 @@ class _MapPageState extends State<MapPage> {
   final authService = Get.find<AuthService>();
   double? latitude;
   double? longitude;
-  final Completer<GoogleMapController> _mapController =
-      Completer<GoogleMapController>();
+  GoogleMapController? _mapController;
+  late LatLng _currentPosition;
+  final location.Location _locationService = location.Location();
+  Set<Marker> _markers = {};
+
+
+
+
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+  }
+
+
+  // final Completer<GoogleMapController> _mapController =
+  //     Completer<GoogleMapController>();
   LatLng? _currentP;
   String _currentAddress =
       'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
   String _formattedCoordinates = "";
   MapController? controller;
+  bool _isPositionInitialized = false;
+
+  Future<void> _getLocationUpdates() async {
+    _locationService.onLocationChanged.listen(
+          (location.LocationData currentLocation) async {
+        if (currentLocation.latitude != null &&
+            currentLocation.longitude != null) {
+          setState(() {
+            _formattedCoordinates = _convertToDMS(
+                currentLocation.latitude!, currentLocation.longitude!);
+          });
+          print("_formattedCoordinates");
+          print(_formattedCoordinates);
+
+          // Parse the DMS coordinates to decimal degrees
+          var coordinates = _parseCoordinates(_formattedCoordinates);
+          setState(() {
+            latitude = coordinates['latitude']!;
+            longitude = coordinates['longitude']!;
+            _currentPosition = LatLng(latitude!, longitude!);
+            _updateMapPosition(_currentPosition);
+            _updateMarkers(_currentPosition);
+            _isPositionInitialized = true; // Position is now initialized
+          });
+        }
+      },
+    );
+  }
+
+  void _updateMapPosition(LatLng position) {
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: position, zoom: 15.0),
+      ),
+    );
+  }
+
+  void _updateMarkers(LatLng position) {
+    setState(() {
+      _markers = {
+        Marker(
+          markerId: MarkerId('currentLocation'),
+          position: position,
+          infoWindow: InfoWindow(title: 'Current Location'),
+        ),
+      };
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     print(authService.token);
-    getLocationUpdates();
+    _getLocationUpdates();
   }
 
   final LatLng _initialPosition =
@@ -100,39 +161,27 @@ class _MapPageState extends State<MapPage> {
             ),
             const SizedBox(height: 10),
             // Ensure the OSMFlutter widget is properly constrained
-            controller != null
-                ? Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: GoogleMap(
-                          onMapCreated: ((GoogleMapController controller) =>
-                              _mapController.complete(controller)),
-                          initialCameraPosition: CameraPosition(
-                            target: _currentP ?? LatLng(0, 0),
-                            zoom: 100, // Adjust the zoom level as needed
-                          ),
-                          markers: _currentP == null
-                              ? {}
-                              : {
-                                  Marker(
-                                    markerId: MarkerId("_currentLocation"),
-                                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                                        BitmapDescriptor
-                                            .hueAzure), // Set marker color to black
-                                    position: _currentP!,
-                                  ),
-                                },
-                        ),
-                      ),
-                    ),
-                  )
-                : Center(
-                    child: CircularProgressIndicator(),
-                  ),
+            _isPositionInitialized?
+                 Container(
+                   height: 300,
+                   decoration: BoxDecoration(
+                     borderRadius: BorderRadius.circular(20),
+                   ),
+                   child: ClipRRect(
+                     borderRadius: BorderRadius.circular(20),
+                     child: GoogleMap(
+                       onMapCreated: _onMapCreated,
+                       initialCameraPosition: CameraPosition(
+                         target: _currentPosition ?? LatLng(0, 0), // Default to (0, 0) if no position yet
+                         zoom: 11.0,
+                       ),
+                       markers: _markers,
+                     ),
+                   ),
+                 )
+            :Center(
+              child: CircularProgressIndicator(),
+            ),
             // Positioned(
             //   top: height*0.6,
             //   child: Container(
@@ -188,53 +237,17 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  Future<void> _cameraToPosition(LatLng pos) async {
-    final GoogleMapController controller = await _mapController.future;
-    CameraPosition _newCameraPosition = CameraPosition(
-      target: pos,
-      zoom: 13,
-    );
-    await controller.animateCamera(
-      CameraUpdate.newCameraPosition(_newCameraPosition),
-    );
-  }
+  // Future<void> _cameraToPosition(LatLng pos) async {
+  //   final GoogleMapController controller = await _mapController.future;
+  //   CameraPosition _newCameraPosition = CameraPosition(
+  //     target: pos,
+  //     zoom: 13,
+  //   );
+  //   await controller.animateCamera(
+  //     CameraUpdate.newCameraPosition(_newCameraPosition),
+  //   );
+  // }
 
-  Future<void> getLocationUpdates() async {
-    _locationController.onLocationChanged.listen(
-      (location.LocationData currentLocation) async {
-        if (currentLocation.latitude != null &&
-            currentLocation.longitude != null) {
-          setState(() {
-            _formattedCoordinates = _convertToDMS(
-                currentLocation.latitude!, currentLocation.longitude!);
-          });
-          print("_formattedCoordinates");
-          print(_formattedCoordinates);
-
-          // Parse the DMS coordinates to decimal degrees
-          var coordinates = _parseCoordinates(_formattedCoordinates);
-          setState(() {
-            latitude = coordinates['latitude']!;
-            longitude = coordinates['longitude']!;
-            controller = MapController(
-              initPosition: GeoPoint(
-                latitude: latitude!,
-                longitude: longitude!,
-              ),
-            );
-          });
-
-          print(latitude);
-          print(longitude);
-          // Update the map controller's position
-          // controller.initPosition = GeoPoint(latitude: latitude, longitude: longitude);
-
-          // Fetch address using geocoding
-          await _getAddressFromCoordinates(LatLng(latitude!, longitude!));
-        }
-      },
-    );
-  }
 
   Map<String, double> _parseCoordinates(String dmsCoordinates) {
     final regex = RegExp(r'(\d+)°(\d+)' + "'" + r'(\d+)"([NSEW])');

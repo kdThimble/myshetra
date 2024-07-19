@@ -45,6 +45,7 @@ class _HomePageState extends State<HomePage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove('token');
       await prefs.remove('refreshToken');
+      prefs.setString('issignupcompleted', 'false'); // Save the name
 
       Get.to(AuthPage());
     } else {

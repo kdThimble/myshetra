@@ -270,6 +270,7 @@ class _SignUpFormState extends State<SignUpForm> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
+        DateTime selectedDate = DateTime.now();
         return Container(
           padding: const EdgeInsets.all(16),
           height: 300,
@@ -279,7 +280,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 height: 10,
               ),
               Text(
-                'create_account_dob_modal_text'.tr,
+                'create_account_dob_modal_text'.tr, // You may need to add .tr if using GetX for translations
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 25,
@@ -289,10 +290,8 @@ class _SignUpFormState extends State<SignUpForm> {
               Expanded(
                 child: DatePickerWidget(
                   locale: DateTimePickerLocale.en_us,
-
                   pickerTheme: DateTimePickerTheme(
                     backgroundColor: Colors.white.withOpacity(0.0),
-                    // titleHeight: 100,
                     showTitle: false,
                     itemTextStyle: TextStyle(
                       color: Colors.black,
@@ -303,21 +302,14 @@ class _SignUpFormState extends State<SignUpForm> {
                     itemHeight: 40,
                   ),
                   dateFormat: 'dd-MMMM-yyyy',
-                  // minDateTime: DateTime(1940),
-                  // maxDateTime: DateTime(2006),
                   onChange: (date, _) {
-                    setState(() {
-                      dateOfBirthController.text =
-                          DateFormat('yyyy-MM-dd').format(date);
-                    });
+                    selectedDate = date;
                   },
-
                   onConfirm: (date, _) {
                     if (date.year < 1940 || date.year > 2006) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content:
-                              Text('Birthdate must be between 1940 and 2006.'),
+                          content: Text('Birthdate must be between 1940 and 2006.'),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -329,6 +321,50 @@ class _SignUpFormState extends State<SignUpForm> {
                       Navigator.of(context).pop();
                     }
                   },
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        const Color(0xFF0E3D8B)), // Change button color
+                    // shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    //   RoundedRectangleBorder(
+                    //     borderRadius:
+                    //     BorderRadius.circular(12), // Make the button rounded
+                    //   ),
+                    // ),
+                    elevation: MaterialStateProperty.resolveWith<double>((states) {
+                      if (states.contains(MaterialState.pressed)) {
+                        return 10; // Increase elevation when pressed
+                      }
+                      return 5; // Default elevation
+                    }),
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.all(0)), // Add padding
+                    minimumSize: MaterialStateProperty.all<Size>(
+                        const Size(100, 40)), // Set width to full
+                    // side: MaterialStateProperty.all<BorderSide>(
+                    //     BorderSide(color: Colors.blue)), // Add border
+                  ),
+                  onPressed: () {
+                    if (selectedDate.year < 1940 || selectedDate.year > 2006) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Birthdate must be between 1940 and 2006.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        dateOfBirthController.text =
+                            DateFormat('yyyy-MM-dd').format(selectedDate);
+                      });
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Text('OK' ,style: TextStyle(color: Colors.white),),
                 ),
               ),
             ],
@@ -539,6 +575,7 @@ class _SignUpFormState extends State<SignUpForm> {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('token', authResponse.token);
           await prefs.setString('refreshToken', authResponse.refreshToken);
+          prefs.setString('issignupcompleted', 'true'); // Save the name
         } else {
           // Get.snackbar('Error', 'Failed to authenticate');
           ScaffoldMessenger.of(Get.context!).showSnackBar(
