@@ -432,7 +432,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
         Get.find<LoadingController>().stopLoading();
         Get.to(OtpScreen(
-          title: "Verify Signup details",
+          title: "verify_login_otp_title".tr,
           mobileNumber: _mobileNumberController.text,
           attemptsLeft: otpData['data']['attempts_left'].toString(),
           otpValidity: otpData['data']['otp_validity'].toString(),

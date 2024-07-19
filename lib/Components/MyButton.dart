@@ -34,7 +34,7 @@ class MyButton extends StatelessWidget {
             return 5; // Default elevation
           }),
           padding: MaterialStateProperty.all<EdgeInsets>(
-              const EdgeInsets.all(1)), // Add padding
+              const EdgeInsets.all(0)), // Add padding
           minimumSize: MaterialStateProperty.all<Size>(
               const Size(double.infinity, 30)), // Set width to full
           // side: MaterialStateProperty.all<BorderSide>(

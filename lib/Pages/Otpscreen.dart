@@ -110,12 +110,12 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
     } else {
       // Get.snackbar("Error", "Please enter the OTP",
       //     backgroundColor: Colors.red, colorText: Colors.white);
-           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Please enter the OTP"),
-              backgroundColor: Colors.red,
-            ),
-          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please enter the OTP"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -212,8 +212,7 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold),
                         )),
-                        const Center(
-                            child: Text('We have sent a verification code to')),
+                        Center(child: Text('verify_login_otp_sub_title'.tr)),
                         Center(
                           child: Text(
                             '+91-${widget.mobileNumber}',
@@ -245,7 +244,8 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                                 focusNode: _focusNodes[index],
                                 keyboardType: TextInputType.number,
                                 maxLength: 1,
-                                textCapitalization: TextCapitalization.characters,
+                                textCapitalization:
+                                    TextCapitalization.characters,
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
                                   counterText: "",
@@ -273,8 +273,8 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                         Center(
                           child: Text(
                             'Valid up to $_remainingTimeInSeconds seconds',
-                            style:
-                                const TextStyle(fontSize: 12, color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
                           ),
                         ),
                         Center(

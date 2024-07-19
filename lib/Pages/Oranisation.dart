@@ -78,7 +78,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
           var jsonResponse = json.decode(responseData);
           String errorMessage = jsonResponse['message'];
           // Get.snackbar("", errorMessage, backgroundColor:Colors.red, colorText: Colors.white );
-           ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(errorMessage),
               backgroundColor: Colors.red,
@@ -98,23 +98,23 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         }
       } catch (error) {
         print('Error: $error');
-         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error while uploading data'),
-              backgroundColor: Colors.red,
-            ),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error while uploading data'),
+            backgroundColor: Colors.red,
+          ),
+        );
         // Get.snackbar("", "Error while uploading data", backgroundColor:Colors.red, colorText: Colors.white );
         Get.find<LoadingController>().stopLoading();
       }
     } else {
       // Handle validation error
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Please select an organization and an image"),
-              backgroundColor: Colors.red,
-            ),
-          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please select an organization and an image"),
+          backgroundColor: Colors.red,
+        ),
+      );
       // Get.snackbar("Error", "Please select an organization and an image", backgroundColor:Colors.red, colorText: Colors.white );
     }
   }
@@ -135,22 +135,22 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
       }
     } catch (error) {
       // Get.snackbar("Error", "Error while fetching data", backgroundColor:Colors.red, colorText: Colors.white );
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error while fetching data'),
-              backgroundColor: Colors.red,
-            ),
-          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error while fetching data'),
+          backgroundColor: Colors.red,
+        ),
+      );
       throw Exception('error fetching data');
     }
     // Get.snackbar("Error", "Error while fetching data", backgroundColor:Colors.red, colorText: Colors.white );
-      ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error while fetching data'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error while fetching data'),
+        backgroundColor: Colors.red,
+      ),
+    );
+
     throw Exception('error fetching data');
   }
 
@@ -170,12 +170,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
           selectedFilePath = compressedImage.path;
         });
         print(selectedFilePath);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Image Captured Successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Image Captured Successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
         // Get.snackbar("", "Image Captured Successfully", backgroundColor:Colors.green, colorText: Colors.white );
         // ScaffoldMessenger.of(context).showSnackBar(
         //   const SnackBar(
@@ -205,12 +205,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
           selectedFilePath = compressedImage.path;
         });
         print(selectedFilePath);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Image Uploaded Successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Image Uploaded Successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
         // Get.snackbar("", "Image Uploaded Successfully", backgroundColor:Colors.green, colorText: Colors.white );
         // ScaffoldMessenger.of(context).showSnackBar(
         //   const SnackBar(
@@ -221,12 +221,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         // await uploadImage(context, XFile(compressedImage.path));
       } else {
         // Get.snackbar("", "Could not upload Image ", backgroundColor:Colors.red, colorText: Colors.white );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Could not upload Image'),
-              backgroundColor: Colors.red,
-            ),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not upload Image'),
+            backgroundColor: Colors.red,
+          ),
+        );
         // Handle compression failure
         print("Compression failed");
       }
@@ -427,7 +427,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                     )),
               ),
               SizedBox(
-                height: 5,
+                height: 15,
               ),
 
               MyButton(
@@ -451,7 +451,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                       RoundedRectangleBorder(
                         side: BorderSide(color: Color(0xFF0E3D8B)),
                         borderRadius: BorderRadius.circular(
-                            10), // Make the button rounded
+                            12), // Make the button rounded
                       ),
                     ),
                     elevation:
@@ -469,7 +469,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                     //     BorderSide(color: Colors.blue)), // Add border
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15.0),
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: Text(
                       "enter_position_skip_button_text".tr,
                       style: TextStyle(

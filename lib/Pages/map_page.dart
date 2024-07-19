@@ -40,7 +40,7 @@ class _MapPageState extends State<MapPage> {
   String _currentAddress =
       'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
   String _formattedCoordinates = "";
-   MapController ? controller;
+  MapController? controller;
 
   @override
   void initState() {
@@ -48,7 +48,9 @@ class _MapPageState extends State<MapPage> {
     print(authService.token);
     getLocationUpdates();
   }
-  final LatLng _initialPosition = LatLng(37.7749, -122.4194); // Set your initial position
+
+  final LatLng _initialPosition =
+      LatLng(37.7749, -122.4194); // Set your initial position
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +83,7 @@ class _MapPageState extends State<MapPage> {
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Text(
-                'Choose your sector location',
+                'choose_location_title'.tr,
                 style: TextStyle(
                     fontSize: width * 0.06,
                     fontWeight: FontWeight.bold,
@@ -92,44 +94,45 @@ class _MapPageState extends State<MapPage> {
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Text(
-                'Please Select your location',
+                'choose_location_sub_title'.tr,
                 style: TextStyle(fontSize: 18, color: greyColor),
               ),
             ),
             const SizedBox(height: 10),
             // Ensure the OSMFlutter widget is properly constrained
-            controller != null?
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: GoogleMap(
-                    onMapCreated: ((GoogleMapController controller) =>
-                        _mapController.complete(controller)),
-                    initialCameraPosition: CameraPosition(
-                      target: _currentP ?? LatLng(0, 0),
-                      zoom: 100, // Adjust the zoom level as needed
-                    ),
-                    markers: _currentP == null
-                        ? {}
-                        : {
-                      Marker(
-                        markerId: MarkerId("_currentLocation"),
-                        icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor.hueAzure), // Set marker color to black
-                        position: _currentP!,
+            controller != null
+                ? Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                    },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: GoogleMap(
+                          onMapCreated: ((GoogleMapController controller) =>
+                              _mapController.complete(controller)),
+                          initialCameraPosition: CameraPosition(
+                            target: _currentP ?? LatLng(0, 0),
+                            zoom: 100, // Adjust the zoom level as needed
+                          ),
+                          markers: _currentP == null
+                              ? {}
+                              : {
+                                  Marker(
+                                    markerId: MarkerId("_currentLocation"),
+                                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                                        BitmapDescriptor
+                                            .hueAzure), // Set marker color to black
+                                    position: _currentP!,
+                                  ),
+                                },
+                        ),
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: CircularProgressIndicator(),
                   ),
-                ),
-              ),
-            ):
-                Center(
-                  child: CircularProgressIndicator(),
-                ),
             // Positioned(
             //   top: height*0.6,
             //   child: Container(
@@ -670,13 +673,12 @@ class _LocationDetailsBottomSheetState
   Map<String, String> _stateMap =
       {}; // Map to store state label and value pairs
 
-  Future<void> fetchRepresentatives123(String latitude, String longitude) async {
+  Future<void> fetchRepresentatives123(
+      String latitude, String longitude) async {
     setState(() {
       isLoading = true;
     });
-    var headers = {
-      'Authorization': '${authService.token}'
-    };
+    var headers = {'Authorization': '${authService.token}'};
 
     var request = http.MultipartRequest(
       'GET',
@@ -684,10 +686,7 @@ class _LocationDetailsBottomSheetState
           'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates'),
     );
 
-    request.fields.addAll({
-      'latitude': latitude,
-      'longitude': longitude
-    });
+    request.fields.addAll({'latitude': latitude, 'longitude': longitude});
     print("fetchcalling");
     request.headers.addAll(headers);
 
@@ -735,6 +734,7 @@ class _LocationDetailsBottomSheetState
       }
     }
   }
+
   void _fetchStates() async {
     var headers = {'Authorization': '${authService.token}'};
     var request = http.Request(
@@ -1053,6 +1053,7 @@ class _LocationDetailsBottomSheetState
 
     return "${degrees}°${minutes}'${seconds}\"";
   }
+
   String _convertToDMS(double latitude, double longitude) {
     String latDirection = latitude >= 0 ? "N" : "S";
     String lonDirection = longitude >= 0 ? "E" : "W";
@@ -1062,6 +1063,7 @@ class _LocationDetailsBottomSheetState
 
     return "$latDMS$latDirection, $lonDMS$lonDirection";
   }
+
   String latitudeString = "";
   String longitudeString = "";
   bool isLoading = false;
@@ -1070,21 +1072,21 @@ class _LocationDetailsBottomSheetState
   void didChangeDependencies() {
     super.didChangeDependencies();
     Future.delayed(Duration(seconds: 2), () {
-    setState(() {
-      latitudeString = widget.address.split(',')[0];
-      longitudeString = widget.address.split(',')[1];
-    });
+      setState(() {
+        latitudeString = widget.address.split(',')[0];
+        longitudeString = widget.address.split(',')[1];
+      });
 
-    print("lattitudeinit");
-    print(widget.address);
-    print(latitudeString);
-    print(longitudeString);
+      print("lattitudeinit");
+      print(widget.address);
+      print(latitudeString);
+      print(longitudeString);
 
-    fetchRepresentatives123(latitudeString, longitudeString);
-    // _fetchStates();
-    setState(() {
-      isLoading = false;
-    });
+      fetchRepresentatives123(latitudeString, longitudeString);
+      // _fetchStates();
+      setState(() {
+        isLoading = false;
+      });
     });
   }
   // @override
@@ -1124,393 +1126,432 @@ class _LocationDetailsBottomSheetState
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: isLoading
-          ?
-          Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-          const SizedBox(height: 8),
-          Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-          width: 150,
-          height: 20,
-          color: Colors.grey,
-          ),
-          ),
-          ),
-          const SizedBox(height: 5),
-          Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-          children: List.generate(3, (_) => const SizedBox(height: 16, child: SizedBox.expand(child: DecoratedBox(decoration: BoxDecoration(color: Colors.grey)))),),
-          ),
-          ),
-          const SizedBox(height: 20),
-          Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Container(
-          width: 150,
-          height: 20,
-          color: Colors.grey,
-          ),
-          ),
-          const SizedBox(height: 8),
-          GestureDetector(
-          onTap: () {
-          // Navigate to ManualPage()
-          },
-          child: Padding(
-          padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
-          child: Container(
-          decoration: ShapeDecoration(
-          color: const Color.fromARGB(255, 220, 231, 240),
-          shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: primaryColor),
-          borderRadius: BorderRadius.circular(5),
-          ),
-          ),
-          child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
-          child: Row(
-          children: [
-          Icon(Icons.add, color: primaryColor, weight: 26),
-          const SizedBox(width: 8),
-          Container(
-          width: 150,
-          height: 20,
-          color: Colors.grey,
-          ),
-          ],
-          ),
-          ),
-          ),
-          ),
-          ),
-          const SizedBox(height: 8),
-          MyButton(
-          onTap: () {
-          // Navigate to OrganizationProofScreen()
-          },
-          text: "choose_location_snackbar_button_text".tr,
-          ),
-          ],
-          ),
-          )
-     :       Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 8),
-                // Divider(
-                //   thickness: 2,
-                // ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Your repair Sector',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ? Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              width: 150,
+                              height: 20,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: List.generate(
+                              3,
+                              (_) => const SizedBox(
+                                  height: 16,
+                                  child: SizedBox.expand(
+                                      child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                              color: Colors.grey)))),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Container(
+                            width: 150,
+                            height: 20,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: () {
+                            // Navigate to ManualPage()
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 8.0, left: 8, right: 8),
+                            child: Container(
+                              decoration: ShapeDecoration(
+                                color: const Color.fromARGB(255, 220, 231, 240),
+                                shape: RoundedRectangleBorder(
+                                  side:
+                                      BorderSide(width: 1, color: primaryColor),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 20.0, horizontal: 20),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.add,
+                                        color: primaryColor, weight: 26),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      width: 150,
+                                      height: 20,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        MyButton(
+                          onTap: () {
+                            // Navigate to OrganizationProofScreen()
+                          },
+                          text: "choose_location_snackbar_button_text".tr,
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                widget.isRedirected == true
-                    ? Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: widget.representatives.isEmpty
-                            ?
-                        Column(
-                                children: [
-                                  SizedBox(height: Get.height * 0.08),
-                                  Center(
-                                      child: Text(
-                                          "No representatives found in your area.",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: primaryColor))),
-                                  SizedBox(height: Get.height * 0.1),
-                                ],
-                              )
-                            : Column(
-                          children: widget.representatives.map((rep) {
-                            print("rep is ${rep.toString()}");
-                            return Column(
-                              children: [
-                                Container(
-                                  // margin: EdgeInsets.only(bottom: 16),
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                    BorderRadius.circular(10),
-                                    border:
-                                    Border.all(color: Colors.black),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        child: Row(
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 8),
+                      // Divider(
+                      //   thickness: 2,
+                      // ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'choose_location_snackbar_title'.tr,
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      widget.isRedirected == true
+                          ? Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: widget.representatives.isEmpty
+                                  ? Column(
+                                      children: [
+                                        SizedBox(height: Get.height * 0.08),
+                                        Center(
+                                            child: Text(
+                                                "choose_location_snackbar_no_representative_text"
+                                                    .tr,
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: primaryColor))),
+                                        SizedBox(height: Get.height * 0.1),
+                                      ],
+                                    )
+                                  : Column(
+                                      children:
+                                          widget.representatives.map((rep) {
+                                        print("rep is ${rep.toString()}");
+                                        return Column(
                                           children: [
                                             Container(
-                                              width: 60,
-                                              height: 60,
-                                              padding:
-                                              const EdgeInsets.all(2),
+                                              // margin: EdgeInsets.only(bottom: 16),
+                                              padding: const EdgeInsets.all(8),
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                BorderRadius.circular(
-                                                    8),
+                                                    BorderRadius.circular(10),
+                                                border: Border.all(
+                                                    color: Colors.black),
                                               ),
-                                              child: Image.network(
-                                                rep['image_url'] ??
-                                                    "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      rep['name'],
-                                                      style: const TextStyle(
-                                                          fontSize: 15,
-                                                          fontWeight:
-                                                          FontWeight
-                                                              .bold),
-                                                    ),
-                                                    const SizedBox(
-                                                        width: 5),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 3),
-                                                Text(
-                                                  rep['division_name'],
-                                                  style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.grey,
-                                                      fontWeight:
-                                                      FontWeight
-                                                          .bold),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Container(
-                                          width: 60,
-                                          height: 60,
-                                          padding:
-                                          const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                            BorderRadius.circular(8),
-                                          ),
-                                          child: Image.network(
-                                            rep['org_symbol_url'],
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: _representatives.isEmpty
-                            ? const Center(child: Text("No representative found in your Area"))
-                            : Column(
-                                children: _representatives.map((rep) {
-                                  print("rep is ${rep.toString()}");
-                                  return Column(
-                                    children: [
-                                      Container(
-                                        // margin: EdgeInsets.only(bottom: 16),
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border:
-                                              Border.all(color: Colors.black),
-                                        ),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Container(
                                               child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: [
                                                   Container(
-                                                    width: 60,
-                                                    height: 60,
-                                                    padding:
-                                                        const EdgeInsets.all(2),
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                    child: Image.network(
-                                                      rep['image_url'] ??
-                                                          "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
-                                                      fit: BoxFit.cover,
+                                                    child: Row(
+                                                      children: [
+                                                        Container(
+                                                          width: 60,
+                                                          height: 60,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(2),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                          ),
+                                                          child: Image.network(
+                                                            rep['image_url'] ??
+                                                                "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                Text(
+                                                                  rep['name'],
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                                const SizedBox(
+                                                                    width: 5),
+                                                              ],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 3),
+                                                            Text(
+                                                              rep['division_name'],
+                                                              style: const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            rep['name'],
-                                                            style: const TextStyle(
-                                                                fontSize: 15,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          const SizedBox(
-                                                              width: 5),
-                                                        ],
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.centerRight,
+                                                    child: Container(
+                                                      width: 60,
+                                                      height: 60,
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              2),
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
                                                       ),
-                                                      const SizedBox(height: 3),
-                                                      Text(
-                                                        rep['division_name'],
-                                                        style: const TextStyle(
-                                                            fontSize: 14,
-                                                            color: Colors.grey,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                      child: Image.network(
+                                                        rep['org_symbol_url'],
+                                                        fit: BoxFit.cover,
                                                       ),
-                                                    ],
+                                                    ),
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Container(
-                                                width: 60,
-                                                height: 60,
-                                                padding:
-                                                    const EdgeInsets.all(2),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                child: Image.network(
-                                                  rep['org_symbol_url'],
-                                                  fit: BoxFit.cover,
-                                                ),
+                                            const SizedBox(height: 20),
+                                          ],
+                                        );
+                                      }).toList(),
+                                    ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: _representatives.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                          "choose_location_snackbar_no_representative_text"
+                                              .tr))
+                                  : Column(
+                                      children: _representatives.map((rep) {
+                                        print("rep is ${rep.toString()}");
+                                        return Column(
+                                          children: [
+                                            Container(
+                                              // margin: EdgeInsets.only(bottom: 16),
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                border: Border.all(
+                                                    color: Colors.black),
+                                              ),
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Container(
+                                                    child: Row(
+                                                      children: [
+                                                        Container(
+                                                          width: 60,
+                                                          height: 60,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(2),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                          ),
+                                                          child: Image.network(
+                                                            rep['image_url'] ??
+                                                                "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                Text(
+                                                                  rep['name'],
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                                const SizedBox(
+                                                                    width: 5),
+                                                              ],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 3),
+                                                            Text(
+                                                              rep['division_name'],
+                                                              style: const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.centerRight,
+                                                    child: Container(
+                                                      width: 60,
+                                                      height: 60,
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              2),
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                      ),
+                                                      child: Image.network(
+                                                        rep['org_symbol_url'],
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
+                                            const SizedBox(height: 20),
                                           ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                    ],
-                                  );
-                                }).toList(),
-                              ),
-                      ),
+                                        );
+                                      }).toList(),
+                                    ),
+                            ),
 
-                const SizedBox(height: 0),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: const Text(
-                    'Not your sector area?',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontFamily: 'Okra',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () {
-                    Get.to(ManualPage());
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
-                    child: Container(
-                      decoration: ShapeDecoration(
-                        color: const Color.fromARGB(255, 220, 231, 240),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(width: 1, color: primaryColor),
-                          borderRadius: BorderRadius.circular(5),
+                      const SizedBox(height: 0),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          'choose_location_snackbar_not_your_representatives_text'
+                              .tr,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontFamily: 'Okra',
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 20.0, horizontal: 20),
-                        child: Row(
-                          children: [
-                            Icon(Icons.add, color: primaryColor, weight: 26),
-                            const SizedBox(width: 8),
-                            Text(
-                              'choose_location_snackbar_enter_manually_text'.tr,
-                              style: TextStyle(
-                                color: primaryColor,
-                                fontSize: 18,
-                                fontFamily: 'Okra',
-                                fontWeight: FontWeight.w600,
-                                height: 0,
-                                letterSpacing: -0.30,
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(ManualPage());
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              top: 8.0, left: 8, right: 8),
+                          child: Container(
+                            decoration: ShapeDecoration(
+                              color: const Color.fromARGB(255, 220, 231, 240),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(width: 1, color: primaryColor),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                          ],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 15.0, horizontal: 30),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.add,
+                                      color: primaryColor, weight: 26),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'choose_location_snackbar_enter_manually_text'
+                                        .tr,
+                                    style: TextStyle(
+                                      color: primaryColor,
+                                      fontSize: 18,
+                                      fontFamily: 'Okra',
+                                      fontWeight: FontWeight.w600,
+                                      height: 0,
+                                      letterSpacing: -0.30,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                MyButton(
-                    onTap: () {
-                      // OrganizationProofScreen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OrganizationProofScreen(),
-                        ),
-                      );
-                    },
-                    text: "choose_location_snackbar_button_text".tr),
+                      const SizedBox(height: 8),
+                      MyButton(
+                          onTap: () {
+                            // OrganizationProofScreen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OrganizationProofScreen(),
+                              ),
+                            );
+                          },
+                          text: "choose_location_snackbar_button_text".tr),
 
-                // Repeat the above structure for the second item if needed
-              ],
-            ),
+                      // Repeat the above structure for the second item if needed
+                    ],
+                  ),
           ),
         ),
       ],
@@ -1527,7 +1568,7 @@ class RepresentativeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: representatives.isEmpty
-          ? [const Text('No representatives found in your area.')]
+          ? [Text('choose_location_snackbar_no_representative_text'.tr)]
           : representatives.map((rep) {
               return Column(
                 children: [

@@ -276,14 +276,14 @@ class _ManualPageState extends State<ManualPage> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      'State',
-                                      style: TextStyle(
-                                        fontSize: Get.width * 0.037,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    const SizedBox(height: 26),
+                                    // Text(
+                                    //   'State',
+                                    //   style: TextStyle(
+                                    //     fontSize: Get.width * 0.037,
+                                    //     fontWeight: FontWeight.bold,
+                                    //   ),
+                                    // ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
                                       focusColor: Colors.blue,
@@ -304,19 +304,21 @@ class _ManualPageState extends State<ManualPage> {
                                           child: Text(state),
                                         );
                                       }).toList(),
-                                      decoration: const InputDecoration(
-                                        labelText: 'Select State',
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            'choose_location_manually_snackbar_state_placeholder'
+                                                .tr,
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
-                                    Text(
-                                      'Zone',
-                                      style: TextStyle(
-                                        fontSize: Get.width * 0.037,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    // Text(
+                                    //   'Zone',
+                                    //   style: TextStyle(
+                                    //     fontSize: Get.width * 0.037,
+                                    //     fontWeight: FontWeight.bold,
+                                    //   ),
+                                    // ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
                                       value: _selectedDistrict,
@@ -335,19 +337,21 @@ class _ManualPageState extends State<ManualPage> {
                                           child: Text(district),
                                         );
                                       }).toList(),
-                                      decoration: const InputDecoration(
-                                        labelText: 'Select District',
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            'choose_location_manually_snackbar_district_placeholder'
+                                                .tr,
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
-                                    Text(
-                                      'Sub District',
-                                      style: TextStyle(
-                                        fontSize: Get.width * 0.037,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    // Text(
+                                    //   'Sub District',
+                                    //   style: TextStyle(
+                                    //     fontSize: Get.width * 0.037,
+                                    //     fontWeight: FontWeight.bold,
+                                    //   ),
+                                    // ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
                                       value: _selectedSubDistrict,
@@ -366,19 +370,21 @@ class _ManualPageState extends State<ManualPage> {
                                           child: Text(subDistrict),
                                         );
                                       }).toList(),
-                                      decoration: const InputDecoration(
-                                        labelText: 'Select Sub District',
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            'choose_location_manually_snackbar_sub_district_placeholder'
+                                                .tr,
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
-                                    Text(
-                                      'Local division',
-                                      style: TextStyle(
-                                        fontSize: Get.width * 0.037,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    // Text(
+                                    //   'Local division',
+                                    //   style: TextStyle(
+                                    //     fontSize: Get.width * 0.037,
+                                    //     fontWeight: FontWeight.bold,
+                                    //   ),
+                                    // ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
                                       value: _selectedLocalDivision,
@@ -402,8 +408,10 @@ class _ManualPageState extends State<ManualPage> {
                                           child: Text(localDivision),
                                         );
                                       }).toList(),
-                                      decoration: const InputDecoration(
-                                        labelText: 'Select Local Division',
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            'choose_location_manually_snackbar_ward_placeholder'
+                                                .tr,
                                         border: OutlineInputBorder(),
                                       ),
                                     ),

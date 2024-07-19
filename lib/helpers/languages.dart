@@ -56,6 +56,7 @@ class Language extends Translations {
           'choose_location_snackbar_title': 'Your Representatives',
           'choose_location_snackbar_not_your_representatives_text':
               'Not your representatives?',
+          'choose_location_snackbar_no_representative_text': 'No representative found in your Area',
           'choose_location_snackbar_enter_manually_text': 'Choose manually',
           'choose_location_snackbar_button_text': 'Next',
           'choose_location_manually_snackbar_title': 'Enter Manually',
@@ -150,6 +151,8 @@ class Language extends Translations {
           'signup_screen_signup_conditions_separator': 'और',
           'signup_screen_signup_conditions_cookie_use_hyperlink': 'कुकी उपयोग',
           'choose_location_snackbar_button_text': 'अगला',
+          'choose_location_snackbar_no_representative_text':
+              'आपके क्षेत्र में कोई प्रतिनिधि नहीं मिला',
           'choose_location_manually_snackbar_title':
               'मैन्युअल रूप से दर्ज करें',
           'choose_location_manually_snackbar_state_placeholder': 'राज्य चुनें',
@@ -239,6 +242,8 @@ class Language extends Translations {
               'ਤੁਹਾਡੇ ਪ੍ਰਤਿਨਿਧੀ ਨਹੀਂ?',
           'choose_location_snackbar_enter_manually_text': 'ਹੱਥੋਂ ਹੱਥ ਚੁਣੋ',
           'choose_location_snackbar_button_text': 'ਅਗਲਾ',
+          'choose_location_snackbar_no_representative_text':
+              'ਤੁਹਾਡੇ ਖੇਤਰ ਵਿੱਚ ਕੋਈ ਨੁਮਾਇੰਦਾ ਨਹੀਂ ਮਿਲਿਆ',
           'choose_location_manually_snackbar_title': 'ਹੱਥੋਂ ਦਰਜ ਕਰੋ',
           'choose_location_manually_snackbar_state_placeholder': 'ਰਾਜ ਚੁਣੋ',
           'choose_location_manually_snackbar_district_placeholder':
