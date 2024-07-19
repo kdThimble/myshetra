@@ -17,6 +17,9 @@ class Language extends Translations {
           'initial_screen_signup_button_text': 'Sign Up',
           'initial_screen_login_button_text': 'Login',
           'login_screen_title': 'Login Your Account',
+          'valid_up_to': 'Valid up to @time seconds',
+          'resend_otp': 'Resend OTP',
+          'attempts_left': 'You have @attempts Attempts left',
           'login_screen_sub_title':
               'Please enter your number to sign up in shetra account',
           'login_screen_mobile_input_placeholder': 'Enter your phone number',
@@ -87,6 +90,7 @@ class Language extends Translations {
           'enter_position_skip_button_text': 'Skip',
           'edit_profile_header_title': 'Profile',
           'edit_profile_name_ttitle': 'Name',
+          'edit_profile_name_bio': 'Bio',
           'edit_profile_header_name_ttitle': 'Handle Name',
           'edit_profile_national_division_title': 'Parliamentary Constituency',
           'edit_profile_regional_division_title': 'Legislative Constituency',
@@ -94,6 +98,7 @@ class Language extends Translations {
           'edit_profile_dob_title': 'Date of Birth',
           'edit_profile_position_title': 'Position',
           'edit_profile_organization_title': 'Party',
+          'change_number': 'Change Number?', // English translation
         },
         'hi_IN': {
           'app_header_title': 'मेरा क्षेत्र',
@@ -117,6 +122,10 @@ class Language extends Translations {
           'initial_screen_signup_button_text': 'साइन अप करें',
           'initial_screen_login_button_text': 'लॉगिन करें',
           'login_screen_title': 'अपने खाते में लॉगिन करें',
+          'valid_up_to': 'मान्य @time सेकंड तक',
+          'resend_otp': 'ओटीपी फिर से भेजें',
+          'attempts_left': 'आपके पास @attempts प्रयास शेष हैं',
+          'change_number': 'नंबर बदलें', // Hindi translation
           'login_screen_sub_title':
               'कृपया शेत्र खाते में साइन अप करने के लिए अपना नंबर दर्ज करें',
           'login_screen_mobile_input_placeholder': 'अपना फोन नंबर दर्ज करें',
@@ -182,6 +191,7 @@ class Language extends Translations {
           'enter_position_skip_button_text': 'छोड़ें',
           'edit_profile_header_title': 'प्रोफ़ाइल',
           'edit_profile_name_ttitle': 'नाम',
+          'edit_profile_name_bio': 'बायो',
           'edit_profile_header_name_ttitle': 'हैंडल नाम',
           'edit_profile_national_division_title': 'संसदीय क्षेत्र',
           'edit_profile_regional_division_title': 'विधानसभा क्षेत्र',
@@ -204,6 +214,7 @@ class Language extends Translations {
           'initial_screen_signup_button_text': 'ਸਾਈਨ ਅਪ ਕਰੋ',
           'initial_screen_login_button_text': 'ਲੌਗਿਨ ਕਰੋ',
           'login_screen_title': 'ਆਪਣੇ ਖਾਤੇ ਵਿੱਚ ਲੌਗਿਨ ਕਰੋ',
+          'change_number': 'ਨੰਬਰ ਬਦਲੋ', // Punjabi translation
           'login_screen_sub_title':
               'ਸ਼ੇਤਰ ਖਾਤੇ ਵਿੱਚ ਸਾਈਨ ਅਪ ਕਰਨ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਨੰਬਰ ਦਰਜ ਕਰੋ',
           'login_screen_mobile_input_placeholder': 'ਆਪਣਾ ਫੋਨ ਨੰਬਰ ਦਰਜ ਕਰੋ',
@@ -230,6 +241,9 @@ class Language extends Translations {
           'signup_screen_login_hyperlink_text': 'ਲੌਗਿਨ ਕਰੋ',
           'signup_screen_signup_conditions_pretext':
               'ਸਾਈਨ ਅਪ ਕਰਨ ਨਾਲ, ਤੁਸੀਂ ਸਾਡੀਆਂ',
+          'valid_up_to': '@time ਸਕਿੰਟਾਂ ਲਈ ਵੈਧ ਹੈ',
+          'resend_otp': 'OTP ਮੁੜ ਭੇਜੋ',
+          'attempts_left': 'ਤੁਹਾਡੇ ਕੋਲ @attempts ਕੋਸ਼ਿਸ਼ਾਂ ਬਾਕੀ ਹਨ',
           'signup_screen_signup_conditions_terms_hyperlink': 'ਸ਼ਰਤਾਂ',
           'signup_screen_signup_conditions_policy_hyperlink': 'ਨਿੱਜਤਾ ਨੀਤੀ',
           'signup_screen_signup_conditions_separator': 'ਅਤੇ',
@@ -274,6 +288,7 @@ class Language extends Translations {
           'enter_position_skip_button_text': 'ਛੱਡੋ',
           'edit_profile_header_title': 'ਪਰੋਫ਼ਾਈਲ',
           'edit_profile_name_ttitle': 'ਨਾਮ',
+          'edit_profile_name_bio': 'बायो ਬਾਇਓ',
           'edit_profile_header_name_ttitle': 'ਹੈਂਡਲ ਨਾਮ',
           'edit_profile_national_division_title': 'ਸੰਸਦੀ ਹਲਕਾ',
           'edit_profile_regional_division_title': 'ਵਿਧਾਨ ਸਭਾ ਹਲਕਾ',

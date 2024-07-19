@@ -531,7 +531,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             'edit_profile_name_ttitle'.tr, nameController),
                         _buildProfileField('edit_profile_header_name_ttitle'.tr,
                             handleNameController),
-                        _buildProfileField('Bio', bioController),
+                        _buildProfileField('edit_profile_name_bio'.tr, bioController),
                         // _buildProfileField('Locality', localityController),
                         _buildProfileFieldWithSuffix(
                             'edit_profile_dob_title'.tr,
@@ -649,12 +649,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
           '$label: ',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 8),
+        SizedBox(height: 12),
         TextFormField(
           controller: controller,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
-            hintText: 'Enter $label',
+            labelText: 'Enter $label',
           ),
         ),
         SizedBox(height: 12),

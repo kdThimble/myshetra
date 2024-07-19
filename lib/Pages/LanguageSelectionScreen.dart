@@ -51,7 +51,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
         child: Column(
           children: [
             Container(
-              height: height * 0.46,
+              height: height * 0.36,
               width: width,
               decoration: BoxDecoration(
                 color: bgColor,

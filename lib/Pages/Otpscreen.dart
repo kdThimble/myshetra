@@ -224,9 +224,9 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                           onTap: () {
                             Navigator.pop(context);
                           },
-                          child: const Center(
+                          child:  Center(
                             child: Text(
-                              'change number?',
+                              'change_number'.tr,
                               style: TextStyle(
                                   color: Colors.blue,
                                   fontWeight: FontWeight.bold),
@@ -272,7 +272,7 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                         const SizedBox(height: 10),
                         Center(
                           child: Text(
-                            'Valid up to $_remainingTimeInSeconds seconds',
+                            'valid_up_to'.trParams({'time': '$_remainingTimeInSeconds'}),
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.grey),
                           ),
@@ -282,18 +282,19 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
                             onPressed: () {
                               generateSignupOTP(widget.mobileNumber);
                             },
-                            child: const Text(
-                              'Resend OTP',
+                            child: Text(
+                              'resend_otp'.tr,
                               style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue),
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
                             ),
                           ),
                         ),
                         Center(
                           child: Text(
-                            'You have $attemptsLeft Attempts left',
+                            'attempts_left'.trParams({'attempts': '$attemptsLeft'}),
                             style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
