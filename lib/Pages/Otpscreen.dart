@@ -149,6 +149,7 @@ class _OtpVerificationScreenState extends State<OtpScreen> {
   @override
   void initState() {
     super.initState();
+    print(widget.otpValidity);
     final otpValidityInMinutes =
         (int.parse(widget.otpValidity) / 60).truncate();
     _remainingTimeInSeconds = otpValidityInMinutes * 60;

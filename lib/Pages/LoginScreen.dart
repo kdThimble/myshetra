@@ -203,7 +203,86 @@ class _LoginFormState extends State<LoginForm> {
 
   int attemptsLeft = 0;
   int otpValidity = 0;
+  Future<void> verifySignupOTP({
+    required String mobileNumber,
+    required String otp,
+  }) async {
+    print("Inside try");
+    Get.find<LoadingController>().startLoading();
+    try {
+      var headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      };
+      var request = http.Request(
+          'POST',
+          Uri.parse(
+              'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifyLoginOTP'));
+      request.bodyFields = {
+        'mobile_number': mobileNumber,
+        'otp': otp,
+      };
+      request.headers.addAll(headers);
 
+      http.StreamedResponse response = await request.send();
+      String responseBody = await response.stream.bytesToString();
+      var jsonData = json.decode(responseBody);
+      print("Response code: ${jsonData}");
+
+      Get.find<LoadingController>().stopLoading();
+
+      if (response.statusCode == 200) {
+        final authResponse = AuthResponse.fromJson(jsonData['data']);
+        print(responseBody);
+        if (authResponse.refreshToken != null && authResponse.token != null) {
+          // Save the tokens to secure storage or a state management solution
+          Provider.of<AuthProvider>(context, listen: false)
+              .setAuthResponse(authResponse);
+          Get.find<AuthService>()
+              .setAuthResponse(authResponse.token, authResponse.refreshToken);
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('token', authResponse.token);
+          await prefs.setString('refreshToken', authResponse.refreshToken);
+        } else {
+          // Get.snackbar('Error', 'Failed to authenticate');
+          ScaffoldMessenger.of(Get.context!).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to authenticate'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          print('Failed to authenticate');
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ),
+        );
+      } else {
+        print("ERROR");
+        print(response.reasonPhrase);
+        Get.snackbar("Error", " ${jsonData['message'].toString()}",
+            backgroundColor: Colors.red, colorText: Colors.white);
+        //     ScaffoldMessenger.of(Get.context!).showSnackBar(
+        //   const SnackBar(
+        //     content: Text(jsonData['message'].toString()),
+        //     backgroundColor: Colors.red,
+        //   ),
+        // );
+      }
+    } catch (e) {
+      Get.find<LoadingController>().stopLoading();
+      // Get.snackbar(
+      //     "Error", "Failed to verify OTP. Please try again. ${e.toString()}");
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to verify OTP. Please try again'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
   Future<void> generateSignupOTP(String mobileNumber) async {
     try {
       Get.find<LoadingController>().startLoading();
@@ -219,38 +298,48 @@ class _LoginFormState extends State<LoginForm> {
 
       if (response.statusCode == 200) {
         print("OTP DATA $otpData");
-
+        print(otpData['data']['otp_validity']);
         // Assuming the OTP is part of the response, extract it
-        String otp = otpData['otp'] ?? '';
+        // String otp = otpData['otp'] ?? '';
         setState(() {
           attemptsLeft = otpData['data']['attempts_left'] ?? 0;
-          otpValidity = otpData['data']['otp_validity'] ?? 0;
+          otpValidity = otpData['data']['otp_validity'] ?? otpData['data']['waiting_period_to_retry'];
         });
         // ignore: use_build_context_synchronously
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (BuildContext context) {
-            return SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom),
-                child: OtpScreen(
-                  mobileNumber: mobileNumber,
-                  otp: otp,
-                  attemptsLeft: attemptsLeft.toString(),
-                  otpValidity: otpValidity.toString(),
-                  onOtpVerification: (otp) {
-                    verifyLoginOTP(
-                      mobileNumber: mobileNumber,
-                      otp: otp,
-                    );
-                  },
-                ),
-              ),
+        Get.to(OtpScreen(
+          title: "verify_login_otp_title".tr,
+          mobileNumber: _numberController.text,
+          attemptsLeft: otpData['data']['attempts_left'].toString(),
+          otpValidity: otpValidity.toString(),
+          onOtpVerification: (otp2) {
+            verifySignupOTP(
+              mobileNumber: mobileNumber,
+              otp: otp2,
             );
           },
-        );
+        ));
+        // showModalBottomSheet(
+        //   context: context,
+        //   isScrollControlled: true,
+        //   builder: (BuildContext context) {
+        //     return Container(
+        //       padding: EdgeInsets.only(
+        //           bottom: MediaQuery.of(context).viewInsets.bottom),
+        //       child: OtpScreen(
+        //         mobileNumber: mobileNumber,
+        //         otp: otp,
+        //         attemptsLeft: attemptsLeft.toString(),
+        //         otpValidity: otpValidity.toString(),
+        //         onOtpVerification: (otp) {
+        //           verifyLoginOTP(
+        //             mobileNumber: mobileNumber,
+        //             otp: otp,
+        //           );
+        //         },
+        //       ),
+        //     );
+        //   },
+        // );
       } else {
         Fluttertoast.showToast(
             msg: '${otpData['message']}',
