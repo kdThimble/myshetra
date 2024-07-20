@@ -9,7 +9,11 @@ import 'package:myshetra/Pages/Editprofile.dart';
 import 'package:myshetra/Pages/map_page.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Models/Authmodel.dart';
+import '../Providers/AuthProvider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -62,9 +66,53 @@ class _HomePageState extends State<HomePage> {
           gravity: ToastGravity.TOP);
     }
   }
+  Future<void> refreshAuthToken() async {
+    print("swxaL:${authService.refreshToken}");
+    var headers = {
+      'Refresh-Token':
+      '${authService.refreshToken}', // Authorization header with the token
+    };
 
+    var request = http.Request('POST', Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/refreshToken'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    String responseBody = await response.stream.bytesToString();
+    var jsonData = json.decode(responseBody);
+    print("Response code: ${jsonData}");
+
+    // Get.find<LoadingController>().stopLoading();
+
+    if (response.statusCode == 200) {
+      final authResponse = AuthResponse.fromJson(jsonData['data']);
+      print(responseBody);
+      if (authResponse.refreshToken != null && authResponse.token != null) {
+        // Save the tokens to secure storage or a state management solution
+        Provider.of<AuthProvider>(context, listen: false)
+            .setAuthResponse(authResponse);
+        Get.find<AuthService>()
+            .setAuthResponse(authResponse.token, authResponse.refreshToken);
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', authResponse.token);
+        await prefs.setString('refreshToken', authResponse.refreshToken);
+      } else {
+        // Get.snackbar('Error', 'Failed to authenticate');
+        print('Failed to authenticate');
+      }
+    }
+     else {
+      print('Failed to refresh token: ${response.reasonPhrase}');
+      // Handle the error
+    }
+  }
   // Call the API here
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    refreshAuthToken();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
