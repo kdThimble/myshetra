@@ -233,7 +233,9 @@ class _ManualPageState extends State<ManualPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(''), // Title of the app bar
-        automaticallyImplyLeading: true, // Automatically adds a back button
+        automaticallyImplyLeading: true,
+        iconTheme: IconThemeData(
+            color: Colors.white, size: 28), // Automatically adds a back button
         backgroundColor: Colors.transparent, // Customize as needed
       ),
       backgroundColor: bgColor,
@@ -326,7 +328,7 @@ class _ManualPageState extends State<ManualPage> {
                                     // ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
-                                      value: _selectedDistrict,
+                                      // value: _selectedDistrict,
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedDistrict = newValue!;
@@ -359,7 +361,7 @@ class _ManualPageState extends State<ManualPage> {
                                     // ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
-                                      value: _selectedSubDistrict,
+                                      // value: _selectedSubDistrict,
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedSubDistrict = newValue!;
@@ -392,7 +394,7 @@ class _ManualPageState extends State<ManualPage> {
                                     // ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
-                                      value: _selectedLocalDivision,
+                                      // value: _selectedLocalDivision,
                                       onChanged: (newValue) async {
                                         setState(() {
                                           _selectedLocalDivision = newValue!;

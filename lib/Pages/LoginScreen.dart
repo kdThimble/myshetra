@@ -208,6 +208,7 @@ class _LoginFormState extends State<LoginForm> {
     required String otp,
   }) async {
     print("Inside try");
+    print("Number2 $mobileNumber");
     Get.find<LoadingController>().startLoading();
     try {
       var headers = {
@@ -216,7 +217,7 @@ class _LoginFormState extends State<LoginForm> {
       var request = http.Request(
           'POST',
           Uri.parse(
-              'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifyLoginOTP'));
+              'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/verifyLoginOTP?mobile_number=${mobileNumber}&otp=${otp}'));
       request.bodyFields = {
         'mobile_number': mobileNumber,
         'otp': otp,
@@ -283,8 +284,10 @@ class _LoginFormState extends State<LoginForm> {
       );
     }
   }
+
   Future<void> generateSignupOTP(String mobileNumber) async {
     try {
+      print("Number $mobileNumber");
       Get.find<LoadingController>().startLoading();
       var request = http.Request(
         'POST',
@@ -303,12 +306,13 @@ class _LoginFormState extends State<LoginForm> {
         // String otp = otpData['otp'] ?? '';
         setState(() {
           attemptsLeft = otpData['data']['attempts_left'] ?? 0;
-          otpValidity = otpData['data']['otp_validity'] ?? otpData['data']['waiting_period_to_retry'];
+          otpValidity = otpData['data']['otp_validity'] ??
+              otpData['data']['waiting_period_to_retry'];
         });
         // ignore: use_build_context_synchronously
         Get.to(OtpScreen(
           title: "verify_login_otp_title".tr,
-          mobileNumber: _numberController.text,
+          mobileNumber: mobileNumber,
           attemptsLeft: otpData['data']['attempts_left'].toString(),
           otpValidity: otpValidity.toString(),
           onOtpVerification: (otp2) {

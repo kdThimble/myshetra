@@ -21,8 +21,7 @@ import 'package:path/path.dart' as path;
 
 class OrganizationProofScreen extends StatefulWidget {
   final bool ishomescreen;
-  OrganizationProofScreen(
-      {Key? key, this.ishomescreen = false})
+  OrganizationProofScreen({Key? key, this.ishomescreen = false})
       : super(key: key);
   @override
   State<OrganizationProofScreen> createState() =>
@@ -72,20 +71,19 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         Get.find<LoadingController>().stopLoading();
         if (response.statusCode == 200) {
           // Handle successful response
-          widget.ishomescreen?
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomePage(),
-            ),
-          ):
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PositionProofScreen(),
-            ),
-          );
+          widget.ishomescreen
+              ? Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ),
+                )
+              : Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PositionProofScreen(),
+                  ),
+                );
         } else if (response.statusCode == 400) {
           // Parse the response data to get the error message
           var jsonResponse = json.decode(responseData);
@@ -439,64 +437,92 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                       ),
                     )),
               ),
-              SizedBox(
-                height: 15,
-              ),
-              _selectedValue != null && selectedFilePath != ""?
-              MyButton(
-                  onTap: _submitData,
-                  text: "choose_location_snackbar_button_text".tr):
-              MyButton1(
-                  onTap: (){},
-                  text: "choose_location_snackbar_button_text".tr) ,
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PositionProofScreen(),
-                      ),
-                    );
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white), // Change button color
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        side: BorderSide(color: Color(0xFF0E3D8B)),
-                        borderRadius: BorderRadius.circular(
-                            12), // Make the button rounded
-                      ),
+              !widget.ishomescreen
+                  ? Column(
+                      children: [
+                        SizedBox(
+                          height: 15,
+                        ),
+                        _selectedValue != null && selectedFilePath != ""
+                            ? MyButton(
+                                onTap: _submitData,
+                                text: "choose_location_snackbar_button_text".tr)
+                            : MyButton1(
+                                onTap: () {},
+                                text:
+                                    "choose_location_snackbar_button_text".tr),
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 5),
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PositionProofScreen(),
+                                ),
+                              );
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white), // Change button color
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  side: BorderSide(color: Color(0xFF0E3D8B)),
+                                  borderRadius: BorderRadius.circular(
+                                      12), // Make the button rounded
+                                ),
+                              ),
+                              elevation:
+                                  MaterialStateProperty.resolveWith<double>(
+                                      (states) {
+                                if (states.contains(MaterialState.pressed)) {
+                                  return 10; // Increase elevation when pressed
+                                }
+                                return 5; // Default elevation
+                              }),
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.all(1)), // Add padding
+                              minimumSize: MaterialStateProperty.all<Size>(
+                                  const Size(double.infinity,
+                                      40)), // Set width to full
+                              // side: MaterialStateProperty.all<BorderSide>(
+                              //     BorderSide(color: Colors.blue)), // Add border
+                            ),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 10.0),
+                              child: Text(
+                                "enter_position_skip_button_text".tr,
+                                style: TextStyle(
+                                  color: const Color(0xFF0E3D8B),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: Get.width * 0.06,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                        ),
+                        MyButton(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PositionProofScreen(),
+                                ),
+                              );
+                            },
+                            text: "select_organization_next_button_text".tr),
+                      ],
                     ),
-                    elevation:
-                        MaterialStateProperty.resolveWith<double>((states) {
-                      if (states.contains(MaterialState.pressed)) {
-                        return 10; // Increase elevation when pressed
-                      }
-                      return 5; // Default elevation
-                    }),
-                    padding: MaterialStateProperty.all<EdgeInsets>(
-                        const EdgeInsets.all(1)), // Add padding
-                    minimumSize: MaterialStateProperty.all<Size>(
-                        const Size(double.infinity, 40)), // Set width to full
-                    // side: MaterialStateProperty.all<BorderSide>(
-                    //     BorderSide(color: Colors.blue)), // Add border
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Text(
-                      "enter_position_skip_button_text".tr,
-                      style: TextStyle(
-                        color: const Color(0xFF0E3D8B),
-                        fontWeight: FontWeight.bold,
-                        fontSize: Get.width * 0.06,
-                      ),
-                    ),
-                  ),
-                ),
-              )
             ],
           ),
         ),

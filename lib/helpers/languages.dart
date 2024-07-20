@@ -22,6 +22,8 @@ class Language extends Translations {
           'attempts_left': 'You have @attempts Attempts left',
           'login_screen_sub_title':
               'Please enter your number to sign up in shetra account',
+          'select_save_button_text': 'Save',
+          'edit_profile_header_title': 'Edit Profile',
           'login_screen_mobile_input_placeholder': 'Enter your phone number',
           'login_screen_mobile_submit_button_text': 'Log In',
           'login_screen_donot_have_account_question': 'Don’t have an account?',
@@ -56,10 +58,12 @@ class Language extends Translations {
           'choose_location_title': 'Select your Shetra',
           'choose_location_sub_title':
               "Discover what's happening and connect with representatives in your Shetra",
+          'select_organization_update_button_text': 'Update',
           'choose_location_snackbar_title': 'Your Representatives',
           'choose_location_snackbar_not_your_representatives_text':
               'Not your representatives?',
-          'choose_location_snackbar_no_representative_text': 'No representative found in your Area',
+          'choose_location_snackbar_no_representative_text':
+              'No representative found in your Area',
           'choose_location_snackbar_enter_manually_text': 'Choose manually',
           'choose_location_snackbar_button_text': 'Next',
           'choose_location_manually_snackbar_title': 'Enter Manually',
@@ -68,8 +72,7 @@ class Language extends Translations {
               'Select District',
           'choose_location_manually_snackbar_sub_district_placeholder':
               'Select Sub District',
-          'choose_location_manually_snackbar_ward_placeholder':
-              'Select Ward',
+          'choose_location_manually_snackbar_ward_placeholder': 'Select Ward',
           'choose_location_manually_snackbar_button_text':
               'Check Representatives',
           'select_organization_title': 'Party Details',
@@ -88,7 +91,7 @@ class Language extends Translations {
           'enter_position_take_photo': 'Take Photo',
           'enter_position_next_button_text': 'Next',
           'enter_position_skip_button_text': 'Skip',
-          'edit_profile_header_title': 'Profile',
+          'select_change_button_text': 'Change',
           'edit_profile_name_ttitle': 'Name',
           'edit_profile_name_bio': 'Bio',
           'edit_profile_header_name_ttitle': 'Handle Name',
@@ -111,6 +114,7 @@ class Language extends Translations {
               'आपके प्रतिनिधि नहीं?',
           'choose_location_snackbar_enter_manually_text':
               'मैन्युअल रूप से चुनें',
+          'select_save_button_text': 'सेव',
           'choose_language_snackbar_title': 'भाषा चुनें',
           'choose_language_snackbar_sub_title':
               'कृपया अपनी पसंद के अनुसार भाषा चुनें',
@@ -149,6 +153,7 @@ class Language extends Translations {
           'create_account_dob_select_placeholder': 'अपनी जन्मतिथि दर्ज करें',
           'create_account_dob_modal_text': 'जन्म तिथि चुनें ',
           'create_account_button_text': 'खाता बनाएं',
+          'select_change_button_text': 'बदले',
           'mobile_number_available': 'मोबाइल नंबर उपलब्ध',
           'mobile_not_number_available': 'मोबाइल नंबर उपलब्ध नहीं है',
           'signup_screen_already_have_account_question': 'पहले से खाता है?',
@@ -169,8 +174,8 @@ class Language extends Translations {
               'जिला चुनें',
           'choose_location_manually_snackbar_sub_district_placeholder':
               'उप जिला चुनें',
-          'choose_location_manually_snackbar_ward_placeholder':
-              'वार्ड चुनें',
+          'choose_location_manually_snackbar_ward_placeholder': 'वार्ड चुनें',
+          'select_organization_update_button_text': 'अद्यतन',
           'choose_location_manually_snackbar_button_text':
               'प्रतिनिधियों की जांच करें',
           'select_organization_title': 'पार्टी विवरण',
@@ -182,6 +187,7 @@ class Language extends Translations {
           'select_organization_next_button_text': 'अगला',
           'select_organization_skip_button_text': 'छोड़ें',
           'enter_position_title': 'पद विवरण',
+
           'enter_position_sub_title':
               'यदि आपके पास कोई पद है, तो कृपया दर्ज करें और प्रमाण अपलोड करें',
           'enter_position_placeholder': 'पद का नाम दर्ज करें',
@@ -189,7 +195,7 @@ class Language extends Translations {
           'enter_position_take_photo': 'फोटो खींचे',
           'enter_position_next_button_text': 'अगला',
           'enter_position_skip_button_text': 'छोड़ें',
-          'edit_profile_header_title': 'प्रोफ़ाइल',
+          'edit_profile_header_title': 'प्रोफ़ाइल संपादित करें',
           'edit_profile_name_ttitle': 'नाम',
           'edit_profile_name_bio': 'बायो',
           'edit_profile_header_name_ttitle': 'हैंडल नाम',
@@ -243,6 +249,8 @@ class Language extends Translations {
               'ਸਾਈਨ ਅਪ ਕਰਨ ਨਾਲ, ਤੁਸੀਂ ਸਾਡੀਆਂ',
           'valid_up_to': '@time ਸਕਿੰਟਾਂ ਲਈ ਵੈਧ ਹੈ',
           'resend_otp': 'OTP ਮੁੜ ਭੇਜੋ',
+          'select_organization_update_button_text': 'ਅੱਪਡੇਟ',
+          'select_save_button_text': 'सेव',
           'attempts_left': 'ਤੁਹਾਡੇ ਕੋਲ @attempts ਕੋਸ਼ਿਸ਼ਾਂ ਬਾਕੀ ਹਨ',
           'signup_screen_signup_conditions_terms_hyperlink': 'ਸ਼ਰਤਾਂ',
           'signup_screen_signup_conditions_policy_hyperlink': 'ਨਿੱਜਤਾ ਨੀਤੀ',
@@ -264,8 +272,7 @@ class Language extends Translations {
               'ਜ਼ਿਲ੍ਹਾ ਚੁਣੋ',
           'choose_location_manually_snackbar_sub_district_placeholder':
               'ਉਪ-ਜ਼ਿਲ੍ਹਾ ਚੁਣੋ',
-          'choose_location_manually_snackbar_ward_placeholder':
-              'ਵਾਰਡ ਚੁਣੋ',
+          'choose_location_manually_snackbar_ward_placeholder': 'ਵਾਰਡ ਚੁਣੋ',
           'choose_location_manually_snackbar_button_text': 'ਪ੍ਰਤੀਨਿਧੀ ਚੈੱਕ ਕਰੋ',
           'select_organization_title': 'ਪਾਰਟੀ ਵੇਰਵਾ',
           'select_organization_sub_title':
@@ -279,6 +286,7 @@ class Language extends Translations {
           'select_organization_next_button_text': 'ਅਗਲਾ',
           'select_organization_skip_button_text': 'ਛੱਡੋ',
           'enter_position_title': 'ਪਦ ਵੇਰਵਾ',
+
           'enter_position_sub_title':
               'ਜੇਕਰ ਤੁਹਾਡੇ ਕੋਲ ਕੋਈ ਪਦ ਹੈ, ਤਾਂ ਕਿਰਪਾ ਕਰਕੇ ਦਰਜ ਕਰੋ ਅਤੇ ਪ੍ਰਮਾਣ ਅੱਪਲੋਡ ਕਰੋ',
           'enter_position_placeholder': 'ਪਦ ਦਾ ਨਾਮ ਦਰਜ ਕਰੋ',
@@ -286,9 +294,10 @@ class Language extends Translations {
           'enter_position_take_photo': 'ਫੋਟੋ ਖੀਚੋ',
           'enter_position_next_button_text': 'ਅਗਲਾ',
           'enter_position_skip_button_text': 'ਛੱਡੋ',
-          'edit_profile_header_title': 'ਪਰੋਫ਼ਾਈਲ',
+          'edit_profile_header_title': 'ਸੋਧ ਪ੍ਰੋਫ਼ਾਈਲ',
           'edit_profile_name_ttitle': 'ਨਾਮ',
           'edit_profile_name_bio': 'बायो ਬਾਇਓ',
+          'select_change_button_text': 'ਬੈਡਲ',
           'edit_profile_header_name_ttitle': 'ਹੈਂਡਲ ਨਾਮ',
           'edit_profile_national_division_title': 'ਸੰਸਦੀ ਹਲਕਾ',
           'edit_profile_regional_division_title': 'ਵਿਧਾਨ ਸਭਾ ਹਲਕਾ',

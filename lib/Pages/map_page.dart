@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -22,9 +23,12 @@ import 'package:shimmer/shimmer.dart';
 class MapPage extends StatefulWidget {
   final bool? isRedirected;
   final List<dynamic>? representatives;
-  final bool ?ishomescreen;
+  final bool? ishomescreen;
   MapPage(
-      {Key? key, this.isRedirected = false, this.ishomescreen = false, this.representatives = const []})
+      {Key? key,
+      this.isRedirected = false,
+      this.ishomescreen = false,
+      this.representatives = const []})
       : super(key: key);
 
   @override
@@ -41,13 +45,9 @@ class _MapPageState extends State<MapPage> {
   final location.Location _locationService = location.Location();
   Set<Marker> _markers = {};
 
-
-
-
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
   }
-
 
   // final Completer<GoogleMapController> _mapController =
   //     Completer<GoogleMapController>();
@@ -57,11 +57,11 @@ class _MapPageState extends State<MapPage> {
   String _formattedCoordinates = "";
   MapController? controller;
   bool _isPositionInitialized = false;
-  String latitudeString ='';
+  String latitudeString = '';
   String longitudeString = '';
   Future<void> _getLocationUpdates() async {
     _locationService.onLocationChanged.listen(
-          (location.LocationData currentLocation) async {
+      (location.LocationData currentLocation) async {
         if (currentLocation.latitude != null &&
             currentLocation.longitude != null) {
           setState(() {
@@ -78,15 +78,15 @@ class _MapPageState extends State<MapPage> {
             latitude = coordinates['latitude']!;
             longitude = coordinates['longitude']!;
 
-              latitudeString = _formattedCoordinates.split(',')[0];
-              longitudeString = _formattedCoordinates.split(',')[1];
+            latitudeString = _formattedCoordinates.split(',')[0];
+            longitudeString = _formattedCoordinates.split(',')[1];
             print("_formattedCoordinates124");
             print(latitudeString);
             print(longitudeString);
             _currentPosition = LatLng(latitude!, longitude!);
             _updateMapPosition(_currentPosition);
             _updateMarkers(_currentPosition);
-            fetchRepresentatives123(latitudeString , longitudeString);
+
             _isPositionInitialized = true; // Position is now initialized
             prefs.setString('issignupcompleted', 'false'); // Save the name
           });
@@ -120,7 +120,9 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     print(authService.token);
     _getLocationUpdates();
+    fetchRepresentatives123(latitudeString, longitudeString);
   }
+
   var representatives;
   Future<void> fetchRepresentatives123(
       String latitude, String longitude) async {
@@ -135,8 +137,7 @@ class _MapPageState extends State<MapPage> {
           'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates'),
     );
 
-    request.fields.addAll({ 'latitude': '28°39\'17"N',
-      'longitude': '77°07\'45"E'});
+    request.fields.addAll({'latitude': latitude, 'longitude': longitude});
     print("fetchcalling");
     request.headers.addAll(headers);
 
@@ -147,7 +148,8 @@ class _MapPageState extends State<MapPage> {
       var jsonResponse = json.decode(responseBody);
 
       // Extract representatives data
-      representatives = jsonResponse['data']['location_details']['formatted_address'];
+      representatives =
+          jsonResponse['data']['location_details']['formatted_address'];
       print("addrwss");
       print(representatives);
       // Clear existing list and add new data
@@ -169,23 +171,38 @@ class _MapPageState extends State<MapPage> {
 
       if (jsonData.containsKey('message')) {
         String message = jsonData['message'];
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          SnackBar(
-            content: Text(message),
+        Fluttertoast.showToast(
+            msg: message,
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
-          ),
-        );
+            textColor: Colors.white,
+            fontSize: 16.0);
+        // ScaffoldMessenger.of(Get.context!).showSnackBar(
+        //   SnackBar(
+        //     content: Text(message),
+        //     backgroundColor: Colors.red,
+        //   ),
+        // );
       } else {
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          SnackBar(
-            content: Text("An unknown error occurred."),
+        Fluttertoast.showToast(
+            msg: "An unknown error occurred.",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
-          ),
-        );
+            textColor: Colors.white,
+            fontSize: 16.0);
+        // ScaffoldMessenger.of(Get.context!).showSnackBar(
+        //   SnackBar(
+        //     content: Text("An unknown error occurred."),
+        //     backgroundColor: Colors.red,
+        //   ),
+        // );
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -235,48 +252,54 @@ class _MapPageState extends State<MapPage> {
             ),
             const SizedBox(height: 10),
             // Ensure the OSMFlutter widget is properly constrained
-            _isPositionInitialized?
-            Stack(
-              children: [
-                Container(
-                  height: 300,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: _currentPosition,
-                        zoom: 11.0,
+            _isPositionInitialized
+                ? Stack(
+                    children: [
+                      Container(
+                        height: 300,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: GoogleMap(
+                            onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: _currentPosition,
+                              zoom: 11.0,
+                            ),
+                            markers: _markers,
+                          ),
+                        ),
                       ),
-                      markers: _markers,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 50, // Adjust this value to position the label as needed
-                  left: 130, // Adjust this value to position the label as needed
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    color: Colors.white,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 200), // Set a max width to constrain the text
-                      child: Text(
-                        representatives ??'No location found',
-                        style: TextStyle(color: Colors.black, fontSize: 10),
-                        maxLines: null, // Allow unlimited lines
-                        overflow: TextOverflow.visible, // Ensure text is visible
+                      Positioned(
+                        top:
+                            50, // Adjust this value to position the label as needed
+                        left:
+                            130, // Adjust this value to position the label as needed
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          color: Colors.white,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxWidth:
+                                    200), // Set a max width to constrain the text
+                            child: Text(
+                              representatives ?? 'No location found',
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 10),
+                              maxLines: null, // Allow unlimited lines
+                              overflow: TextOverflow
+                                  .visible, // Ensure text is visible
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
+                  )
+                : Center(
+                    child: CircularProgressIndicator(),
                   ),
-                ),
-              ],
-            )
-            :Center(
-              child: CircularProgressIndicator(),
-            ),
             // Positioned(
             //   top: height*0.6,
             //   child: Container(
@@ -326,7 +349,7 @@ class _MapPageState extends State<MapPage> {
         child: LocationDetailsBottomSheet(
           address: _formattedCoordinates,
           isRedirected: widget.isRedirected!,
-          ishomescreen:widget.ishomescreen!,
+          ishomescreen: widget.ishomescreen!,
           representatives: widget.representatives!,
         ),
       ),
@@ -343,7 +366,6 @@ class _MapPageState extends State<MapPage> {
   //     CameraUpdate.newCameraPosition(_newCameraPosition),
   //   );
   // }
-
 
   Map<String, double> _parseCoordinates(String dmsCoordinates) {
     final regex = RegExp(r'(\d+)°(\d+)' + "'" + r'(\d+)"([NSEW])');
@@ -554,6 +576,7 @@ class _LocationSelectionBottomSheetState
       print(response.reasonPhrase);
     }
   }
+
   final authService = Get.find<AuthService>();
 
   void _fetchLocalDivisionsBySubDistrict(String subDistrictId) async {
@@ -757,7 +780,7 @@ class LocationDetailsBottomSheet extends StatefulWidget {
   LocationDetailsBottomSheet(
       {required this.address,
       required this.isRedirected,
-        required this.ishomescreen,
+      required this.ishomescreen,
       required this.representatives});
 
   @override
@@ -777,6 +800,7 @@ class _LocationDetailsBottomSheetState
   String _selectedDistrict1 = '';
   String _selectedSubDistrict1 = '';
   String _selectedLocalDivision1 = '';
+  bool _isLoading = false;
 
   List<String> _states = [];
   List<String> _districts = [];
@@ -787,9 +811,6 @@ class _LocationDetailsBottomSheetState
 
   Future<void> fetchRepresentatives123(
       String latitude, String longitude) async {
-    setState(() {
-      isLoading = true;
-    });
     var headers = {'Authorization': '${authService.token}'};
 
     var request = http.MultipartRequest(
@@ -830,185 +851,28 @@ class _LocationDetailsBottomSheetState
 
       if (jsonData.containsKey('message')) {
         String message = jsonData['message'];
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          SnackBar(
-            content: Text(message),
+        Fluttertoast.showToast(
+            msg: message,
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
-          ),
-        );
+            textColor: Colors.white,
+            fontSize: 16.0);
       } else {
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          SnackBar(
-            content: Text("An unknown error occurred."),
+        Fluttertoast.showToast(
+            msg: "An unknown error occurred.",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
-          ),
-        );
+            textColor: Colors.white,
+            fontSize: 16.0);
       }
     }
   }
 
-  void _fetchStates() async {
-    var headers = {'Authorization': '${authService.token}'};
-    var request = http.Request(
-        'GET',
-        Uri.parse(
-            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getAllStates'));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      String responseString = await response.stream.bytesToString();
-      Map<String, dynamic> responseData = json.decode(responseString);
-      List<dynamic> states = responseData['data']['states'];
-      setState(() {
-        _states = states.map((state) => state['label'] as String).toList();
-        _stateMap = Map.fromIterable(states,
-            key: (state) => state['label'] as String,
-            value: (state) => state['value'] as String);
-        _selectedState = _states.isNotEmpty
-            ? _states[0]
-            : ''; // Initialize with the first state if available
-      });
-    } else {
-      print(response.reasonPhrase);
-    }
-  }
-
-  Map<String, String> _districtMap =
-      {}; // Map to store district label and value pairs
-
-  void _fetchDistrictsByState(String stateId) async {
-    var headers = {'Authorization': '${authService.token}'};
-    var request = http.Request(
-        'GET',
-        Uri.parse(
-            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getDistrictsByState?state_id=$stateId'));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      String responseString = await response.stream.bytesToString();
-      Map<String, dynamic> responseData = json.decode(responseString);
-      List<dynamic> districts = responseData['data']['districts'];
-      setState(() {
-        _districts =
-            districts.map((district) => district['label'] as String).toList();
-        _districtMap = Map.fromIterable(districts,
-            key: (district) => district['label'] as String,
-            value: (district) => district['value'] as String);
-        _selectedDistrict = _districts.isNotEmpty
-            ? _districts[0]
-            : ''; // Initialize with the first district if available
-      });
-    } else {
-      print(response.reasonPhrase);
-    }
-  }
-
-  Map<String, String> _subDistrictMap =
-      {}; // Map to store sub-district label and value pairs
-
-  void _fetchSubDistrictsByDistrict(String districtId) async {
-    var headers = {'Authorization': '${authService.token}'};
-    var request = http.Request(
-        'GET',
-        Uri.parse(
-            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getSubDistrictsByDistrict?district_id=$districtId'));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      String responseString = await response.stream.bytesToString();
-      Map<String, dynamic> responseData = json.decode(responseString);
-      List<dynamic> subDistricts = responseData['data']['sub_districts'];
-      setState(() {
-        _subDistricts = subDistricts
-            .map((subDistrict) => subDistrict['label'] as String)
-            .toList();
-        _subDistrictMap = Map.fromIterable(subDistricts,
-            key: (subDistrict) => subDistrict['label'] as String,
-            value: (subDistrict) => subDistrict['value'] as String);
-        _selectedSubDistrict = _subDistricts.isNotEmpty
-            ? _subDistricts[0]
-            : ''; // Initialize with the first sub-district if available
-      });
-    } else {
-      print(response.reasonPhrase);
-    }
-  }
-
-  Map<String, String> _localDivisionMap =
-      {}; // Map to store local division label and value pairs
-  bool _isLoading = false;
-
-  Future<void> fetchRepresentatives({
-    required String localDivisionId,
-    required String subDistrictId,
-    required String districtId,
-  }) async {
-    var headers = {'Authorization': '${authService.token}'};
-
-
-    var formData = {
-      'local_division_id': localDivisionId,
-      'sub_district_id': subDistrictId,
-      'district_id': districtId,
-    };
-
-    var request = http.MultipartRequest(
-      'GET',
-      Uri.parse(
-          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByLocationId'),
-    );
-
-    request.fields.addAll(formData);
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    } else {
-      print(response.reasonPhrase);
-    }
-  }
-
-  void _fetchLocalDivisionsBySubDistrict(String subDistrictId) async {
-    var headers = {'Authorization': '${authService.token}'};
-    var request = http.Request(
-        'GET',
-        Uri.parse(
-            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/data/getLocalDivisionsBySubDistrict?sub_district_id=$subDistrictId'));
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      String responseString = await response.stream.bytesToString();
-      Map<String, dynamic> responseData = json.decode(responseString);
-      List<dynamic> localDivisions = responseData['data']['local_divisions'];
-      setState(() {
-        _localDivisions = localDivisions
-            .map((localDivision) => localDivision['label'] as String)
-            .toList();
-        _localDivisionMap = Map.fromIterable(localDivisions,
-            key: (localDivision) => localDivision['label'] as String,
-            value: (localDivision) => localDivision['value'] as String);
-        _selectedLocalDivision = _localDivisions.isNotEmpty
-            ? _localDivisions[0]
-            : ''; // Initialize with the first local division if available
-      });
-    } else {
-      print(response.reasonPhrase);
-    }
-  }
+  // Map to store local division label and value pairs
 
   // void _showLocationSelectionBottomSheet(BuildContext context) {
   //   showModalBottomSheet(
@@ -1178,10 +1042,35 @@ class _LocationDetailsBottomSheetState
   String longitudeString = "";
   bool isLoading = false;
 
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   Future.delayed(Duration(seconds: 2), () {
+  //     setState(() {
+  //       latitudeString = widget.address.split(',')[0];
+  //       longitudeString = widget.address.split(',')[1];
+  //     });
+
+  //     print("lattitudeinit");
+  //     print(widget.address);
+  //     print(latitudeString);
+  //     print(longitudeString);
+
+  //     fetchRepresentatives123(latitudeString, longitudeString);
+  //     // _fetchStates();
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   });
+  // }
+
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Future.delayed(Duration(seconds: 2), () {
+  void initState() {
+    setState(() {
+      _isLoading = true;
+    });
+    // TODO: implement initState
+    Future.delayed(Duration(seconds: 4), () {
       setState(() {
         latitudeString = widget.address.split(',')[0];
         longitudeString = widget.address.split(',')[1];
@@ -1193,34 +1082,13 @@ class _LocationDetailsBottomSheetState
       print(longitudeString);
 
       fetchRepresentatives123(latitudeString, longitudeString);
-      // _fetchStates();
+
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     });
+    super.initState();
   }
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   Future.delayed(Duration(seconds: 2), () {
-  //     setState(() {
-  //       latitudeString = widget.address.split(',')[0];
-  //       longitudeString = widget.address.split(',')[1];
-  //     });
-  //
-  //     print("lattitudeinit");
-  //     print(widget.address);
-  //     print(latitudeString);
-  //     print(longitudeString);
-  //
-  //     fetchRepresentatives123(latitudeString, longitudeString);
-  //     _fetchStates();
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   });
-  //   super.initState();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -1235,7 +1103,7 @@ class _LocationDetailsBottomSheetState
         Container(
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
-            child: isLoading
+            child: _isLoading
                 ? Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
@@ -1476,10 +1344,17 @@ class _LocationDetailsBottomSheetState
                           : Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: _representatives.isEmpty
-                                  ? Center(
-                                      child: Text(
-                                          "choose_location_snackbar_no_representative_text"
-                                              .tr))
+                                  ? Container(
+                                      height: Get.height * 0.2,
+                                      child: Center(
+                                          child: Text(
+                                        "choose_location_snackbar_no_representative_text"
+                                            .tr,
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      )),
+                                    )
                                   : Column(
                                       children: _representatives.map((rep) {
                                         print("rep is ${rep.toString()}");
@@ -1648,20 +1523,20 @@ class _LocationDetailsBottomSheetState
                       MyButton(
                           onTap: () {
                             // OrganizationProofScreen
-                            widget.ishomescreen?
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HomePage(),
-                              ),
-                            ):
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => OrganizationProofScreen(),
-                              ),
-                            );
+                            widget.ishomescreen
+                                ? Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => HomePage(),
+                                    ),
+                                  )
+                                : Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          OrganizationProofScreen(),
+                                    ),
+                                  );
                           },
                           text: "choose_location_snackbar_button_text".tr),
 
@@ -1684,7 +1559,14 @@ class RepresentativeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: representatives.isEmpty
-          ? [Text('choose_location_snackbar_no_representative_text'.tr)]
+          ? [
+              Container(
+                  height: 200,
+                  child: Center(
+                      child: Text(
+                          'choose_location_snackbar_no_representative_text'
+                              .tr)))
+            ]
           : representatives.map((rep) {
               return Column(
                 children: [

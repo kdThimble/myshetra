@@ -20,9 +20,7 @@ import 'package:path/path.dart' as path;
 
 class PositionProofScreen extends StatefulWidget {
   final bool ishomescreen;
-  PositionProofScreen(
-      {Key? key, this.ishomescreen = false})
-      : super(key: key);
+  PositionProofScreen({Key? key, this.ishomescreen = false}) : super(key: key);
   @override
   State<PositionProofScreen> createState() => _PositionProofScreenState();
 }
@@ -35,23 +33,23 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
   Future<void> _submitData() async {
     if (positioncontroller.text.isEmpty) {
       // Get.snackbar("Incomplete Form", "Please enter position name", backgroundColor:Colors.red, colorText: Colors.white );
-       ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Please enter position name"),
-              backgroundColor: Colors.red,
-            ),
-          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please enter position name"),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
     if (selectedFilePath == "") {
       // Get.snackbar("Incomplete Form", "Please select a file", backgroundColor:Colors.red, colorText: Colors.white );
-       ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Please select a file'),
-              backgroundColor: Colors.red,
-            ),
-          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select a file'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
     try {
@@ -80,19 +78,19 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
       Get.find<LoadingController>().stopLoading();
       if (response.statusCode == 200) {
         // Handle successful response
-        widget.ishomescreen?
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(),
-          ),
-        ): Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(),
-          ),
-        );
+        widget.ishomescreen
+            ? Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              )
+            : Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
       } else if (response.statusCode == 400) {
         // Parse the response data to get the error message
         var jsonResponse = json.decode(responseData);
@@ -100,33 +98,33 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
 
         // Show SnackBar with the error message
         // Get.snackbar("", errorMessage, backgroundColor:Colors.red, colorText: Colors.white );
- ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: Colors.red,
-            ),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
         print('Error: $errorMessage');
       } else {
         // Get.snackbar("", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Some Server Error'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        
+          SnackBar(
+            content: Text('Some Server Error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+
         // Handle other error responses
         print('Error: ${response.statusCode}');
       }
     } catch (error) {
       // Get.snackbar("Error", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
-       ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Some Server Error'),
-              backgroundColor: Colors.red,
-            ),
-          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Some Server Error'),
+          backgroundColor: Colors.red,
+        ),
+      );
       print('Error: $error');
       Get.find<LoadingController>().stopLoading();
     }
@@ -151,14 +149,15 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         // Call uploadImage function with the selected image
         // await uploadImage(context, XFile(compressedImage.path));
       } else {
-        Get.snackbar("", "Some  Error Occured", backgroundColor:Colors.red, colorText: Colors.white );
+        Get.snackbar("", "Some  Error Occured",
+            backgroundColor: Colors.red, colorText: Colors.white);
         // Handle compression failure
-         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Some  Error Occured'),
-              backgroundColor: Colors.red,
-            ),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Some  Error Occured'),
+            backgroundColor: Colors.red,
+          ),
+        );
         print("Compression failed");
       }
     }
@@ -372,65 +371,93 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                       ),
                     )),
               ),
-              SizedBox(
-                height: 5,
-              ),
-              positioncontroller.text.isEmpty && selectedFilePath == "" ?
-              MyButton1(
-                  onTap: (){},
-                  text: "choose_location_snackbar_button_text".tr)
-              :
-              MyButton(
-                  onTap: _submitData,
-                  text: "choose_location_snackbar_button_text".tr),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditProfilePage(),
-                      ),
-                    );
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white), // Change button color
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        side: BorderSide(color: Color(0xFF0E3D8B)),
-                        borderRadius: BorderRadius.circular(
-                            10), // Make the button rounded
-                      ),
+              !widget.ishomescreen
+                  ? Column(
+                      children: [
+                        SizedBox(
+                          height: 5,
+                        ),
+                        positioncontroller.text.isEmpty &&
+                                selectedFilePath == ""
+                            ? MyButton1(
+                                onTap: () {},
+                                text: "choose_location_snackbar_button_text".tr)
+                            : MyButton(
+                                onTap: _submitData,
+                                text:
+                                    "choose_location_snackbar_button_text".tr),
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 5),
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditProfilePage(),
+                                ),
+                              );
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white), // Change button color
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  side: BorderSide(color: Color(0xFF0E3D8B)),
+                                  borderRadius: BorderRadius.circular(
+                                      10), // Make the button rounded
+                                ),
+                              ),
+                              elevation:
+                                  MaterialStateProperty.resolveWith<double>(
+                                      (states) {
+                                if (states.contains(MaterialState.pressed)) {
+                                  return 10; // Increase elevation when pressed
+                                }
+                                return 5; // Default elevation
+                              }),
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.all(1)), // Add padding
+                              minimumSize: MaterialStateProperty.all<Size>(
+                                  const Size(double.infinity,
+                                      40)), // Set width to full
+                              // side: MaterialStateProperty.all<BorderSide>(
+                              //     BorderSide(color: Colors.blue)), // Add border
+                            ),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 15.0),
+                              child: Text(
+                                "enter_position_skip_button_text".tr,
+                                style: TextStyle(
+                                  color: const Color(0xFF0E3D8B),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: Get.width * 0.06,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                        ),
+                        MyButton(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PositionProofScreen(),
+                                ),
+                              );
+                            },
+                            text: "select_organization_update_button_text".tr),
+                      ],
                     ),
-                    elevation:
-                        MaterialStateProperty.resolveWith<double>((states) {
-                      if (states.contains(MaterialState.pressed)) {
-                        return 10; // Increase elevation when pressed
-                      }
-                      return 5; // Default elevation
-                    }),
-                    padding: MaterialStateProperty.all<EdgeInsets>(
-                        const EdgeInsets.all(1)), // Add padding
-                    minimumSize: MaterialStateProperty.all<Size>(
-                        const Size(double.infinity, 40)), // Set width to full
-                    // side: MaterialStateProperty.all<BorderSide>(
-                    //     BorderSide(color: Colors.blue)), // Add border
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15.0),
-                    child: Text(
-                      "enter_position_skip_button_text".tr,
-                      style: TextStyle(
-                        color: const Color(0xFF0E3D8B),
-                        fontWeight: FontWeight.bold,
-                        fontSize: Get.width * 0.06,
-                      ),
-                    ),
-                  ),
-                ),
-              )
             ],
           ),
         ),
