@@ -231,6 +231,11 @@ class _ManualPageState extends State<ManualPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(''), // Title of the app bar
+        automaticallyImplyLeading: true, // Automatically adds a back button
+        backgroundColor: Colors.transparent, // Customize as needed
+      ),
       backgroundColor: bgColor,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

@@ -263,6 +263,11 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    DateTime initialDate = DateTime.now();
+    if (dateOfBirthController.text.isNotEmpty) {
+      initialDate = DateFormat('yyyy-MM-dd').parse(dateOfBirthController.text);
+    }
+
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -270,7 +275,7 @@ class _SignUpFormState extends State<SignUpForm> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
-        DateTime selectedDate = DateTime.now();
+        DateTime selectedDate = initialDate;
         return Container(
           padding: const EdgeInsets.all(16),
           height: 300,
@@ -289,6 +294,7 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
               Expanded(
                 child: DatePickerWidget(
+                  initialDate: initialDate, // Set the initial date
                   locale: DateTimePickerLocale.en_us,
                   pickerTheme: DateTimePickerTheme(
                     backgroundColor: Colors.white.withOpacity(0.0),
@@ -329,12 +335,6 @@ class _SignUpFormState extends State<SignUpForm> {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
                         const Color(0xFF0E3D8B)), // Change button color
-                    // shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    //   RoundedRectangleBorder(
-                    //     borderRadius:
-                    //     BorderRadius.circular(12), // Make the button rounded
-                    //   ),
-                    // ),
                     elevation: MaterialStateProperty.resolveWith<double>((states) {
                       if (states.contains(MaterialState.pressed)) {
                         return 10; // Increase elevation when pressed
@@ -345,8 +345,6 @@ class _SignUpFormState extends State<SignUpForm> {
                         const EdgeInsets.all(0)), // Add padding
                     minimumSize: MaterialStateProperty.all<Size>(
                         const Size(100, 40)), // Set width to full
-                    // side: MaterialStateProperty.all<BorderSide>(
-                    //     BorderSide(color: Colors.blue)), // Add border
                   ),
                   onPressed: () {
                     if (selectedDate.year < 1940 || selectedDate.year > 2006) {
@@ -364,7 +362,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       Navigator.of(context).pop();
                     }
                   },
-                  child: Text('OK' ,style: TextStyle(color: Colors.white),),
+                  child: Text('OK', style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],

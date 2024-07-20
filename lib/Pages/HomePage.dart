@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
               text: "Edit Profile"),
           MyButton(
               onTap: () {
-                Get.to(MapPage());
+                Get.to(MapPage(ishomescreen:true));
               },
               text: "Change Location"),
           MyButton(

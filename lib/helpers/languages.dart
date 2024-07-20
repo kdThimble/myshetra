@@ -69,7 +69,7 @@ class Language extends Translations {
           'choose_location_manually_snackbar_sub_district_placeholder':
               'Select Sub District',
           'choose_location_manually_snackbar_ward_placeholder':
-              'Select Ward Number',
+              'Select Ward',
           'choose_location_manually_snackbar_button_text':
               'Check Representatives',
           'select_organization_title': 'Party Details',
@@ -170,7 +170,7 @@ class Language extends Translations {
           'choose_location_manually_snackbar_sub_district_placeholder':
               'उप जिला चुनें',
           'choose_location_manually_snackbar_ward_placeholder':
-              'वार्ड नंबर चुनें',
+              'वार्ड चुनें',
           'choose_location_manually_snackbar_button_text':
               'प्रतिनिधियों की जांच करें',
           'select_organization_title': 'पार्टी विवरण',
@@ -265,7 +265,7 @@ class Language extends Translations {
           'choose_location_manually_snackbar_sub_district_placeholder':
               'ਉਪ-ਜ਼ਿਲ੍ਹਾ ਚੁਣੋ',
           'choose_location_manually_snackbar_ward_placeholder':
-              'ਵਾਰਡ ਨੰਬਰ ਚੁਣੋ',
+              'ਵਾਰਡ ਚੁਣੋ',
           'choose_location_manually_snackbar_button_text': 'ਪ੍ਰਤੀਨਿਧੀ ਚੈੱਕ ਕਰੋ',
           'select_organization_title': 'ਪਾਰਟੀ ਵੇਰਵਾ',
           'select_organization_sub_title':

@@ -49,7 +49,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       // Get.snackbar("Hurrah", "Profile fetched successfully");
        ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Hurrah, Profile fetched successfully'),
+              content: Text('Profile fetched successfully'),
               backgroundColor: Colors.green,
             ),
           );
@@ -229,7 +229,45 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     print("profileimage: $profileimage");
   }
+  Future<void> updateProfile(String handlename , name , bio , dob) async {
+    var headers = {
+   'Authorization': '${authService.token}'
+    };
+    var request = http.MultipartRequest('POST', Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/updateMyProfile'));
+    request.fields.addAll({
+      'handle_name': handlename,
+      'name': name,
+      'bio_info': bio,
+      'date_of_birth': dob
+    });
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseString = await response.stream.bytesToString();
+      var responseJson = json.decode(responseString);
+      Fluttertoast.showToast(
+          msg: "Profile updated successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+      Get.to(HomePage());
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
   Future<void> _selectDate(BuildContext context) async {
+    DateTime initialDate = DateTime.now();
+    if (dobController.text.isNotEmpty) {
+      initialDate = DateFormat('yyyy-MM-dd').parse(dobController.text);
+    }
+
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -237,6 +275,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
+        DateTime selectedDate = initialDate;
         return Container(
           padding: const EdgeInsets.all(16),
           height: 300,
@@ -245,21 +284,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
               SizedBox(
                 height: 10,
               ),
-              const Text(
-                'Select Date of Birth',
-                style: TextStyle(
+              Text(
+                'create_account_dob_modal_text'.tr, // You may need to add .tr if using GetX for translations
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  fontSize: 25,
                   color: Colors.black,
                 ),
               ),
               Expanded(
                 child: DatePickerWidget(
+                  initialDate: initialDate, // Set the initial date
                   locale: DateTimePickerLocale.en_us,
-
                   pickerTheme: DateTimePickerTheme(
                     backgroundColor: Colors.white.withOpacity(0.0),
-                    // titleHeight: 100,
                     showTitle: false,
                     itemTextStyle: TextStyle(
                       color: Colors.black,
@@ -270,20 +308,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     itemHeight: 40,
                   ),
                   dateFormat: 'dd-MMMM-yyyy',
-                  // minDateTime: DateTime(1940),
-                  // maxDateTime: DateTime(2006),
                   onChange: (date, _) {
-                    setState(() {
-                      dobController.text =
-                          DateFormat('yyyy-MM-dd').format(date);
-                    });
+                    selectedDate = date;
                   },
                   onConfirm: (date, _) {
                     if (date.year < 1940 || date.year > 2006) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content:
-                          Text('Birthdate must be between 1940 and 2006.'),
+                          content: Text('Birthdate must be between 1940 and 2006.'),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -295,6 +327,42 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       Navigator.of(context).pop();
                     }
                   },
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        const Color(0xFF0E3D8B)), // Change button color
+                    elevation: MaterialStateProperty.resolveWith<double>((states) {
+                      if (states.contains(MaterialState.pressed)) {
+                        return 10; // Increase elevation when pressed
+                      }
+                      return 5; // Default elevation
+                    }),
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.all(0)), // Add padding
+                    minimumSize: MaterialStateProperty.all<Size>(
+                        const Size(100, 40)), // Set width to full
+                  ),
+                  onPressed: () {
+                    if (selectedDate.year < 1940 || selectedDate.year > 2006) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Birthdate must be between 1940 and 2006.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        dobController.text =
+                            DateFormat('yyyy-MM-dd').format(selectedDate);
+                      });
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Text('OK', style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -549,7 +617,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => PositionProofScreen(),
+                                      builder: (context) => PositionProofScreen(ishomescreen: true,),
                                     ),
                                   );
                               // Add your change text functionality for Position here
@@ -563,7 +631,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => OrganizationProofScreen(),
+                                      builder: (context) => OrganizationProofScreen(ishomescreen: true),
                                     ),
                                   );
                               // Add your change text functionality for Organization here
@@ -573,7 +641,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         MyButton(
                             onTap: () {
                               // Implement save logic
-                              Get.to(HomePage());
+                              updateProfile(handleNameController.text , nameController.text , bioController.text ,dobController.text);
                             },
                             text: "Save"),
                         SizedBox(height: 20),

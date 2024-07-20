@@ -19,6 +19,10 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;
 
 class PositionProofScreen extends StatefulWidget {
+  final bool ishomescreen;
+  PositionProofScreen(
+      {Key? key, this.ishomescreen = false})
+      : super(key: key);
   @override
   State<PositionProofScreen> createState() => _PositionProofScreenState();
 }
@@ -76,7 +80,14 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
       Get.find<LoadingController>().stopLoading();
       if (response.statusCode == 200) {
         // Handle successful response
+        widget.ishomescreen?
+
         Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ),
+        ): Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => HomePage(),
@@ -364,6 +375,11 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
               SizedBox(
                 height: 5,
               ),
+              positioncontroller.text.isEmpty && selectedFilePath == "" ?
+              MyButton1(
+                  onTap: (){},
+                  text: "choose_location_snackbar_button_text".tr)
+              :
               MyButton(
                   onTap: _submitData,
                   text: "choose_location_snackbar_button_text".tr),

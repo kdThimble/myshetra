@@ -14,11 +14,16 @@ import 'package:myshetra/Services/Authservices.dart';
 import 'package:myshetra/helpers/colors.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'HomePage.dart';
 import 'Positionproof.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;
 
 class OrganizationProofScreen extends StatefulWidget {
+  final bool ishomescreen;
+  OrganizationProofScreen(
+      {Key? key, this.ishomescreen = false})
+      : super(key: key);
   @override
   State<OrganizationProofScreen> createState() =>
       _OrganizationProofScreenState();
@@ -67,6 +72,14 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         Get.find<LoadingController>().stopLoading();
         if (response.statusCode == 200) {
           // Handle successful response
+          widget.ishomescreen?
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(),
+            ),
+          ):
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -429,10 +442,13 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               SizedBox(
                 height: 15,
               ),
-
+              _selectedValue != null && selectedFilePath != ""?
               MyButton(
                   onTap: _submitData,
-                  text: "choose_location_snackbar_button_text".tr),
+                  text: "choose_location_snackbar_button_text".tr):
+              MyButton1(
+                  onTap: (){},
+                  text: "choose_location_snackbar_button_text".tr) ,
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                 child: TextButton(

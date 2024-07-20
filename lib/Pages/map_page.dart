@@ -9,20 +9,22 @@ import 'package:location/location.dart' as location;
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Pages/Editprofile.dart';
+import 'package:myshetra/Pages/HomePage.dart';
 import 'package:myshetra/Pages/ManualPage.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:get/get.dart';
 
 import 'package:myshetra/helpers/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 class MapPage extends StatefulWidget {
   final bool? isRedirected;
   final List<dynamic>? representatives;
-
+  final bool ?ishomescreen;
   MapPage(
-      {Key? key, this.isRedirected = false, this.representatives = const []})
+      {Key? key, this.isRedirected = false, this.ishomescreen = false, this.representatives = const []})
       : super(key: key);
 
   @override
@@ -55,7 +57,8 @@ class _MapPageState extends State<MapPage> {
   String _formattedCoordinates = "";
   MapController? controller;
   bool _isPositionInitialized = false;
-
+  String latitudeString ='';
+  String longitudeString = '';
   Future<void> _getLocationUpdates() async {
     _locationService.onLocationChanged.listen(
           (location.LocationData currentLocation) async {
@@ -67,16 +70,25 @@ class _MapPageState extends State<MapPage> {
           });
           print("_formattedCoordinates");
           print(_formattedCoordinates);
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
 
           // Parse the DMS coordinates to decimal degrees
           var coordinates = _parseCoordinates(_formattedCoordinates);
           setState(() {
             latitude = coordinates['latitude']!;
             longitude = coordinates['longitude']!;
+
+              latitudeString = _formattedCoordinates.split(',')[0];
+              longitudeString = _formattedCoordinates.split(',')[1];
+            print("_formattedCoordinates124");
+            print(latitudeString);
+            print(longitudeString);
             _currentPosition = LatLng(latitude!, longitude!);
             _updateMapPosition(_currentPosition);
             _updateMarkers(_currentPosition);
+            fetchRepresentatives123(latitudeString , longitudeString);
             _isPositionInitialized = true; // Position is now initialized
+            prefs.setString('issignupcompleted', 'false'); // Save the name
           });
         }
       },
@@ -109,9 +121,71 @@ class _MapPageState extends State<MapPage> {
     print(authService.token);
     _getLocationUpdates();
   }
+  var representatives;
+  Future<void> fetchRepresentatives123(
+      String latitude, String longitude) async {
+    // setState(() {
+    //   isLoading = true;
+    // });
+    var headers = {'Authorization': '${authService.token}'};
 
-  final LatLng _initialPosition =
-      LatLng(37.7749, -122.4194); // Set your initial position
+    var request = http.MultipartRequest(
+      'GET',
+      Uri.parse(
+          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates'),
+    );
+
+    request.fields.addAll({ 'latitude': '28°39\'17"N',
+      'longitude': '77°07\'45"E'});
+    print("fetchcalling");
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var responseBody = await response.stream.bytesToString();
+      var jsonResponse = json.decode(responseBody);
+
+      // Extract representatives data
+      representatives = jsonResponse['data']['location_details']['formatted_address'];
+      print("addrwss");
+      print(representatives);
+      // Clear existing list and add new data
+      // _representatives.clear();
+      // _representatives.addAll(representatives);
+      // setState(() {
+      //   isLoading = false;
+      // });
+      // Print or use _representatives as needed
+      // print('Representatives: $_representatives');
+    } else {
+      print("ERROR");
+      print(response.reasonPhrase);
+      // setState(() {
+      //   isLoading = false;
+      // });
+      var responseBody = await response.stream.bytesToString();
+      var jsonData = json.decode(responseBody);
+
+      if (jsonData.containsKey('message')) {
+        String message = jsonData['message'];
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(
+            content: Text("An unknown error occurred."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -162,23 +236,44 @@ class _MapPageState extends State<MapPage> {
             const SizedBox(height: 10),
             // Ensure the OSMFlutter widget is properly constrained
             _isPositionInitialized?
-                 Container(
-                   height: 300,
-                   decoration: BoxDecoration(
-                     borderRadius: BorderRadius.circular(20),
-                   ),
-                   child: ClipRRect(
-                     borderRadius: BorderRadius.circular(20),
-                     child: GoogleMap(
-                       onMapCreated: _onMapCreated,
-                       initialCameraPosition: CameraPosition(
-                         target: _currentPosition ?? LatLng(0, 0), // Default to (0, 0) if no position yet
-                         zoom: 11.0,
-                       ),
-                       markers: _markers,
-                     ),
-                   ),
-                 )
+            Stack(
+              children: [
+                Container(
+                  height: 300,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: CameraPosition(
+                        target: _currentPosition,
+                        zoom: 11.0,
+                      ),
+                      markers: _markers,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 50, // Adjust this value to position the label as needed
+                  left: 130, // Adjust this value to position the label as needed
+                  child: Container(
+                    padding: EdgeInsets.all(8),
+                    color: Colors.white,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 200), // Set a max width to constrain the text
+                      child: Text(
+                        representatives ??'No location found',
+                        style: TextStyle(color: Colors.black, fontSize: 10),
+                        maxLines: null, // Allow unlimited lines
+                        overflow: TextOverflow.visible, // Ensure text is visible
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
             :Center(
               child: CircularProgressIndicator(),
             ),
@@ -231,6 +326,7 @@ class _MapPageState extends State<MapPage> {
         child: LocationDetailsBottomSheet(
           address: _formattedCoordinates,
           isRedirected: widget.isRedirected!,
+          ishomescreen:widget.ishomescreen!,
           representatives: widget.representatives!,
         ),
       ),
@@ -458,6 +554,7 @@ class _LocationSelectionBottomSheetState
       print(response.reasonPhrase);
     }
   }
+  final authService = Get.find<AuthService>();
 
   void _fetchLocalDivisionsBySubDistrict(String subDistrictId) async {
     var headers = {
@@ -655,10 +752,12 @@ class _LocationSelectionBottomSheetState
 class LocationDetailsBottomSheet extends StatefulWidget {
   String address;
   final bool isRedirected;
+  final bool ishomescreen;
   final List<dynamic> representatives;
   LocationDetailsBottomSheet(
       {required this.address,
       required this.isRedirected,
+        required this.ishomescreen,
       required this.representatives});
 
   @override
@@ -853,10 +952,8 @@ class _LocationDetailsBottomSheetState
     required String subDistrictId,
     required String districtId,
   }) async {
-    var headers = {
-      'Authorization':
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiI3MDExODk5ODI2IiwidXNlcl9pZCI6IjY2Nzg1NDViNTdiMWE0YmE0ZDk4MTJjZiIsInVzZXJfdHlwZSI6ImdlbmVyYWxfdXNlciIsImV4cCI6MTcxOTI0ODM0N30.q6IyfAq1aagaUvA3xz-H39DApJrMdhL06DOdpp8mFLg'
-    };
+    var headers = {'Authorization': '${authService.token}'};
+
 
     var formData = {
       'local_division_id': localDivisionId,
@@ -1232,7 +1329,7 @@ class _LocationDetailsBottomSheetState
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       // Divider(
                       //   thickness: 2,
                       // ),
@@ -1243,11 +1340,11 @@ class _LocationDetailsBottomSheetState
                           child: Text(
                             'choose_location_snackbar_title'.tr,
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      // const SizedBox(height: 5),
                       widget.isRedirected == true
                           ? Padding(
                               padding: const EdgeInsets.all(16.0),
@@ -1274,10 +1371,10 @@ class _LocationDetailsBottomSheetState
                                           children: [
                                             Container(
                                               // margin: EdgeInsets.only(bottom: 16),
-                                              padding: const EdgeInsets.all(8),
+                                              padding: const EdgeInsets.all(4),
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                    BorderRadius.circular(8),
                                                 border: Border.all(
                                                     color: Colors.black),
                                               ),
@@ -1370,7 +1467,7 @@ class _LocationDetailsBottomSheetState
                                                 ],
                                               ),
                                             ),
-                                            const SizedBox(height: 20),
+                                            const SizedBox(height: 10),
                                           ],
                                         );
                                       }).toList(),
@@ -1486,28 +1583,26 @@ class _LocationDetailsBottomSheetState
                                                 ],
                                               ),
                                             ),
-                                            const SizedBox(height: 20),
+                                            // const SizedBox(height: 10),
                                           ],
                                         );
                                       }).toList(),
                                     ),
                             ),
-
-                      const SizedBox(height: 0),
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
+                        padding: const EdgeInsets.only(left: 4.0),
                         child: Text(
                           'choose_location_snackbar_not_your_representatives_text'
                               .tr,
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 16,
+                            fontSize: 15,
                             fontFamily: 'Okra',
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      // const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () {
                           Get.to(ManualPage());
@@ -1553,6 +1648,14 @@ class _LocationDetailsBottomSheetState
                       MyButton(
                           onTap: () {
                             // OrganizationProofScreen
+                            widget.ishomescreen?
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(),
+                              ),
+                            ):
                             Navigator.push(
                               context,
                               MaterialPageRoute(
