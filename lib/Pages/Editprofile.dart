@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Pages/HomePage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../Services/Authservices.dart';
@@ -36,6 +37,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final authService = Get.find<AuthService>();
 
   Future<UserProfile?> fetchUserProfile() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('issignupcompleted', 'false');
     var headers = {'Authorization': '${authService.token}'};
     var url = Uri.parse(
         'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getMyEditableProfile');
