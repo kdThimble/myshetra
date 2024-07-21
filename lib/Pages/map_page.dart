@@ -70,7 +70,6 @@ class _MapPageState extends State<MapPage> {
           });
           print("_formattedCoordinates");
           print(_formattedCoordinates);
-          final SharedPreferences prefs = await SharedPreferences.getInstance();
 
           // Parse the DMS coordinates to decimal degrees
           var coordinates = _parseCoordinates(_formattedCoordinates);
@@ -88,7 +87,7 @@ class _MapPageState extends State<MapPage> {
             _updateMarkers(_currentPosition);
 
             _isPositionInitialized = true; // Position is now initialized
-            prefs.setString('issignupcompleted', 'false'); // Save the name
+            // Save the name
           });
         }
       },
@@ -148,10 +147,13 @@ class _MapPageState extends State<MapPage> {
       var jsonResponse = json.decode(responseBody);
 
       // Extract representatives data
-      representatives =
-          jsonResponse['data']['location_details']['formatted_address'];
-      print("addrwss");
-      print(representatives);
+      setState(() {
+        representatives =
+            jsonResponse['data']['location_details']['formatted_address'];
+        print("addrwss");
+        print(representatives);
+      });
+
       // Clear existing list and add new data
       // _representatives.clear();
       // _representatives.addAll(representatives);
@@ -171,14 +173,15 @@ class _MapPageState extends State<MapPage> {
 
       if (jsonData.containsKey('message')) {
         String message = jsonData['message'];
-        Fluttertoast.showToast(
-            msg: message,
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
+        print("Message ${message}");
+        // Fluttertoast.showToast(
+        //     msg: message,
+        //     toastLength: Toast.LENGTH_LONG,
+        //     gravity: ToastGravity.TOP,
+        //     timeInSecForIosWeb: 1,
+        //     backgroundColor: Colors.red,
+        //     textColor: Colors.white,
+        //     fontSize: 16.0);
         // ScaffoldMessenger.of(Get.context!).showSnackBar(
         //   SnackBar(
         //     content: Text(message),
@@ -836,7 +839,7 @@ class _LocationDetailsBottomSheetState
       _representatives.clear();
       _representatives.addAll(representatives);
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
       // Print or use _representatives as needed
       print('Representatives: $_representatives');
@@ -854,16 +857,24 @@ class _LocationDetailsBottomSheetState
         Fluttertoast.showToast(
             msg: message,
             toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
+            gravity: ToastGravity.TOP,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0);
+        setState(() {
+          _isLoading = false;
+          print("Is loading getting false");
+        });
+        setState(() {
+          _isLoading = false;
+          print("Is loading getting false");
+        });
       } else {
         Fluttertoast.showToast(
             msg: "An unknown error occurred.",
             toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
+            gravity: ToastGravity.TOP,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,
@@ -1070,7 +1081,7 @@ class _LocationDetailsBottomSheetState
       _isLoading = true;
     });
     // TODO: implement initState
-    Future.delayed(Duration(seconds: 4), () {
+    Future.delayed(Duration(seconds: 2), () {
       setState(() {
         latitudeString = widget.address.split(',')[0];
         longitudeString = widget.address.split(',')[1];
@@ -1080,11 +1091,20 @@ class _LocationDetailsBottomSheetState
       print(widget.address);
       print(latitudeString);
       print(longitudeString);
+      if (widget.isRedirected == true) {
+        setState(() {
+          _isLoading = false;
+          print("Is loading getting false");
+        });
+      } else {
+        fetchRepresentatives123(latitudeString, longitudeString);
+      }
 
-      fetchRepresentatives123(latitudeString, longitudeString);
+      // fetchRepresentatives123(latitudeString, longitudeString);
 
       setState(() {
         _isLoading = false;
+        print("Is loading getting false");
       });
     });
     super.initState();
