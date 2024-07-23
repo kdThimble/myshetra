@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_holo_date_picker/date_picker_theme.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:flutter_holo_date_picker/widget/date_picker_widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:myshetra/Controller/loadingController.dart';
@@ -271,6 +272,7 @@ class _SignUpFormState extends State<SignUpForm> {
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
+      isDismissible: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -285,7 +287,8 @@ class _SignUpFormState extends State<SignUpForm> {
                 height: 10,
               ),
               Text(
-                'create_account_dob_modal_text'.tr, // You may need to add .tr if using GetX for translations
+                'create_account_dob_modal_text'
+                    .tr, // You may need to add .tr if using GetX for translations
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 25,
@@ -313,12 +316,11 @@ class _SignUpFormState extends State<SignUpForm> {
                   },
                   onConfirm: (date, _) {
                     if (date.year < 1940 || date.year > 2006) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Birthdate must be between 1940 and 2006.'),
+                      Fluttertoast.showToast(
+                          msg: 'Birthdate must be between 1940 and 2006.',
                           backgroundColor: Colors.red,
-                        ),
-                      );
+                          textColor: Colors.white,
+                          gravity: ToastGravity.TOP);
                     } else {
                       setState(() {
                         dateOfBirthController.text =
@@ -335,7 +337,8 @@ class _SignUpFormState extends State<SignUpForm> {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
                         const Color(0xFF0E3D8B)), // Change button color
-                    elevation: MaterialStateProperty.resolveWith<double>((states) {
+                    elevation:
+                        MaterialStateProperty.resolveWith<double>((states) {
                       if (states.contains(MaterialState.pressed)) {
                         return 10; // Increase elevation when pressed
                       }
@@ -348,12 +351,11 @@ class _SignUpFormState extends State<SignUpForm> {
                   ),
                   onPressed: () {
                     if (selectedDate.year < 1940 || selectedDate.year > 2006) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Birthdate must be between 1940 and 2006.'),
+                      Fluttertoast.showToast(
+                          msg: 'Birthdate must be between 1940 and 2006.',
                           backgroundColor: Colors.red,
-                        ),
-                      );
+                          textColor: Colors.white,
+                          gravity: ToastGravity.TOP);
                     } else {
                       setState(() {
                         dateOfBirthController.text =
@@ -407,37 +409,17 @@ class _SignUpFormState extends State<SignUpForm> {
           numberText = "mobile_number_available".tr;
           isAvailable = true;
         });
-
-        // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        //   content: Text('Number is  available',
-        //       style: TextStyle(color: Colors.white)),
-        //   backgroundColor: Colors.green,
-        // ));
       } else {
         setState(() {
           numberText = "mobile_not_number_available".tr;
           isAvailable = false;
         });
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(
-        //     content: Text('Number is not available',
-        //         style: TextStyle(color: Colors.red)),
-        //     backgroundColor: Colors.red,
-        //   ),
-        // );
       }
     } else {
       setState(() {
         numberText = "mobile_not_number_available".tr;
         isAvailable = false;
       });
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(
-      //     content:
-      //         Text('Failed to check number availability. Please try again.'),
-      //     backgroundColor: Colors.red,
-      //   ),
-      // );
     }
   }
 
@@ -460,10 +442,6 @@ class _SignUpFormState extends State<SignUpForm> {
       print("OTP DATA $otpData");
 
       if (response.statusCode == 200) {
-        // Assuming the OTP is part of the response, extract it
-        // Make sure to update the state variables accordingly
-        // You can set these variables in a stateful widget or manage the state with GetX
-
         Get.find<LoadingController>().stopLoading();
         Get.to(OtpScreen(
           title: "verify_login_otp_title".tr,
@@ -480,33 +458,6 @@ class _SignUpFormState extends State<SignUpForm> {
             );
           },
         ));
-        // showModalBottomSheet(
-        //   context: Get.context!,
-        //   isScrollControlled: true,
-        //   builder: (BuildContext context) {
-        //     return SingleChildScrollView(
-        //       child: Container(
-        //         padding: EdgeInsets.only(
-        //             bottom: MediaQuery.of(context).viewInsets.bottom),
-        //         child: OtpScreen(
-        //           title: "Verify Signup details",
-        //           mobileNumber: _mobileNumberController.text,
-        //           attemptsLeft: otpData['data']['attempts_left'].toString(),
-        //           otpValidity: otpData['data']['otp_validity'].toString(),
-        //           onOtpVerification: (otp2) {
-        //             verifySignupOTP(
-        //               mobileNumber: mobileNumber,
-        //               otp: otp2,
-        //               name: nameController.text,
-        //               gender: gender,
-        //               dateOfBirth: dateOfBirthController.text,
-        //             );
-        //           },
-        //         ),
-        //       ),
-        //     );
-        //   },
-        // );
       } else {
         loadingController.stopLoading();
         ScaffoldMessenger.of(Get.context!).showSnackBar(
@@ -585,11 +536,12 @@ class _SignUpFormState extends State<SignUpForm> {
           print('Failed to authenticate');
         }
 
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => MapPage(),
           ),
+          (route) => false,
         );
       } else {
         print("ERROR");

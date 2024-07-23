@@ -254,11 +254,12 @@ class _LoginFormState extends State<LoginForm> {
           print('Failed to authenticate');
         }
 
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => HomePage(),
           ),
+          (route) => false,
         );
       } else {
         print("ERROR");

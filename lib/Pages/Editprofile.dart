@@ -12,7 +12,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Pages/AuthPage.dart';
 import 'package:myshetra/Pages/HomePage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../Services/Authservices.dart';
@@ -21,6 +23,8 @@ import 'Oranisation.dart';
 import 'Positionproof.dart';
 
 class EditProfilePage extends StatefulWidget {
+  const EditProfilePage({super.key});
+
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }
@@ -35,7 +39,70 @@ class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController organizationController = TextEditingController();
   final authService = Get.find<AuthService>();
 
+  Future<void> refreshAuthToken() async {
+    print("swxaL:${authService.refreshToken}");
+    print("tokem:${authService.token}");
+    setState(() {
+      isloading = true;
+    });
+    var headers = {
+      'Refresh-Token':
+          '${authService.refreshToken}', // Authorization header with the token
+    };
+
+    var request = http.Request(
+        'POST',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/refreshToken'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    String responseBody = await response.stream.bytesToString();
+    var jsonData = json.decode(responseBody);
+    print("Response code: $jsonData");
+
+    // Get.find<LoadingController>().stopLoading();
+
+    if (response.statusCode == 200) {
+      // final authResponse = AuthResponse.fromJson(jsonData['data']);
+      final token = jsonData['data']['token'];
+      print(responseBody);
+      if (token != null) {
+        // Save the tokens to secure storage or a state management solution
+        // Provider.of<AuthProvider>(context, listen: false)
+        //     .setAuthResponse(authResponse);
+        Get.find<AuthService>().saveToken(token);
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        print("authResponse.token:$token");
+        await prefs.setString('token', token);
+        SetUserProfile();
+      } else {
+        // Get.snackbar('Error', 'Failed to authenticate');
+        print('Failed to authenticate');
+        SetUserProfile();
+      }
+    } else if (response.statusCode == 500) {
+      Fluttertoast.showToast(
+          msg: "Session expired, please login again",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      Get.find<AuthService>().clearAuthResponse();
+      Get.to(const AuthPage());
+    } else {
+      print('Failed to refresh token: ${response.reasonPhrase}');
+      SetUserProfile();
+      // Handle the error
+    }
+  }
+
   Future<UserProfile?> fetchUserProfile() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('issignupcompleted', 'false');
     var headers = {'Authorization': '${authService.token}'};
     var url = Uri.parse(
         'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getMyEditableProfile');
@@ -201,9 +268,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   void SetUserProfile() async {
     // Set retrieved data to text controllers
-    setState(() {
-      isloading = true;
-    });
+
     UserProfile user = await fetchUserProfile() as UserProfile;
     print(user);
     print("image:${user.profileImageUrl}");
@@ -226,10 +291,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    SetUserProfile();
+    refreshAuthToken();
+
     // fetchUserProfile().then((userProfile) {
     //   print("userProfile: $userProfile");
     //   if (userProfile != null) {
@@ -277,7 +344,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0);
-      Get.to(HomePage());
+      Get.to(const HomePage());
     } else {
       print(response.reasonPhrase);
     }
@@ -302,7 +369,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           height: 300,
           child: Column(
             children: <Widget>[
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Text(
@@ -321,12 +388,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   pickerTheme: DateTimePickerTheme(
                     backgroundColor: Colors.white.withOpacity(0.0),
                     showTitle: false,
-                    itemTextStyle: TextStyle(
+                    itemTextStyle: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    cancelTextStyle: TextStyle(color: Colors.black),
-                    confirmTextStyle: TextStyle(color: Colors.black),
+                    cancelTextStyle: const TextStyle(color: Colors.black),
+                    confirmTextStyle: const TextStyle(color: Colors.black),
                     itemHeight: 40,
                   ),
                   dateFormat: 'dd-MMMM-yyyy',
@@ -387,7 +454,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       Navigator.of(context).pop();
                     }
                   },
-                  child: Text('OK', style: TextStyle(color: Colors.white)),
+                  child:
+                      const Text('OK', style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -405,9 +473,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
         backgroundColor: Colors.transparent,
         title: Text(
           'edit_profile_header_title'.tr,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: isloading
           ? Shimmer.fromColors(
@@ -592,9 +661,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         children: [
                           Center(
                             child: _bannerImage != null
-                                ? Image(
-                                    image: FileImage(_bannerImage!)
-                                        as ImageProvider<Object>)
+                                ? Image(image: FileImage(_bannerImage!))
                                 : bannerimage1 !=
                                         "https://dev-my-shetra.blr1.cdn.digitaloceanspaces.com/admin_files/FallBackBannerImage.png"
                                     ? Image.network(
@@ -614,7 +681,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             bottom: 10,
                             right: 10,
                             child: IconButton(
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.camera_alt_outlined,
                                 color: Colors.white,
                                 size: 30,
@@ -628,13 +695,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ],
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 50,
                     ),
                     Expanded(
                       child: Container(
                         color: Colors.white,
-                        padding: EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: SingleChildScrollView(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -692,7 +759,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         dobController.text);
                                   },
                                   text: "select_save_button_text".tr),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                             ],
                           ),
                         ),
@@ -711,7 +778,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: Container(
                       height: 100.0,
                       width: 100.0,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors
                             .black, // Replace with your profile image or placeholder
@@ -729,7 +796,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 : profileimage1 !=
                                         "https://dev-my-shetra.blr1.cdn.digitaloceanspaces.com/admin_files/FallBackProfileImage.jpeg"
                                     ? NetworkImage(profileimage1)
-                                    : NetworkImage(
+                                    : const NetworkImage(
                                         'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph'),
                           ),
                           // Camera icon for changing profile image
@@ -738,7 +805,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             right: 0,
                             child: GestureDetector(
                               onTap: () => _selectProfileImage(),
-                              child: CircleAvatar(
+                              child: const CircleAvatar(
                                 radius: 15.0,
                                 backgroundColor: Colors.blue,
                                 child: Icon(
@@ -766,16 +833,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
         //   '$label: ',
         //   style: TextStyle(fontWeight: FontWeight.bold),
         // ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         TextFormField(
           controller: controller,
           decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: '$label',
-            labelStyle: TextStyle(color: Colors.black, fontSize: 20),
+            border: const OutlineInputBorder(),
+            labelText: label,
+            labelStyle: const TextStyle(color: Colors.black, fontSize: 20),
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
       ],
     );
   }
@@ -789,18 +856,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
         //   '$label: ',
         //   style: TextStyle(fontWeight: FontWeight.bold),
         // ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           readOnly: true,
           decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            hintText: '$label',
-            hintStyle: TextStyle(color: Colors.black, fontSize: 20),
+            border: const OutlineInputBorder(),
+            hintText: label,
+            hintStyle: const TextStyle(color: Colors.black, fontSize: 20),
             suffixIcon: suffix,
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
       ],
     );
   }

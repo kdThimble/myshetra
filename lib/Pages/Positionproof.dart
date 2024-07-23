@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:myshetra/Components/MyButton.dart';
@@ -13,6 +14,7 @@ import 'package:myshetra/Services/Authservices.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:myshetra/helpers/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'map_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -75,8 +77,10 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
       final responseData = await response.stream.bytesToString();
       print("responseData");
       print(responseData);
+      
       Get.find<LoadingController>().stopLoading();
       if (response.statusCode == 200) {
+        
         // Handle successful response
         widget.ishomescreen
             ? Navigator.push(
@@ -88,7 +92,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
             : Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => HomePage(),
+                  builder: (context) => EditProfilePage(),
                 ),
               );
       } else if (response.statusCode == 400) {
@@ -98,21 +102,12 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
 
         // Show SnackBar with the error message
         // Get.snackbar("", errorMessage, backgroundColor:Colors.red, colorText: Colors.white );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-          ),
-        );
+        Fluttertoast.showToast(msg: errorMessage,backgroundColor: Colors.red,textColor: Colors.white,gravity: ToastGravity.TOP);
+
         print('Error: $errorMessage');
       } else {
         // Get.snackbar("", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Some Server Error'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        Fluttertoast.showToast(msg: "Some Server Error",backgroundColor: Colors.red,textColor: Colors.white,gravity: ToastGravity.TOP);
 
         // Handle other error responses
         print('Error: ${response.statusCode}');

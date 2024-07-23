@@ -11,7 +11,24 @@ class AuthService extends GetxController {
     saveTokensToStorage(newToken, newRefreshToken);
   }
 
-  Future<void> saveTokensToStorage(String newToken, String newRefreshToken) async {
+  void clearAuthResponse() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('refreshToken');
+  }
+
+  void saveToken(String newToken) {
+    token.value = newToken;
+    saveTokenToStorage(newToken);
+  }
+
+  Future<void> saveTokenToStorage(String newToken) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', newToken);
+  }
+
+  Future<void> saveTokensToStorage(
+      String newToken, String newRefreshToken) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', newToken);
     await prefs.setString('refreshToken', newRefreshToken);
