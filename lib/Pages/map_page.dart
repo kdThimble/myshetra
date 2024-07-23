@@ -46,6 +46,7 @@ class _MapPageState extends State<MapPage> {
   double? longitude;
   GoogleMapController? _mapController;
   late LatLng _currentPosition;
+  final List<dynamic>? representatives123 = [];
   final location.Location _locationService = location.Location();
   Set<Marker> _markers = {};
 
@@ -227,6 +228,12 @@ Future<void> _requestLocationPermission() async {
       setState(() {
         representatives =
             jsonResponse['data']['location_details']['formatted_address'];
+            var representative = jsonResponse['data']['representatives'];
+
+            // Clear existing list and add new data
+        representatives123!.clear();
+        representatives123!.addAll(representative);
+
         print("addrwss");
         print(representatives);
       });
@@ -430,7 +437,7 @@ Future<void> _requestLocationPermission() async {
           address: _formattedCoordinates,
           isRedirected: widget.isRedirected!,
           ishomescreen: widget.ishomescreen!,
-          representatives: widget.representatives!,
+          representatives: widget.isRedirected == true ? widget.representatives!:representatives123!,
         ),
       ),
     );
@@ -878,76 +885,75 @@ class _LocationDetailsBottomSheetState
 
   // Map to store state label and value pairs
 
-  Future<void> fetchRepresentatives123(
-      String latitude, String longitude) async {
-    var headers = {'Authorization': '${authService.token}'};
-
-    var request = http.MultipartRequest(
-      'GET',
-      Uri.parse(
-          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates'),
-    );
-
-    request.fields.addAll({'latitude': latitude, 'longitude': longitude});
-    print("fetchcalling");
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      var responseBody = await response.stream.bytesToString();
-      var jsonResponse = json.decode(responseBody);
-
-      // Extract representatives data
-      var representatives = jsonResponse['data']['representatives'];
-
-      // Clear existing list and add new data
-      _representatives.clear();
-      _representatives.addAll(representatives);
-      setState(() {
-        _isLoading = false;
-      });
-      // Print or use _representatives as needed
-      print('Representatives: $_representatives');
-    } else {
-      print("ERROR");
-      print(response.reasonPhrase);
-      setState(() {
-        isLoading = false;
-      });
-      var responseBody = await response.stream.bytesToString();
-      var jsonData = json.decode(responseBody);
-
-      if (jsonData.containsKey('message')) {
-        String message = jsonData['message'];
-        Fluttertoast.showToast(
-            msg: message,
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-        setState(() {
-          _isLoading = false;
-          print("Is loading getting false");
-        });
-        setState(() {
-          _isLoading = false;
-          print("Is loading getting false");
-        });
-      } else {
-        Fluttertoast.showToast(
-            msg: "An unknown error occurred.",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      }
-    }
-  }
+  // Future<void> fetchRepresentatives123(String latitude, String longitude) async {
+  //   var headers = {'Authorization': '${authService.token}'};
+  //
+  //   var request = http.MultipartRequest(
+  //     'GET',
+  //     Uri.parse(
+  //         'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates'),
+  //   );
+  //
+  //   request.fields.addAll({'latitude': latitude, 'longitude': longitude});
+  //   print("fetchcalling");
+  //   request.headers.addAll(headers);
+  //
+  //   http.StreamedResponse response = await request.send();
+  //
+  //   if (response.statusCode == 200) {
+  //     var responseBody = await response.stream.bytesToString();
+  //     var jsonResponse = json.decode(responseBody);
+  //
+  //     // Extract representatives data
+  //     var representatives = jsonResponse['data']['representatives'];
+  //
+  //     // Clear existing list and add new data
+  //     _representatives.clear();
+  //     _representatives.addAll(representatives);
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //     // Print or use _representatives as needed
+  //     print('Representatives: $_representatives');
+  //   } else {
+  //     print("ERROR");
+  //     print(response.reasonPhrase);
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //     var responseBody = await response.stream.bytesToString();
+  //     var jsonData = json.decode(responseBody);
+  //
+  //     if (jsonData.containsKey('message')) {
+  //       String message = jsonData['message'];
+  //       Fluttertoast.showToast(
+  //           msg: message,
+  //           toastLength: Toast.LENGTH_LONG,
+  //           gravity: ToastGravity.TOP,
+  //           timeInSecForIosWeb: 1,
+  //           backgroundColor: Colors.red,
+  //           textColor: Colors.white,
+  //           fontSize: 16.0);
+  //       setState(() {
+  //         _isLoading = false;
+  //         print("Is loading getting false");
+  //       });
+  //       setState(() {
+  //         _isLoading = false;
+  //         print("Is loading getting false");
+  //       });
+  //     } else {
+  //       Fluttertoast.showToast(
+  //           msg: "An unknown error occurred.",
+  //           toastLength: Toast.LENGTH_LONG,
+  //           gravity: ToastGravity.TOP,
+  //           timeInSecForIosWeb: 1,
+  //           backgroundColor: Colors.red,
+  //           textColor: Colors.white,
+  //           fontSize: 16.0);
+  //     }
+  //   }
+  // }
 
   // Map to store local division label and value pairs
 
@@ -1148,11 +1154,7 @@ class _LocationDetailsBottomSheetState
     });
     // TODO: implement initState
     Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        latitudeString = widget.address.split(',')[0];
-        longitudeString = widget.address.split(',')[1];
-      });
-
+      // _isLoading = false;
       print("lattitudeinit");
       print(widget.address);
       print(latitudeString);
@@ -1162,9 +1164,10 @@ class _LocationDetailsBottomSheetState
           _isLoading = false;
           print("Is loading getting false");
         });
-      } else {
-        fetchRepresentatives123(latitudeString, longitudeString);
       }
+      // else {
+      //   fetchRepresentatives123(latitudeString, longitudeString);
+      // }
 
       // fetchRepresentatives123(latitudeString, longitudeString);
 
@@ -1429,7 +1432,7 @@ class _LocationDetailsBottomSheetState
                             )
                           : Padding(
                               padding: const EdgeInsets.all(16.0),
-                              child: _representatives.isEmpty
+                              child: widget.representatives.isEmpty
                                   ? SizedBox(
                                       height: Get.height * 0.2,
                                       child: Center(
@@ -1442,7 +1445,7 @@ class _LocationDetailsBottomSheetState
                                       )),
                                     )
                                   : Column(
-                                      children: _representatives.map((rep) {
+                                      children: widget.representatives.map((rep) {
                                         print("rep is ${rep.toString()}");
                                         return Column(
                                           children: [
