@@ -10,6 +10,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:geocoding/geocoding.dart' as geocoding;
+import 'package:location/location.dart';
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Pages/AuthPage.dart';
 import 'package:myshetra/Pages/Editprofile.dart';
@@ -141,7 +142,6 @@ class _MapPageState extends State<MapPage> {
             _updateMarkers(_currentPosition);
 
             _isPositionInitialized = true; // Position is now initialized
-            // Save the name
           });
         }
       },
@@ -172,10 +172,33 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     super.initState();
     print(authService.token);
+    _requestLocationPermission();
     _getLocationUpdates();
     refreshAuthToken();
+}
+
+Future<void> _requestLocationPermission() async {
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted;
+
+  _serviceEnabled = await _locationService.serviceEnabled();
+  if (!_serviceEnabled) {
+    _serviceEnabled = await _locationService.requestService();
+    if (!_serviceEnabled) {
+      return;
+    }
   }
 
+  _permissionGranted = await _locationService.hasPermission();
+  if (_permissionGranted == PermissionStatus.denied) {
+    _permissionGranted = await _locationService.requestPermission();
+    if (_permissionGranted != PermissionStatus.granted) {
+      return;
+    }
+  }
+
+  _getLocationUpdates();
+}
   var representatives;
   Future<void> fetchRepresentatives123(
       String latitude, String longitude) async {

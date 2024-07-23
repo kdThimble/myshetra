@@ -34,6 +34,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationAlwaysUsageDescription</key>
+    <string>This permission used to detect user permission for showing feed</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This permission used to detect user permission for showing feed</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Upload images from the camera to capture profile photos.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need access to your photo library to allow you to select and upload photos.</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
