@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
@@ -9,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as location;
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Pages/AuthPage.dart';
 import 'package:myshetra/Pages/Editprofile.dart';
 import 'package:myshetra/Pages/HomePage.dart';
 import 'package:myshetra/Pages/ManualPage.dart';
@@ -24,7 +27,7 @@ class MapPage extends StatefulWidget {
   final bool? isRedirected;
   final List<dynamic>? representatives;
   final bool? ishomescreen;
-  MapPage(
+  const MapPage(
       {Key? key,
       this.isRedirected = false,
       this.ishomescreen = false,
@@ -36,7 +39,7 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  location.Location _locationController = location.Location();
+  final location.Location _locationController = location.Location();
   final authService = Get.find<AuthService>();
   double? latitude;
   double? longitude;
@@ -49,10 +52,61 @@ class _MapPageState extends State<MapPage> {
     _mapController = controller;
   }
 
+  Future<void> refreshAuthToken() async {
+    print("swxaL:${authService.refreshToken}");
+    print("tokem:${authService.token}");
+    
+    var headers = {
+      'Refresh-Token':
+          '${authService.refreshToken}', // Authorization header with the token
+    };
+
+    var request = http.Request(
+        'POST',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/refreshToken'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    String responseBody = await response.stream.bytesToString();
+    var jsonData = json.decode(responseBody);
+    print("Response code: $jsonData");
+
+    // Get.find<LoadingController>().stopLoading();
+
+    if (response.statusCode == 200) {
+      // final authResponse = AuthResponse.fromJson(jsonData['data']);
+      final token = jsonData['data']['token'];
+      print(responseBody);
+      if (token != null) {
+        // Save the tokens to secure storage or a state management solution
+        // Provider.of<AuthProvider>(context, listen: false)
+        //     .setAuthResponse(authResponse);
+        Get.find<AuthService>().saveToken(token);
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        print("authResponse.token:$token");
+        await prefs.setString('token', token);
+        fetchRepresentatives123(latitudeString, longitudeString);
+      } else {
+        // Get.snackbar('Error', 'Failed to authenticate');
+        print('Failed to authenticate');
+        fetchRepresentatives123(latitudeString, longitudeString);
+      }
+    } else if (response.statusCode == 500) {
+      Get.find<AuthService>().clearAuthResponse();
+      Get.to(const AuthPage());
+    } else {
+      print('Failed to refresh token: ${response.reasonPhrase}');
+      fetchRepresentatives123(latitudeString, longitudeString);
+      // Handle the error
+    }
+  }
+
   // final Completer<GoogleMapController> _mapController =
   //     Completer<GoogleMapController>();
   LatLng? _currentP;
-  String _currentAddress =
+  final String _currentAddress =
       'Block FB, Sector No. 80 \n Prahalad Garh, Rohini, \n North Delhi, Delhi';
   String _formattedCoordinates = "";
   MapController? controller;
@@ -106,9 +160,9 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _markers = {
         Marker(
-          markerId: MarkerId('currentLocation'),
+          markerId: const MarkerId('currentLocation'),
           position: position,
-          infoWindow: InfoWindow(title: 'Current Location'),
+          infoWindow: const InfoWindow(title: 'Current Location'),
         ),
       };
     });
@@ -119,7 +173,7 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     print(authService.token);
     _getLocationUpdates();
-    fetchRepresentatives123(latitudeString, longitudeString);
+    refreshAuthToken();
   }
 
   var representatives;
@@ -173,7 +227,7 @@ class _MapPageState extends State<MapPage> {
 
       if (jsonData.containsKey('message')) {
         String message = jsonData['message'];
-        print("Message ${message}");
+        print("Message $message");
         // Fluttertoast.showToast(
         //     msg: message,
         //     toastLength: Toast.LENGTH_LONG,
@@ -281,16 +335,16 @@ class _MapPageState extends State<MapPage> {
                         left:
                             130, // Adjust this value to position the label as needed
                         child: Container(
-                          padding: EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(8),
                           color: Colors.white,
                           child: ConstrainedBox(
-                            constraints: BoxConstraints(
+                            constraints: const BoxConstraints(
                                 maxWidth:
                                     200), // Set a max width to constrain the text
                             child: Text(
                               representatives ?? 'No location found',
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 10),
+                              style: const TextStyle(
+                                  color: Colors.black, fontSize: 10),
                               maxLines: null, // Allow unlimited lines
                               overflow: TextOverflow
                                   .visible, // Ensure text is visible
@@ -300,7 +354,7 @@ class _MapPageState extends State<MapPage> {
                       ),
                     ],
                   )
-                : Center(
+                : const Center(
                     child: CircularProgressIndicator(),
                   ),
             // Positioned(
@@ -334,7 +388,7 @@ class _MapPageState extends State<MapPage> {
       ),
       bottomSheet: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
           ),
@@ -344,7 +398,7 @@ class _MapPageState extends State<MapPage> {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 5,
               blurRadius: 7,
-              offset: Offset(0, -3),
+              offset: const Offset(0, -3),
             ),
           ],
         ),
@@ -371,7 +425,7 @@ class _MapPageState extends State<MapPage> {
   // }
 
   Map<String, double> _parseCoordinates(String dmsCoordinates) {
-    final regex = RegExp(r'(\d+)°(\d+)' + "'" + r'(\d+)"([NSEW])');
+    final regex = RegExp(r'(\d+)°(\d+)' "'" r'(\d+)"([NSEW])');
     final matches = regex.allMatches(dmsCoordinates);
 
     double parseDMS(int degrees, int minutes, int seconds, String direction) {
@@ -427,7 +481,7 @@ class _MapPageState extends State<MapPage> {
       degrees += 1;
     }
 
-    return "${degrees}°${minutes}'${seconds}\"";
+    return "$degrees°$minutes'$seconds\"";
   }
 
   Future<void> _getAddressFromCoordinates(LatLng? coordinates) async {
@@ -480,7 +534,7 @@ class _MapPageState extends State<MapPage> {
 class LocationSelectionBottomSheet extends StatefulWidget {
   final ValueChanged<String?> onStateChanged;
 
-  LocationSelectionBottomSheet({required this.onStateChanged});
+  const LocationSelectionBottomSheet({super.key, required this.onStateChanged});
 
   @override
   State<LocationSelectionBottomSheet> createState() =>
@@ -633,14 +687,14 @@ class _LocationSelectionBottomSheetState
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Icon(Icons.add, color: Color(0xFF4A4A4A)),
-                SizedBox(width: 8),
+                const Icon(Icons.add, color: Color(0xFF4A4A4A)),
+                const SizedBox(width: 8),
                 Text(
                   'choose_location_snackbar_enter_manually_text'.tr,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFF4A4A4A),
                     fontSize: 16,
                     fontFamily: 'Okra',
@@ -671,7 +725,7 @@ class _LocationSelectionBottomSheetState
                 children: [
                   Text(
                     'choose_location_snackbar_enter_manually_text'.tr,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -781,7 +835,8 @@ class LocationDetailsBottomSheet extends StatefulWidget {
   final bool ishomescreen;
   final List<dynamic> representatives;
   LocationDetailsBottomSheet(
-      {required this.address,
+      {super.key,
+      required this.address,
       required this.isRedirected,
       required this.ishomescreen,
       required this.representatives});
@@ -794,23 +849,11 @@ class LocationDetailsBottomSheet extends StatefulWidget {
 class _LocationDetailsBottomSheetState
     extends State<LocationDetailsBottomSheet> {
   final authService = Get.find<AuthService>();
-  List<dynamic> _representatives = [];
-  String _selectedState = '';
-  String _selectedDistrict = '';
-  String _selectedSubDistrict = '';
-  String _selectedLocalDivision = '';
-  String _selectedState1 = '';
-  String _selectedDistrict1 = '';
-  String _selectedSubDistrict1 = '';
-  String _selectedLocalDivision1 = '';
+  final List<dynamic> _representatives = [];
+
   bool _isLoading = false;
 
-  List<String> _states = [];
-  List<String> _districts = [];
-  List<String> _subDistricts = [];
-  List<String> _localDivisions = [];
-  Map<String, String> _stateMap =
-      {}; // Map to store state label and value pairs
+  // Map to store state label and value pairs
 
   Future<void> fetchRepresentatives123(
       String latitude, String longitude) async {
@@ -1019,7 +1062,7 @@ class _LocationDetailsBottomSheetState
   //     },
   //   );
   // }
-  String _formattedCoordinates = "";
+  final String _formattedCoordinates = "";
   String _convertToDMSHelper(double coordinate) {
     int degrees = coordinate.floor();
     double minutesDecimal = (coordinate - degrees) * 60;
@@ -1036,7 +1079,7 @@ class _LocationDetailsBottomSheetState
       degrees += 1;
     }
 
-    return "${degrees}°${minutes}'${seconds}\"";
+    return "$degrees°$minutes'$seconds\"";
   }
 
   String _convertToDMS(double latitude, double longitude) {
@@ -1081,7 +1124,7 @@ class _LocationDetailsBottomSheetState
       _isLoading = true;
     });
     // TODO: implement initState
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         latitudeString = widget.address.split(',')[0];
         longitudeString = widget.address.split(',')[1];
@@ -1227,7 +1270,7 @@ class _LocationDetailsBottomSheetState
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'choose_location_snackbar_title'.tr,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -1364,13 +1407,13 @@ class _LocationDetailsBottomSheetState
                           : Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: _representatives.isEmpty
-                                  ? Container(
+                                  ? SizedBox(
                                       height: Get.height * 0.2,
                                       child: Center(
                                           child: Text(
                                         "choose_location_snackbar_no_representative_text"
                                             .tr,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
                                       )),
@@ -1489,7 +1532,7 @@ class _LocationDetailsBottomSheetState
                         child: Text(
                           'choose_location_snackbar_not_your_representatives_text'
                               .tr,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 15,
                             fontFamily: 'Okra',
@@ -1500,7 +1543,7 @@ class _LocationDetailsBottomSheetState
                       // const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () {
-                          Get.to(ManualPage());
+                          Get.to(const ManualPage());
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(
@@ -1547,7 +1590,7 @@ class _LocationDetailsBottomSheetState
                                 ? Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => HomePage(),
+                                      builder: (context) => const HomePage(),
                                     ),
                                   )
                                 : Navigator.push(
@@ -1573,14 +1616,14 @@ class _LocationDetailsBottomSheetState
 class RepresentativeWidget extends StatelessWidget {
   final List<dynamic> representatives;
 
-  RepresentativeWidget({required this.representatives});
+  const RepresentativeWidget({super.key, required this.representatives});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: representatives.isEmpty
           ? [
-              Container(
+              SizedBox(
                   height: 200,
                   child: Center(
                       child: Text(

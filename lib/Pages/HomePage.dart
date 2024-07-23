@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously, avoid_print
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -11,9 +13,6 @@ import 'package:myshetra/Services/Authservices.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../Models/Authmodel.dart';
-import '../Providers/AuthProvider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -51,7 +50,7 @@ class _HomePageState extends State<HomePage> {
       await prefs.remove('refreshToken');
       prefs.setString('issignupcompleted', 'false'); // Save the name
 
-      Get.to(AuthPage());
+      Get.to(const AuthPage());
     } else {
       String responseString = await response.stream.bytesToString();
       Map<String, dynamic> responseData = json.decode(responseString);
@@ -66,46 +65,62 @@ class _HomePageState extends State<HomePage> {
           gravity: ToastGravity.TOP);
     }
   }
+
   Future<void> refreshAuthToken() async {
     print("swxaL:${authService.refreshToken}");
+    print("tokem:${authService.token}");
     var headers = {
       'Refresh-Token':
-      '${authService.refreshToken}', // Authorization header with the token
+          '${authService.refreshToken}', // Authorization header with the token
     };
 
-    var request = http.Request('POST', Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/refreshToken'));
+    var request = http.Request(
+        'POST',
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/auth/refreshToken'));
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
     String responseBody = await response.stream.bytesToString();
     var jsonData = json.decode(responseBody);
-    print("Response code: ${jsonData}");
+    print("Response code: $jsonData");
 
     // Get.find<LoadingController>().stopLoading();
 
     if (response.statusCode == 200) {
-      final authResponse = AuthResponse.fromJson(jsonData['data']);
+      // final authResponse = AuthResponse.fromJson(jsonData['data']);
+      final token = jsonData['data']['token'];
       print(responseBody);
-      if (authResponse.refreshToken != null && authResponse.token != null) {
+      if (token != null) {
         // Save the tokens to secure storage or a state management solution
-        Provider.of<AuthProvider>(context, listen: false)
-            .setAuthResponse(authResponse);
-        Get.find<AuthService>()
-            .setAuthResponse(authResponse.token, authResponse.refreshToken);
+        // Provider.of<AuthProvider>(context, listen: false)
+        //     .setAuthResponse(authResponse);
+        Get.find<AuthService>().saveToken(token);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', authResponse.token);
-        await prefs.setString('refreshToken', authResponse.refreshToken);
+        print("authResponse.token:$token");
+        await prefs.setString('token', token);
       } else {
         // Get.snackbar('Error', 'Failed to authenticate');
         print('Failed to authenticate');
       }
-    }
-     else {
+    } else if (response.statusCode == 500) {
+      Fluttertoast.showToast(
+          msg: "Session expired, please login again",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      Get.find<AuthService>().clearAuthResponse();
+      Get.to(const AuthPage());
+    } else {
       print('Failed to refresh token: ${response.reasonPhrase}');
       // Handle the error
     }
   }
+
   // Call the API here
   @override
   void initState() {
@@ -113,6 +128,7 @@ class _HomePageState extends State<HomePage> {
     refreshAuthToken();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,17 +140,17 @@ class _HomePageState extends State<HomePage> {
           const Center(
             child: Text('This is the home page'),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           MyButton(
               onTap: () {
-                Get.to(EditProfilePage());
+                Get.to(const EditProfilePage());
               },
               text: "Edit Profile"),
           MyButton(
               onTap: () {
-                Get.to(MapPage(ishomescreen:true));
+                Get.to(const MapPage(ishomescreen: true));
               },
               text: "Change Location"),
           MyButton(
