@@ -294,15 +294,18 @@ class _ManualPageState extends State<ManualPage> {
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
                                       focusColor: Colors.blue,
-
-                                      // value: _selectedState,
+                                      value: _selectedState,
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedState = newValue!;
-                                          _selectedState1 =
-                                              _stateMap[newValue]!;
-                                          _fetchDistrictsByState(
-                                              _stateMap[newValue]!);
+                                          _selectedState1 = _stateMap[newValue]!;
+                                          _selectedDistrict = '';
+                                          _selectedSubDistrict = '';
+                                          _selectedLocalDivision = '';
+                                          _districts = []; // Clear the list of districts
+                                          _subDistricts = []; // Clear the list of sub-districts
+                                          _localDivisions = []; // Clear the list of local divisions
+                                          _fetchDistrictsByState(_stateMap[newValue]!);
                                         });
                                       },
                                       items: _states.map((state) {
@@ -312,30 +315,22 @@ class _ManualPageState extends State<ManualPage> {
                                         );
                                       }).toList(),
                                       decoration: InputDecoration(
-                                        labelText:
-                                            'choose_location_manually_snackbar_state_placeholder'
-                                                .tr,
+                                        labelText: 'choose_location_manually_snackbar_state_placeholder'.tr,
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
-                                    // Text(
-                                    //   'Zone',
-                                    //   style: TextStyle(
-                                    //     fontSize: Get.width * 0.037,
-                                    //     fontWeight: FontWeight.bold,
-                                    //   ),
-                                    // ),
-                                    const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
-                                      // value: _selectedDistrict,
+                                      value: _selectedDistrict,
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedDistrict = newValue!;
-                                          _selectedDistrict1 =
-                                              _districtMap[newValue]!;
-                                          _fetchSubDistrictsByDistrict(
-                                              _districtMap[newValue]!);
+                                          _selectedDistrict1 = _districtMap[newValue]!;
+                                          _selectedSubDistrict = '';
+                                          _selectedLocalDivision = '';
+                                          _subDistricts = []; // Clear the list of sub-districts
+                                          _localDivisions = []; // Clear the list of local divisions
+                                          _fetchSubDistrictsByDistrict(_districtMap[newValue]!);
                                         });
                                       },
                                       items: _districts.map((district) {
@@ -345,30 +340,20 @@ class _ManualPageState extends State<ManualPage> {
                                         );
                                       }).toList(),
                                       decoration: InputDecoration(
-                                        labelText:
-                                            'choose_location_manually_snackbar_district_placeholder'
-                                                .tr,
+                                        labelText: 'choose_location_manually_snackbar_district_placeholder'.tr,
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
-                                    // Text(
-                                    //   'Sub District',
-                                    //   style: TextStyle(
-                                    //     fontSize: Get.width * 0.037,
-                                    //     fontWeight: FontWeight.bold,
-                                    //   ),
-                                    // ),
-                                    const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
-                                      // value: _selectedSubDistrict,
+                                      value: _selectedSubDistrict,
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedSubDistrict = newValue!;
-                                          _selectedSubDistrict1 =
-                                              _subDistrictMap[newValue]!;
-                                          _fetchLocalDivisionsBySubDistrict(
-                                              _subDistrictMap[newValue]!);
+                                          _selectedSubDistrict1 = _subDistrictMap[newValue]!;
+                                          _selectedLocalDivision = '';
+                                          _localDivisions = []; // Clear the list of local divisions
+                                          _fetchLocalDivisionsBySubDistrict(_subDistrictMap[newValue]!);
                                         });
                                       },
                                       items: _subDistricts.map((subDistrict) {
@@ -378,47 +363,32 @@ class _ManualPageState extends State<ManualPage> {
                                         );
                                       }).toList(),
                                       decoration: InputDecoration(
-                                        labelText:
-                                            'choose_location_manually_snackbar_sub_district_placeholder'
-                                                .tr,
+                                        labelText: 'choose_location_manually_snackbar_sub_district_placeholder'.tr,
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
-                                    // Text(
-                                    //   'Local division',
-                                    //   style: TextStyle(
-                                    //     fontSize: Get.width * 0.037,
-                                    //     fontWeight: FontWeight.bold,
-                                    //   ),
-                                    // ),
-                                    const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
-                                      // value: _selectedLocalDivision,
+                                      value: _selectedLocalDivision,
                                       onChanged: (newValue) async {
                                         setState(() {
                                           _selectedLocalDivision = newValue!;
-                                          _selectedLocalDivision1 =
-                                              _localDivisionMap[newValue]!;
+                                          _selectedLocalDivision1 = _localDivisionMap[newValue]!;
                                         });
                                         await fetchRepresentatives(
-                                            localDivisionId:
-                                                _selectedLocalDivision1,
-                                            subDistrictId:
-                                                _selectedSubDistrict1,
-                                            districtId: _selectedDistrict1);
+                                          localDivisionId: _selectedLocalDivision1,
+                                          subDistrictId: _selectedSubDistrict1,
+                                          districtId: _selectedDistrict1,
+                                        );
                                       },
-                                      items:
-                                          _localDivisions.map((localDivision) {
+                                      items: _localDivisions.map((localDivision) {
                                         return DropdownMenuItem<String>(
                                           value: localDivision,
                                           child: Text(localDivision),
                                         );
                                       }).toList(),
                                       decoration: InputDecoration(
-                                        labelText:
-                                            'choose_location_manually_snackbar_ward_placeholder'
-                                                .tr,
+                                        labelText: 'choose_location_manually_snackbar_ward_placeholder'.tr,
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
