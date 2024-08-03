@@ -384,39 +384,49 @@ Future<void> _requestLocationPermission() async {
                       ),
                     ],
                   )
-                : const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-            // Positioned(
-            //   top: height*0.6,
-            //   child: Container(
-            //     decoration: BoxDecoration(
-            //       borderRadius: BorderRadius.only(
-            //         topLeft: Radius.circular(20),
-            //         topRight: Radius.circular(20),
-            //       ),
-            //       color: Colors.white,
-            //       boxShadow: [
-            //         BoxShadow(
-            //           color: Colors.grey.withOpacity(0.5),
-            //           spreadRadius: 5,
-            //           blurRadius: 7,
-            //           offset: Offset(0, -3),
-            //         ),
-            //       ],
-            //     ),
-            //     height: height * 0.45,
-            //     child: LocationDetailsBottomSheet(
-            //       address: _formattedCoordinates,
-            //       isRedirected: widget.isRedirected!,
-            //       representatives: widget.representatives!,
-            //     ),
-            //   ),
-            // ),
+                : Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 0),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Container(
+                        width: width * 0.6,
+                        height: width * 0.06,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Container(
+                        width: width * 0.8,
+                        height: 18,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      height: 300,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
-      bottomSheet: Container(
+      bottomSheet: _isPositionInitialized
+          ?Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
@@ -438,6 +448,44 @@ Future<void> _requestLocationPermission() async {
           isRedirected: widget.isRedirected!,
           ishomescreen: widget.ishomescreen!,
           representatives: widget.isRedirected == true ? widget.representatives!:representatives123!,
+        ),
+      )
+          : Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 0),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Container(
+                  width: width * 0.6,
+                  height: width * 0.06,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Container(
+                  width: width * 0.8,
+                  height: 18,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                height: 300,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -881,7 +929,7 @@ class _LocationDetailsBottomSheetState
   final authService = Get.find<AuthService>();
   final List<dynamic> _representatives = [];
 
-  bool _isLoading = false;
+  // bool _isLoading = false;
 
   // Map to store state label and value pairs
 
@@ -1149,9 +1197,9 @@ class _LocationDetailsBottomSheetState
 
   @override
   void initState() {
-    setState(() {
-      _isLoading = true;
-    });
+    // setState(() {
+    //   _isLoading = true;
+    // });
     // TODO: implement initState
     Future.delayed(const Duration(seconds: 2), () {
       // _isLoading = false;
@@ -1159,22 +1207,22 @@ class _LocationDetailsBottomSheetState
       print(widget.address);
       print(latitudeString);
       print(longitudeString);
-      if (widget.isRedirected == true) {
-        setState(() {
-          _isLoading = false;
-          print("Is loading getting false");
-        });
-      }
+      // if (widget.isRedirected == true) {
+      //   setState(() {
+      //     _isLoading = false;
+      //     print("Is loading getting false");
+      //   });
+      // }
       // else {
       //   fetchRepresentatives123(latitudeString, longitudeString);
       // }
 
       // fetchRepresentatives123(latitudeString, longitudeString);
 
-      setState(() {
-        _isLoading = false;
-        print("Is loading getting false");
-      });
+      // setState(() {
+      //   _isLoading = false;
+      //   print("Is loading getting false");
+      // });
     });
     super.initState();
   }
@@ -1192,97 +1240,7 @@ class _LocationDetailsBottomSheetState
         Container(
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
-            child: _isLoading
-                ? Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 8),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                              width: 150,
-                              height: 20,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: List.generate(
-                              3,
-                              (_) => const SizedBox(
-                                  height: 16,
-                                  child: SizedBox.expand(
-                                      child: DecoratedBox(
-                                          decoration: BoxDecoration(
-                                              color: Colors.grey)))),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Container(
-                            width: 150,
-                            height: 20,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        GestureDetector(
-                          onTap: () {
-                            // Navigate to ManualPage()
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 8.0, left: 8, right: 8),
-                            child: Container(
-                              decoration: ShapeDecoration(
-                                color: const Color.fromARGB(255, 220, 231, 240),
-                                shape: RoundedRectangleBorder(
-                                  side:
-                                      BorderSide(width: 1, color: primaryColor),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 20.0, horizontal: 20),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.add,
-                                        color: primaryColor, weight: 26),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      width: 150,
-                                      height: 20,
-                                      color: Colors.grey,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        MyButton(
-                          onTap: () {
-                            // Navigate to OrganizationProofScreen()
-                          },
-                          text: "choose_location_snackbar_button_text".tr,
-                        ),
-                      ],
-                    ),
-                  )
-                : Column(
+            child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.min,
                     children: [
