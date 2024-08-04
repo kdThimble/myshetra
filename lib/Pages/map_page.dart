@@ -89,19 +89,28 @@ class _MapPageState extends State<MapPage> {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         print("authResponse.token:$token");
         await prefs.setString('token', token);
-        fetchRepresentatives123(latitudeString, longitudeString);
+        print("getxlocation");
+        print(locationController.latitudeString.value);
+        // if (locationController.latitudeString.isNotEmpty && locationController.longitudeString.isNotEmpty) {
+        //   fetchRepresentatives123(locationController.latitudeString.value, locationController.longitudeString.value);
+        // }
       } else {
         // Get.snackbar('Error', 'Failed to authenticate');
         print('Failed to authenticate');
-        fetchRepresentatives123(latitudeString, longitudeString);
+        // if (locationController.latitudeString.isNotEmpty && locationController.longitudeString.isNotEmpty) {
+        //   fetchRepresentatives123(locationController.latitudeString.value, locationController.longitudeString.value);
+        // }
       }
     } else if (response.statusCode == 500) {
       Get.find<AuthService>().clearAuthResponse();
       Get.to(const AuthPage());
     } else {
       print('Failed to refresh token: ${response.reasonPhrase}');
-      fetchRepresentatives123(latitudeString, longitudeString);
-      // Handle the error
+      print("getxlocation");
+      print(locationController.latitudeString.value);
+      // if (locationController.latitudeString.isNotEmpty && locationController.longitudeString.isNotEmpty) {
+      //   fetchRepresentatives123(locationController.latitudeString.value, locationController.longitudeString.value);
+      // }      // Handle the error
     }
   }
 
@@ -115,35 +124,82 @@ class _MapPageState extends State<MapPage> {
   bool _isPositionInitialized = false;
   String latitudeString = '';
   String longitudeString = '';
+  bool isLocationUpdated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    print(authService.token);
+    _requestLocationPermission();
+    _getLocationUpdates();
+    refreshAuthToken();
+    initfunc();
+    // print("initcoordinates");
+    // print(latitudeString);
+    // print(longitudeString);
+  }
+
+
+  void initfunc() async {
+    while (true) {
+      if (latitudeString != '' && longitudeString != '') {
+        await fetchRepresentatives123(latitudeString, longitudeString);
+        break; // Break the loop once the fetch method is called
+      }
+      await Future.delayed(Duration(milliseconds: 100)); // Small delay to prevent tight loop
+    }
+  }
+  Future<void> _requestLocationPermission() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    serviceEnabled = await _locationService.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _locationService.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    permissionGranted = await _locationService.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await _locationService.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _getLocationUpdates();
+  }
+  final LocationController locationController = Get.put(LocationController());
+
   Future<void> _getLocationUpdates() async {
     _locationService.onLocationChanged.listen(
-      (location.LocationData currentLocation) async {
-        if (currentLocation.latitude != null &&
-            currentLocation.longitude != null) {
-          setState(() {
-            _formattedCoordinates = _convertToDMS(
-                currentLocation.latitude!, currentLocation.longitude!);
-          });
-          print("_formattedCoordinates");
-          print(_formattedCoordinates);
+          (location.LocationData currentLocation) async {
+        if (currentLocation.latitude != null && currentLocation.longitude != null) {
+          if (mounted && !isLocationUpdated) {
+            setState(() {
+              _formattedCoordinates = _convertToDMS(currentLocation.latitude!, currentLocation.longitude!);
+            });
+            print("_formattedCoordinates");
+            print(_formattedCoordinates);
 
-          // Parse the DMS coordinates to decimal degrees
-          var coordinates = _parseCoordinates(_formattedCoordinates);
-          setState(() {
-            latitude = coordinates['latitude']!;
-            longitude = coordinates['longitude']!;
-
-            latitudeString = _formattedCoordinates.split(',')[0];
-            longitudeString = _formattedCoordinates.split(',')[1];
-            print("_formattedCoordinates124");
-            print(latitudeString);
-            print(longitudeString);
-            _currentPosition = LatLng(latitude!, longitude!);
-            _updateMapPosition(_currentPosition);
-            _updateMarkers(_currentPosition);
-
-            _isPositionInitialized = true; // Position is now initialized
-          });
+            var coordinates = _parseCoordinates(_formattedCoordinates);
+            setState(() {
+              latitudeString = _formattedCoordinates.split(',')[0];
+              longitudeString = _formattedCoordinates.split(',')[1];
+              locationController.setLatitudeString(_formattedCoordinates.split(',')[0]);
+              locationController.setLongitudeString(_formattedCoordinates.split(',')[1]);
+              print("_formattedCoordinates124");
+              print(latitudeString);
+              print(longitudeString);
+              _currentPosition = LatLng(coordinates['latitude']!, coordinates['longitude']!);
+              _updateMapPosition(_currentPosition!);
+              _updateMarkers(_currentPosition!);
+              _isPositionInitialized = true;
+              isLocationUpdated = true; // Mark location as updated to prevent further updates
+            });
+          }
         }
       },
     );
@@ -169,50 +225,14 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    print(authService.token);
-    _requestLocationPermission();
-    _getLocationUpdates();
-    refreshAuthToken();
-  }
-
-  Future<void> _requestLocationPermission() async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    serviceEnabled = await _locationService.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await _locationService.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
-    }
-
-    permissionGranted = await _locationService.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await _locationService.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    _getLocationUpdates();
-  }
-
   var representatives;
-  Future<void> fetchRepresentatives123(
-      String latitude, String longitude) async {
-    // setState(() {
-    //   isLoading = true;
-    // });
+
+  Future<void> fetchRepresentatives123(String latitude, String longitude) async {
     var headers = {'Authorization': '${authService.token}'};
 
     var request = http.MultipartRequest(
       'GET',
-      Uri.parse(
-          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates'),
+      Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getUserRepresentativesByCoordinates'),
     );
 
     request.fields.addAll({'latitude': latitude, 'longitude': longitude});
@@ -225,34 +245,17 @@ class _MapPageState extends State<MapPage> {
       var responseBody = await response.stream.bytesToString();
       var jsonResponse = json.decode(responseBody);
 
-      // Extract representatives data
       setState(() {
-        representatives =
-            jsonResponse['data']['location_details']['formatted_address'];
+         representatives = jsonResponse['data']['location_details']['formatted_address'];
         var representative = jsonResponse['data']['representatives'];
-
-        // Clear existing list and add new data
         representatives123!.clear();
         representatives123!.addAll(representative);
-
-        print("addrwss");
+        print("address");
         print(representatives);
       });
-
-      // Clear existing list and add new data
-      // _representatives.clear();
-      // _representatives.addAll(representatives);
-      // setState(() {
-      //   isLoading = false;
-      // });
-      // Print or use _representatives as needed
-      // print('Representatives: $_representatives');
     } else {
       print("ERROR");
       print(response.reasonPhrase);
-      // setState(() {
-      //   isLoading = false;
-      // });
       var responseBody = await response.stream.bytesToString();
       var jsonData = json.decode(responseBody);
 
@@ -261,13 +264,14 @@ class _MapPageState extends State<MapPage> {
         print("Message $message");
       } else {
         Fluttertoast.showToast(
-            msg: "An unknown error occurred.",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.TOP,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
+          msg: "An unknown error occurred.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
       }
     }
   }
@@ -1323,7 +1327,7 @@ class _LocationDetailsBottomSheetState
                                                       ),
                                                       const SizedBox(height: 3),
                                                       Text(
-                                                        rep['user_role'] +
+                                                        rep['user_role_label'] +
                                                             " " +
                                                             rep['division_name'],
                                                         style: const TextStyle(
@@ -1626,5 +1630,19 @@ class RepresentativeWidget extends StatelessWidget {
               );
             }).toList(),
     );
+  }
+}
+
+
+class LocationController extends GetxController {
+  var latitudeString = ''.obs;
+  var longitudeString = ''.obs;
+
+  void setLatitudeString(String value) {
+    latitudeString.value = value;
+  }
+
+  void setLongitudeString(String value) {
+    longitudeString.value = value;
   }
 }
