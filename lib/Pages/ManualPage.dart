@@ -294,7 +294,7 @@ class _ManualPageState extends State<ManualPage> {
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
                                       focusColor: Colors.blue,
-                                      value: _selectedState,
+                                      // Remove the value property to avoid pre-selection
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedState = newValue!;
