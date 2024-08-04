@@ -21,7 +21,7 @@ import 'package:path/path.dart' as path;
 
 class OrganizationProofScreen extends StatefulWidget {
   final bool ishomescreen;
-  OrganizationProofScreen({Key? key, this.ishomescreen = false})
+  const OrganizationProofScreen({Key? key, this.ishomescreen = false})
       : super(key: key);
   @override
   State<OrganizationProofScreen> createState() =>
@@ -54,7 +54,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         );
         request.headers['Authorization'] =
             '${authService.token}'; // Replace with your auth token
-        request.fields['organization_id'] = organisationid!;
+        request.fields['organization_id'] = organisationid;
 
         // Adding the file
         final file = await http.MultipartFile.fromPath(
@@ -75,13 +75,13 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               ? Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => HomePage(),
+                    builder: (context) => const HomePage(),
                   ),
                 )
               : Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PositionProofScreen(),
+                    builder: (context) => const PositionProofScreen(),
                   ),
                 );
         } else if (response.statusCode == 400) {
@@ -110,7 +110,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
       } catch (error) {
         print('Error: $error');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Error while uploading data'),
             backgroundColor: Colors.red,
           ),
@@ -121,7 +121,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
     } else {
       // Handle validation error
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Please select an organization and an image"),
           backgroundColor: Colors.red,
         ),
@@ -147,7 +147,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
     } catch (error) {
       // Get.snackbar("Error", "Error while fetching data", backgroundColor:Colors.red, colorText: Colors.white );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Error while fetching data'),
           backgroundColor: Colors.red,
         ),
@@ -156,7 +156,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
     }
     // Get.snackbar("Error", "Error while fetching data", backgroundColor:Colors.red, colorText: Colors.white );
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Error while fetching data'),
         backgroundColor: Colors.red,
       ),
@@ -182,7 +182,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         });
         print(selectedFilePath);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Image Captured Successfully'),
             backgroundColor: Colors.green,
           ),
@@ -217,7 +217,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         });
         print(selectedFilePath);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Image Uploaded Successfully'),
             backgroundColor: Colors.green,
           ),
@@ -233,7 +233,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
       } else {
         // Get.snackbar("", "Could not upload Image ", backgroundColor:Colors.red, colorText: Colors.white );
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Could not upload Image'),
             backgroundColor: Colors.red,
           ),
@@ -284,6 +284,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
     // fetchOrganisationData();
     return Scaffold(
       appBar: AppBar(
@@ -324,12 +325,12 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(width * 0.04),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
+              SizedBox(height: height * 0.006),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -338,7 +339,8 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                       fontSize: width * 0.07, fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 20),
+
+              SizedBox(height: height * 0.009),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -346,7 +348,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                   style: TextStyle(fontSize: 18, color: greyColor),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: height * 0.012),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -356,7 +358,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: height * 0.017),
               _organisationModel == null
                   ? const Center(child: CircularProgressIndicator())
                   : Container(
@@ -397,7 +399,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 },
                 child: Container(
                   width: double.infinity,
-                  height: 200,
+                  height: height * 0.2,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey[300]!, width: 2),
@@ -406,7 +408,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                   child: selectedFilePath == ""
                       ? Center(child: Image.asset("assets/images/Content.png"))
                       : Image.file(
-                          File(selectedFilePath!),
+                          File(selectedFilePath),
                           fit: BoxFit.cover,
                         ),
                 ),
@@ -420,7 +422,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                 },
                 child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    padding: EdgeInsets.symmetric(vertical: height * 0.03),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey[300]!, width: 2),
                       borderRadius: BorderRadius.circular(10),
@@ -440,7 +442,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               !widget.ishomescreen
                   ? Column(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
                         _selectedValue != null && selectedFilePath != ""
@@ -459,7 +461,8 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PositionProofScreen(),
+                                  builder: (context) =>
+                                      const PositionProofScreen(),
                                 ),
                               );
                             },
@@ -469,7 +472,8 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                               shape: MaterialStateProperty.all<
                                   RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
-                                  side: BorderSide(color: Color(0xFF0E3D8B)),
+                                  side: const BorderSide(
+                                      color: Color(0xFF0E3D8B)),
                                   borderRadius: BorderRadius.circular(
                                       12), // Make the button rounded
                                 ),
@@ -508,7 +512,7 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                     )
                   : Column(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 30,
                         ),
                         MyButton(
@@ -516,7 +520,8 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PositionProofScreen(),
+                                  builder: (context) =>
+                                      const PositionProofScreen(),
                                 ),
                               );
                             },

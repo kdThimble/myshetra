@@ -727,7 +727,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => PositionProofScreen(
+                                    builder: (context) =>
+                                        const PositionProofScreen(
                                       ishomescreen: true,
                                     ),
                                   ),
@@ -742,7 +743,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        OrganizationProofScreen(
+                                        const OrganizationProofScreen(
                                             ishomescreen: true),
                                   ),
                                 );
@@ -879,7 +880,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       controller,
       suffix: TextButton(
         onPressed: onPressed,
-        child: Text('select_change_button_text'.tr),
+        child: controller.text == ""
+            ? const Text("Add")
+            : Text('select_change_button_text'.tr),
       ),
     );
   }
