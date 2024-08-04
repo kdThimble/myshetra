@@ -57,7 +57,7 @@ class _MapPageState extends State<MapPage> {
   Future<void> refreshAuthToken() async {
     print("swxaL:${authService.refreshToken}");
     print("tokem:${authService.token}");
-    
+
     var headers = {
       'Refresh-Token':
           '${authService.refreshToken}', // Authorization header with the token
@@ -176,30 +176,31 @@ class _MapPageState extends State<MapPage> {
     _requestLocationPermission();
     _getLocationUpdates();
     refreshAuthToken();
-}
-
-Future<void> _requestLocationPermission() async {
-  bool _serviceEnabled;
-  PermissionStatus _permissionGranted;
-
-  _serviceEnabled = await _locationService.serviceEnabled();
-  if (!_serviceEnabled) {
-    _serviceEnabled = await _locationService.requestService();
-    if (!_serviceEnabled) {
-      return;
-    }
   }
 
-  _permissionGranted = await _locationService.hasPermission();
-  if (_permissionGranted == PermissionStatus.denied) {
-    _permissionGranted = await _locationService.requestPermission();
-    if (_permissionGranted != PermissionStatus.granted) {
-      return;
+  Future<void> _requestLocationPermission() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    serviceEnabled = await _locationService.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _locationService.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
     }
+
+    permissionGranted = await _locationService.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await _locationService.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _getLocationUpdates();
   }
 
-  _getLocationUpdates();
-}
   var representatives;
   Future<void> fetchRepresentatives123(
       String latitude, String longitude) async {
@@ -228,9 +229,9 @@ Future<void> _requestLocationPermission() async {
       setState(() {
         representatives =
             jsonResponse['data']['location_details']['formatted_address'];
-            var representative = jsonResponse['data']['representatives'];
+        var representative = jsonResponse['data']['representatives'];
 
-            // Clear existing list and add new data
+        // Clear existing list and add new data
         representatives123!.clear();
         representatives123!.addAll(representative);
 
@@ -359,32 +360,102 @@ Future<void> _requestLocationPermission() async {
                           ),
                         ),
                       ),
-                      Positioned(
-                        top:
-                            50, // Adjust this value to position the label as needed
-                        left:
-                            130, // Adjust this value to position the label as needed
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          color: Colors.white,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(
-                                maxWidth:
-                                    200), // Set a max width to constrain the text
-                            child: Text(
-                              representatives ?? 'No location found',
-                              style: const TextStyle(
-                                  color: Colors.black, fontSize: 10),
-                              maxLines: null, // Allow unlimited lines
-                              overflow: TextOverflow
-                                  .visible, // Ensure text is visible
+                      widget.isRedirected!
+                          ? Container()
+                          : Positioned(
+                              top:
+                                  50, // Adjust this value to position the label as needed
+                              left:
+                                  130, // Adjust this value to position the label as needed
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                color: Colors.white,
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                      maxWidth:
+                                          200), // Set a max width to constrain the text
+                                  child: Text(
+                                    representatives ?? 'No location found ',
+                                    style: const TextStyle(
+                                        color: Colors.black, fontSize: 10),
+                                    maxLines: null, // Allow unlimited lines
+                                    overflow: TextOverflow
+                                        .visible, // Ensure text is visible
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
                     ],
                   )
                 : Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 0),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Container(
+                              width: width * 0.6,
+                              height: width * 0.06,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Container(
+                              width: width * 0.8,
+                              height: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            height: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          ],
+        ),
+      ),
+      bottomSheet: _isPositionInitialized
+          ? Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, -3),
+                  ),
+                ],
+              ),
+              height: height * 0.48,
+              child: LocationDetailsBottomSheet(
+                address: _formattedCoordinates,
+                isRedirected: widget.isRedirected!,
+                ishomescreen: widget.ishomescreen!,
+                representatives: widget.isRedirected == true
+                    ? widget.representatives!
+                    : representatives123!,
+              ),
+            )
+          : Shimmer.fromColors(
               baseColor: Colors.grey[300]!,
               highlightColor: Colors.grey[100]!,
               child: Padding(
@@ -422,72 +493,6 @@ Future<void> _requestLocationPermission() async {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-      bottomSheet: _isPositionInitialized
-          ?Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, -3),
-            ),
-          ],
-        ),
-        height: height * 0.48,
-        child: LocationDetailsBottomSheet(
-          address: _formattedCoordinates,
-          isRedirected: widget.isRedirected!,
-          ishomescreen: widget.ishomescreen!,
-          representatives: widget.isRedirected == true ? widget.representatives!:representatives123!,
-        ),
-      )
-          : Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 0),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Container(
-                  width: width * 0.6,
-                  height: width * 0.06,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Container(
-                  width: width * 0.8,
-                  height: 18,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                height: 300,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -1241,355 +1246,330 @@ class _LocationDetailsBottomSheetState
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 4),
-                      // Divider(
-                      //   thickness: 2,
-                      // ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'choose_location_snackbar_title'.tr,
-                            style: const TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                      // const SizedBox(height: 5),
-                      widget.isRedirected == true
-                          ? Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: widget.representatives.isEmpty
-                                  ? Column(
-                                      children: [
-                                        SizedBox(height: Get.height * 0.08),
-                                        Center(
-                                            child: Text(
-                                                "choose_location_snackbar_no_representative_text"
-                                                    .tr,
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: primaryColor))),
-                                        SizedBox(height: Get.height * 0.1),
-                                      ],
-                                    )
-                                  : Column(
-                                      children:
-                                          widget.representatives.map((rep) {
-                                        print("rep is ${rep.toString()}");
-                                        return Column(
-                                          children: [
-                                            Container(
-                                              // margin: EdgeInsets.only(bottom: 16),
-                                              padding: const EdgeInsets.all(4),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                border: Border.all(
-                                                    color: Colors.black),
-                                              ),
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Container(
-                                                    child: Row(
-                                                      children: [
-                                                        Container(
-                                                          width: 60,
-                                                          height: 60,
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(2),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          child: Image.network(
-                                                            rep['image_url'] ??
-                                                                "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        ),
-                                                        Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Row(
-                                                              children: [
-                                                                Text(
-                                                                  rep['name'],
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          15,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                              ],
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 3),
-                                                            Text(
-                                                              rep['division_name'],
-                                                              style: const TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: Colors
-                                                                      .grey,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.centerRight,
-                                                    child: Container(
-                                                      width: 60,
-                                                      height: 60,
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              2),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                      ),
-                                                      child: Image.network(
-                                                        rep['org_symbol_url'],
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                          ],
-                                        );
-                                      }).toList(),
-                                    ),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: widget.representatives.isEmpty
-                                  ? SizedBox(
-                                      height: Get.height * 0.2,
-                                      child: Center(
-                                          child: Text(
-                                        "choose_location_snackbar_no_representative_text"
-                                            .tr,
-                                        style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                      )),
-                                    )
-                                  : Column(
-                                      children: widget.representatives.map((rep) {
-                                        print("rep is ${rep.toString()}");
-                                        return Column(
-                                          children: [
-                                            Container(
-                                              // margin: EdgeInsets.only(bottom: 16),
-                                              padding: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                border: Border.all(
-                                                    color: Colors.black),
-                                              ),
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Container(
-                                                    child: Row(
-                                                      children: [
-                                                        Container(
-                                                          width: 60,
-                                                          height: 60,
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(2),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          child: Image.network(
-                                                            rep['image_url'] ??
-                                                                "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        ),
-                                                        Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Row(
-                                                              children: [
-                                                                Text(
-                                                                  rep['name'],
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          15,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                              ],
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 3),
-                                                            Text(
-                                                              rep['division_name'],
-                                                              style: const TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: Colors
-                                                                      .grey,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.centerRight,
-                                                    child: Container(
-                                                      width: 60,
-                                                      height: 60,
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              2),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                      ),
-                                                      child: Image.network(
-                                                        rep['org_symbol_url'],
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            // const SizedBox(height: 10),
-                                          ],
-                                        );
-                                      }).toList(),
-                                    ),
-                            ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4.0),
-                        child: Text(
-                          'choose_location_snackbar_not_your_representatives_text'
-                              .tr,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontFamily: 'Okra',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      // const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: () {
-                          Get.to(const ManualPage());
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              top: 8.0, left: 8, right: 8),
-                          child: Container(
-                            decoration: ShapeDecoration(
-                              color: const Color.fromARGB(255, 220, 231, 240),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(width: 1, color: primaryColor),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 15.0, horizontal: 30),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.add,
-                                      color: primaryColor, weight: 26),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'choose_location_snackbar_enter_manually_text'
-                                        .tr,
-                                    style: TextStyle(
-                                      color: primaryColor,
-                                      fontSize: 18,
-                                      fontFamily: 'Okra',
-                                      fontWeight: FontWeight.w600,
-                                      height: 0,
-                                      letterSpacing: -0.30,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      MyButton(
-                          onTap: () {
-                            // OrganizationProofScreen
-                            widget.ishomescreen
-                                ? Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const HomePage(),
-                                    ),
-                                  )
-                                : Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          OrganizationProofScreen(),
-                                    ),
-                                  );
-                          },
-                          text: "choose_location_snackbar_button_text".tr),
-
-                      // Repeat the above structure for the second item if needed
-                    ],
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 4),
+                // Divider(
+                //   thickness: 2,
+                // ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'choose_location_snackbar_title'.tr,
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
                   ),
+                ),
+                // const SizedBox(height: 5),
+                widget.isRedirected == true
+                    ? Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: widget.representatives.isEmpty
+                            ? Column(
+                                children: [
+                                  SizedBox(height: Get.height * 0.08),
+                                  Center(
+                                      child: Text(
+                                          "choose_location_snackbar_no_representative_text"
+                                              .tr,
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: primaryColor))),
+                                  SizedBox(height: Get.height * 0.1),
+                                ],
+                              )
+                            : Column(
+                                children: widget.representatives.map((rep) {
+                                  print("rep is ${rep.toString()}");
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        // margin: EdgeInsets.only(bottom: 16),
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border:
+                                              Border.all(color: Colors.black),
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 60,
+                                                    height: 60,
+                                                    padding:
+                                                        const EdgeInsets.all(2),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                    child: Image.network(
+                                                      rep['image_url'] ??
+                                                          "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            rep['name'],
+                                                            style: const TextStyle(
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(height: 3),
+                                                      Text(
+                                                        rep['division_name'],
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: Colors.grey,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Container(
+                                                width: 60,
+                                                height: 60,
+                                                padding:
+                                                    const EdgeInsets.all(2),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Image.network(
+                                                  rep['org_symbol_url'],
+                                                  fit: BoxFit.fitWidth,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: widget.representatives.isEmpty
+                            ? SizedBox(
+                                height: Get.height * 0.2,
+                                child: Center(
+                                    child: Text(
+                                  "choose_location_snackbar_no_representative_text"
+                                      .tr,
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                              )
+                            : Column(
+                                children: widget.representatives.map((rep) {
+                                  print("rep is ${rep.toString()}");
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        // margin: EdgeInsets.only(bottom: 16),
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border:
+                                              Border.all(color: Colors.black),
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 60,
+                                                    height: 60,
+                                                    padding:
+                                                        const EdgeInsets.all(2),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                    child: Image.network(
+                                                      rep['image_url'] ??
+                                                          "https://cdn1.iconfinder.com/data/icons/project-management-8/500/worker-512.png",
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            rep['name'],
+                                                            style: const TextStyle(
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(height: 3),
+                                                      Text(
+                                                        rep['division_name'],
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: Colors.grey,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Container(
+                                                width: 60,
+                                                height: 60,
+                                                padding:
+                                                    const EdgeInsets.all(2),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Image.network(
+                                                  rep['org_symbol_url'],
+                                                  fit: BoxFit.fitWidth,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // const SizedBox(height: 10),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                      ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Text(
+                    'choose_location_snackbar_not_your_representatives_text'.tr,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontFamily: 'Okra',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                // const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    Get.to(const ManualPage());
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
+                    child: Container(
+                      decoration: ShapeDecoration(
+                        color: const Color.fromARGB(255, 220, 231, 240),
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(width: 1, color: primaryColor),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 30),
+                        child: Row(
+                          children: [
+                            Icon(Icons.add, color: primaryColor, weight: 26),
+                            const SizedBox(width: 8),
+                            Text(
+                              'choose_location_snackbar_enter_manually_text'.tr,
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontSize: 18,
+                                fontFamily: 'Okra',
+                                fontWeight: FontWeight.w600,
+                                height: 0,
+                                letterSpacing: -0.30,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                MyButton(
+                    onTap: () {
+                      // OrganizationProofScreen
+                      widget.ishomescreen
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HomePage(),
+                              ),
+                            )
+                          : Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const OrganizationProofScreen(),
+                              ),
+                            );
+                    },
+                    text: "choose_location_snackbar_button_text".tr),
+
+                // Repeat the above structure for the second item if needed
+              ],
+            ),
           ),
         ),
       ],
@@ -1627,15 +1607,15 @@ class RepresentativeWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: 30,
-                          height: 30,
+                          width: 60,
+                          height: 60,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             color: Colors.grey,
                           ),
                           child: Image.network(
                             rep['org_symbol_url'],
-                            fit: BoxFit.cover,
+                            fit: BoxFit.fitWidth,
                           ),
                         ),
                         const SizedBox(width: 16),

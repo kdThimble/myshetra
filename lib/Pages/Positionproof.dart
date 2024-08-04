@@ -22,7 +22,8 @@ import 'package:path/path.dart' as path;
 
 class PositionProofScreen extends StatefulWidget {
   final bool ishomescreen;
-  PositionProofScreen({Key? key, this.ishomescreen = false}) : super(key: key);
+  const PositionProofScreen({Key? key, this.ishomescreen = false})
+      : super(key: key);
   @override
   State<PositionProofScreen> createState() => _PositionProofScreenState();
 }
@@ -36,7 +37,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
     if (positioncontroller.text.isEmpty) {
       // Get.snackbar("Incomplete Form", "Please enter position name", backgroundColor:Colors.red, colorText: Colors.white );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Please enter position name"),
           backgroundColor: Colors.red,
         ),
@@ -47,7 +48,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
     if (selectedFilePath == "") {
       // Get.snackbar("Incomplete Form", "Please select a file", backgroundColor:Colors.red, colorText: Colors.white );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Please select a file'),
           backgroundColor: Colors.red,
         ),
@@ -77,22 +78,21 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
       final responseData = await response.stream.bytesToString();
       print("responseData");
       print(responseData);
-      
+
       Get.find<LoadingController>().stopLoading();
       if (response.statusCode == 200) {
-        
         // Handle successful response
         widget.ishomescreen
             ? Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => HomePage(),
+                  builder: (context) => const HomePage(),
                 ),
               )
             : Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditProfilePage(),
+                  builder: (context) => const EditProfilePage(),
                 ),
               );
       } else if (response.statusCode == 400) {
@@ -102,12 +102,20 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
 
         // Show SnackBar with the error message
         // Get.snackbar("", errorMessage, backgroundColor:Colors.red, colorText: Colors.white );
-        Fluttertoast.showToast(msg: errorMessage,backgroundColor: Colors.red,textColor: Colors.white,gravity: ToastGravity.TOP);
+        Fluttertoast.showToast(
+            msg: errorMessage,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            gravity: ToastGravity.TOP);
 
         print('Error: $errorMessage');
       } else {
         // Get.snackbar("", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
-        Fluttertoast.showToast(msg: "Some Server Error",backgroundColor: Colors.red,textColor: Colors.white,gravity: ToastGravity.TOP);
+        Fluttertoast.showToast(
+            msg: "Some Server Error",
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            gravity: ToastGravity.TOP);
 
         // Handle other error responses
         print('Error: ${response.statusCode}');
@@ -115,7 +123,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
     } catch (error) {
       // Get.snackbar("Error", "Some Server Error", backgroundColor:Colors.red, colorText: Colors.white );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Some Server Error'),
           backgroundColor: Colors.red,
         ),
@@ -148,7 +156,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
             backgroundColor: Colors.red, colorText: Colors.white);
         // Handle compression failure
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Some  Error Occured'),
             backgroundColor: Colors.red,
           ),
@@ -213,6 +221,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         leading: Row(
@@ -252,12 +261,12 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(width * 0.04),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
+              SizedBox(height: height * 0.006),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -266,7 +275,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                       fontSize: width * 0.07, fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: height * 0.009),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -274,7 +283,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                   style: TextStyle(fontSize: 18, color: greyColor),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: height * 0.012),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -283,7 +292,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                       fontSize: width * 0.04, fontWeight: FontWeight.bold),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: height * 0.017),
               Container(
                 margin: const EdgeInsets.all(0.0),
                 padding: const EdgeInsets.all(10.0),
@@ -292,14 +301,15 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                   border: Border.all(color: Colors.grey[400]!),
                 ),
                 child: TextField(
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.w400,
                     color: Colors.black,
                   ),
                   controller: positioncontroller,
                   decoration: InputDecoration(
-                    contentPadding: EdgeInsets.only(left: 5, top: 5, bottom: 5),
+                    contentPadding:
+                        const EdgeInsets.only(left: 5, top: 5, bottom: 5),
                     hintText: 'Enter Here',
                     hintStyle: TextStyle(
                         fontSize: 20.0,
@@ -310,25 +320,15 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                   keyboardType: TextInputType.name,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: () async {
                   _openFilePicker(context);
-                  // FilePickerResult? result =
-                  // await FilePicker.platform.pickFiles();
-                  //
-                  // if (result != null) {
-                  //   // Handle file picked
-                  //   print('File picked: ${result.files.first.path}');
-                  // } else {
-                  //   // User canceled the picker
-                  //   print('User canceled file picker');
-                  // }
                 },
                 child: Container(
                   width: double.infinity,
-                  height: 200,
-                  padding: EdgeInsets.all(10),
+                  height: height * 0.2,
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey[300]!, width: 2),
                     borderRadius: BorderRadius.circular(10),
@@ -336,12 +336,12 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                   child: selectedFilePath == ""
                       ? Center(child: Image.asset("assets/images/Content.png"))
                       : Image.file(
-                          File(selectedFilePath!),
+                          File(selectedFilePath),
                           fit: BoxFit.cover,
                         ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
                   // Implement file picker logic
@@ -349,7 +349,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                 },
                 child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    padding: EdgeInsets.symmetric(vertical: height * 0.03),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey[300]!, width: 2),
                       borderRadius: BorderRadius.circular(10),
@@ -369,7 +369,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
               !widget.ishomescreen
                   ? Column(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
                         positioncontroller.text.isEmpty &&
@@ -389,7 +389,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EditProfilePage(),
+                                  builder: (context) => const EditProfilePage(),
                                 ),
                               );
                             },
@@ -399,7 +399,8 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                               shape: MaterialStateProperty.all<
                                   RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
-                                  side: BorderSide(color: Color(0xFF0E3D8B)),
+                                  side: const BorderSide(
+                                      color: Color(0xFF0E3D8B)),
                                   borderRadius: BorderRadius.circular(
                                       10), // Make the button rounded
                                 ),
@@ -416,13 +417,13 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                                   const EdgeInsets.all(1)), // Add padding
                               minimumSize: MaterialStateProperty.all<Size>(
                                   const Size(double.infinity,
-                                      40)), // Set width to full
+                                      30)), // Set width to full
                               // side: MaterialStateProperty.all<BorderSide>(
                               //     BorderSide(color: Colors.blue)), // Add border
                             ),
                             child: Padding(
                               padding:
-                                  const EdgeInsets.symmetric(vertical: 15.0),
+                                  const EdgeInsets.symmetric(vertical: 10.0),
                               child: Text(
                                 "enter_position_skip_button_text".tr,
                                 style: TextStyle(
@@ -438,7 +439,7 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                     )
                   : Column(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 30,
                         ),
                         MyButton(
@@ -446,7 +447,8 @@ class _PositionProofScreenState extends State<PositionProofScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PositionProofScreen(),
+                                  builder: (context) =>
+                                      const PositionProofScreen(),
                                 ),
                               );
                             },
