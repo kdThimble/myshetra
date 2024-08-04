@@ -259,20 +259,6 @@ class _MapPageState extends State<MapPage> {
       if (jsonData.containsKey('message')) {
         String message = jsonData['message'];
         print("Message $message");
-        // Fluttertoast.showToast(
-        //     msg: message,
-        //     toastLength: Toast.LENGTH_LONG,
-        //     gravity: ToastGravity.TOP,
-        //     timeInSecForIosWeb: 1,
-        //     backgroundColor: Colors.red,
-        //     textColor: Colors.white,
-        //     fontSize: 16.0);
-        // ScaffoldMessenger.of(Get.context!).showSnackBar(
-        //   SnackBar(
-        //     content: Text(message),
-        //     backgroundColor: Colors.red,
-        //   ),
-        // );
       } else {
         Fluttertoast.showToast(
             msg: "An unknown error occurred.",
@@ -282,12 +268,6 @@ class _MapPageState extends State<MapPage> {
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0);
-        // ScaffoldMessenger.of(Get.context!).showSnackBar(
-        //   SnackBar(
-        //     content: Text("An unknown error occurred."),
-        //     backgroundColor: Colors.red,
-        //   ),
-        // );
       }
     }
   }
@@ -320,16 +300,16 @@ class _MapPageState extends State<MapPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 0),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                'choose_location_title'.tr,
-                style: TextStyle(
-                    fontSize: width * 0.06,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "Okra"),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 8.0),
+            //   child: Text(
+            //     'choose_location_title'.tr,
+            //     style: TextStyle(
+            //         fontSize: width * 0.06,
+            //         fontWeight: FontWeight.bold,
+            //         fontFamily: "Okra"),
+            //   ),
+            // ),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
@@ -445,7 +425,7 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ],
               ),
-              height: height * 0.48,
+              height: height * 0.52,
               child: LocationDetailsBottomSheet(
                 address: _formattedCoordinates,
                 isRedirected: widget.isRedirected!,
@@ -1343,7 +1323,9 @@ class _LocationDetailsBottomSheetState
                                                       ),
                                                       const SizedBox(height: 3),
                                                       Text(
-                                                        rep['division_name'],
+                                                        rep['user_role'] +
+                                                            " " +
+                                                            rep['division_name'],
                                                         style: const TextStyle(
                                                             fontSize: 14,
                                                             color: Colors.grey,

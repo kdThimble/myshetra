@@ -253,7 +253,7 @@ class _ManualPageState extends State<ManualPage> {
                     "assets/images/Group1.png",
                     fit: BoxFit.fitWidth,
                     width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * 0.4,
+                    height: MediaQuery.of(context).size.height * 0.34,
                   ),
                 ),
                 Expanded(
