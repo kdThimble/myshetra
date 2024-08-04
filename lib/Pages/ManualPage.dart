@@ -19,9 +19,9 @@ class ManualPage extends StatefulWidget {
 }
 
 class _ManualPageState extends State<ManualPage> {
-  final bool _isLoading = false;
+  bool _isLoading = false;
   final authService = Get.find<AuthService>();
-  final List<dynamic> _representatives = [];
+  List<dynamic> _representatives = [];
   String _selectedState = '';
   String _selectedDistrict = '';
   String _selectedSubDistrict = '';
@@ -54,10 +54,9 @@ class _ManualPageState extends State<ManualPage> {
       List<dynamic> states = responseData['data']['states'];
       setState(() {
         _states = states.map((state) => state['label'] as String).toList();
-        _stateMap = {
-          for (var state in states)
-            state['label'] as String: state['value'] as String
-        };
+        _stateMap = Map.fromIterable(states,
+            key: (state) => state['label'] as String,
+            value: (state) => state['value'] as String);
         _selectedState = _states.isNotEmpty
             ? _states[0]
             : ''; // Initialize with the first state if available
@@ -88,10 +87,9 @@ class _ManualPageState extends State<ManualPage> {
       setState(() {
         _districts =
             districts.map((district) => district['label'] as String).toList();
-        _districtMap = {
-          for (var district in districts)
-            district['label'] as String: district['value'] as String
-        };
+        _districtMap = Map.fromIterable(districts,
+            key: (district) => district['label'] as String,
+            value: (district) => district['value'] as String);
         _selectedDistrict = _districts.isNotEmpty
             ? _districts[0]
             : ''; // Initialize with the first district if available
@@ -122,10 +120,9 @@ class _ManualPageState extends State<ManualPage> {
         _subDistricts = subDistricts
             .map((subDistrict) => subDistrict['label'] as String)
             .toList();
-        _subDistrictMap = {
-          for (var subDistrict in subDistricts)
-            subDistrict['label'] as String: subDistrict['value'] as String
-        };
+        _subDistrictMap = Map.fromIterable(subDistricts,
+            key: (subDistrict) => subDistrict['label'] as String,
+            value: (subDistrict) => subDistrict['value'] as String);
         _selectedSubDistrict = _subDistricts.isNotEmpty
             ? _subDistricts[0]
             : ''; // Initialize with the first sub-district if available
@@ -213,10 +210,9 @@ class _ManualPageState extends State<ManualPage> {
         _localDivisions = localDivisions
             .map((localDivision) => localDivision['label'] as String)
             .toList();
-        _localDivisionMap = {
-          for (var localDivision in localDivisions)
-            localDivision['label'] as String: localDivision['value'] as String
-        };
+        _localDivisionMap = Map.fromIterable(localDivisions,
+            key: (localDivision) => localDivision['label'] as String,
+            value: (localDivision) => localDivision['value'] as String);
         _selectedLocalDivision = _localDivisions.isNotEmpty
             ? _localDivisions[0]
             : ''; // Initialize with the first local division if available
@@ -236,9 +232,9 @@ class _ManualPageState extends State<ManualPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''), // Title of the app bar
+        title: Text(''), // Title of the app bar
         automaticallyImplyLeading: true,
-        iconTheme: const IconThemeData(
+        iconTheme: IconThemeData(
             color: Colors.white, size: 28), // Automatically adds a back button
         backgroundColor: Colors.transparent, // Customize as needed
       ),
@@ -268,7 +264,7 @@ class _ManualPageState extends State<ManualPage> {
                   ),
                   child: SingleChildScrollView(
                     child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        padding: EdgeInsets.symmetric(horizontal: 20.0),
                         child: StatefulBuilder(
                           builder:
                               (BuildContext context, StateSetter setState) {
@@ -298,23 +294,18 @@ class _ManualPageState extends State<ManualPage> {
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
                                       focusColor: Colors.blue,
-                                      // value: _selectedState,
+                                      // Remove the value property to avoid pre-selection
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedState = newValue!;
-                                          _selectedState1 =
-                                              _stateMap[newValue]!;
+                                          _selectedState1 = _stateMap[newValue]!;
                                           _selectedDistrict = '';
                                           _selectedSubDistrict = '';
                                           _selectedLocalDivision = '';
-                                          _districts =
-                                              []; // Clear the list of districts
-                                          _subDistricts =
-                                              []; // Clear the list of sub-districts
-                                          _localDivisions =
-                                              []; // Clear the list of local divisions
-                                          _fetchDistrictsByState(
-                                              _stateMap[newValue]!);
+                                          _districts = []; // Clear the list of districts
+                                          _subDistricts = []; // Clear the list of sub-districts
+                                          _localDivisions = []; // Clear the list of local divisions
+                                          _fetchDistrictsByState(_stateMap[newValue]!);
                                         });
                                       },
                                       items: _states.map((state) {
@@ -324,10 +315,8 @@ class _ManualPageState extends State<ManualPage> {
                                         );
                                       }).toList(),
                                       decoration: InputDecoration(
-                                        labelText:
-                                            'choose_location_manually_snackbar_state_placeholder'
-                                                .tr,
-                                        border: const OutlineInputBorder(),
+                                        labelText: 'choose_location_manually_snackbar_state_placeholder'.tr,
+                                        border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
@@ -336,16 +325,12 @@ class _ManualPageState extends State<ManualPage> {
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedDistrict = newValue!;
-                                          _selectedDistrict1 =
-                                              _districtMap[newValue]!;
+                                          _selectedDistrict1 = _districtMap[newValue]!;
                                           _selectedSubDistrict = '';
                                           _selectedLocalDivision = '';
-                                          _subDistricts =
-                                              []; // Clear the list of sub-districts
-                                          _localDivisions =
-                                              []; // Clear the list of local divisions
-                                          _fetchSubDistrictsByDistrict(
-                                              _districtMap[newValue]!);
+                                          _subDistricts = []; // Clear the list of sub-districts
+                                          _localDivisions = []; // Clear the list of local divisions
+                                          _fetchSubDistrictsByDistrict(_districtMap[newValue]!);
                                         });
                                       },
                                       items: _districts.map((district) {
@@ -355,10 +340,8 @@ class _ManualPageState extends State<ManualPage> {
                                         );
                                       }).toList(),
                                       decoration: InputDecoration(
-                                        labelText:
-                                            'choose_location_manually_snackbar_district_placeholder'
-                                                .tr,
-                                        border: const OutlineInputBorder(),
+                                        labelText: 'choose_location_manually_snackbar_district_placeholder'.tr,
+                                        border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
@@ -367,13 +350,10 @@ class _ManualPageState extends State<ManualPage> {
                                       onChanged: (newValue) {
                                         setState(() {
                                           _selectedSubDistrict = newValue!;
-                                          _selectedSubDistrict1 =
-                                              _subDistrictMap[newValue]!;
+                                          _selectedSubDistrict1 = _subDistrictMap[newValue]!;
                                           _selectedLocalDivision = '';
-                                          _localDivisions =
-                                              []; // Clear the list of local divisions
-                                          _fetchLocalDivisionsBySubDistrict(
-                                              _subDistrictMap[newValue]!);
+                                          _localDivisions = []; // Clear the list of local divisions
+                                          _fetchLocalDivisionsBySubDistrict(_subDistrictMap[newValue]!);
                                         });
                                       },
                                       items: _subDistricts.map((subDistrict) {
@@ -383,10 +363,8 @@ class _ManualPageState extends State<ManualPage> {
                                         );
                                       }).toList(),
                                       decoration: InputDecoration(
-                                        labelText:
-                                            'choose_location_manually_snackbar_sub_district_placeholder'
-                                                .tr,
-                                        border: const OutlineInputBorder(),
+                                        labelText: 'choose_location_manually_snackbar_sub_district_placeholder'.tr,
+                                        border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
@@ -395,28 +373,23 @@ class _ManualPageState extends State<ManualPage> {
                                       onChanged: (newValue) async {
                                         setState(() {
                                           _selectedLocalDivision = newValue!;
-                                          _selectedLocalDivision1 =
-                                              _localDivisionMap[newValue]!;
+                                          _selectedLocalDivision1 = _localDivisionMap[newValue]!;
                                         });
                                         await fetchRepresentatives(
-                                          localDivisionId:
-                                              _selectedLocalDivision1,
+                                          localDivisionId: _selectedLocalDivision1,
                                           subDistrictId: _selectedSubDistrict1,
                                           districtId: _selectedDistrict1,
                                         );
                                       },
-                                      items:
-                                          _localDivisions.map((localDivision) {
+                                      items: _localDivisions.map((localDivision) {
                                         return DropdownMenuItem<String>(
                                           value: localDivision,
                                           child: Text(localDivision),
                                         );
                                       }).toList(),
                                       decoration: InputDecoration(
-                                        labelText:
-                                            'choose_location_manually_snackbar_ward_placeholder'
-                                                .tr,
-                                        border: const OutlineInputBorder(),
+                                        labelText: 'choose_location_manually_snackbar_ward_placeholder'.tr,
+                                        border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
