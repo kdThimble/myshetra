@@ -362,34 +362,49 @@ class _OrganizationProofScreenState extends State<OrganizationProofScreen> {
               _organisationModel == null
                   ? const Center(child: CircularProgressIndicator())
                   : Container(
-                      // margin: const EdgeInsets.all(10.0),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 10),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.grey[300]!),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: DropdownButton(
+                  value: _selectedValue,
+                  hint: const Text('Select value'),
+                  underline: Container(),
+                  isExpanded: true,
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  items: _organisationModel!.organizations!.map((item) {
+                    return DropdownMenuItem(
+                      value: item.id,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+
+
+                          Text(item.name!),
+                          if (item.symbolUrl != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Image.network(
+                              item.symbolUrl!,
+                              width: 24,
+                              height: 24,
+                              errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: DropdownButton(
-                        value: _selectedValue,
-                        hint: const Text('Select value'),
-                        underline: Container(),
-                        isExpanded: true,
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        items: _organisationModel!.organizations!.map((item) {
-                          return DropdownMenuItem(
-                            value: item.id,
-                            child: Text(item.name!),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedValue = value?.toString();
-                            organisationid = _selectedValue!;
-                          });
-                        },
-                      ),
-                    ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedValue = value?.toString();
+                      organisationid = _selectedValue!;
+                    });
+                  },
+                ),
+              ),
               // DropdownButtonFormField<String>(
 
               const SizedBox(height: 20),

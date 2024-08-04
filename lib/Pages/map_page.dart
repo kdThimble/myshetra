@@ -197,7 +197,7 @@ class _MapPageState extends State<MapPage> {
               _updateMapPosition(_currentPosition!);
               _updateMarkers(_currentPosition!);
               _isPositionInitialized = true;
-              isLocationUpdated = true; // Mark location as updated to prevent further updates
+            // Mark location as updated to prevent further updates
             });
           }
         }
@@ -252,13 +252,19 @@ class _MapPageState extends State<MapPage> {
         representatives123!.addAll(representative);
         print("address");
         print(representatives);
+        Future.delayed(Duration(milliseconds: 1500),(){
+          isLocationUpdated = true;
+        });
+
       });
     } else {
       print("ERROR");
       print(response.reasonPhrase);
       var responseBody = await response.stream.bytesToString();
       var jsonData = json.decode(responseBody);
-
+      setState(() {
+        isLocationUpdated = true;
+      });
       if (jsonData.containsKey('message')) {
         String message = jsonData['message'];
         print("Message $message");
@@ -299,7 +305,7 @@ class _MapPageState extends State<MapPage> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -314,7 +320,7 @@ class _MapPageState extends State<MapPage> {
             //         fontFamily: "Okra"),
             //   ),
             // ),
-            const SizedBox(height: 10),
+            // const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Text(
@@ -429,7 +435,7 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ],
               ),
-              height: height * 0.52,
+              height: height * 0.57,
               child: LocationDetailsBottomSheet(
                 address: _formattedCoordinates,
                 isRedirected: widget.isRedirected!,
@@ -1218,6 +1224,7 @@ class _LocationDetailsBottomSheetState
 
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
     print("lattitudebuild");
     print(latitudeString);
     print(longitudeString);
@@ -1227,7 +1234,7 @@ class _LocationDetailsBottomSheetState
     return Stack(
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1251,7 +1258,7 @@ class _LocationDetailsBottomSheetState
                 // const SizedBox(height: 5),
                 widget.isRedirected == true
                     ? Padding(
-                        padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(8.0),
                         child: widget.representatives.isEmpty
                             ? Column(
                                 children: [
@@ -1326,16 +1333,21 @@ class _LocationDetailsBottomSheetState
                                                         ],
                                                       ),
                                                       const SizedBox(height: 3),
-                                                      Text(
-                                                        rep['user_role_label'] +
-                                                            " " +
-                                                            rep['division_name'],
-                                                        style: const TextStyle(
-                                                            fontSize: 14,
-                                                            color: Colors.grey,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                      Container(
+                                                        width: width * 0.48,
+                                                        child: Text(
+                                                          rep['user_role_label'] +
+                                                              " " +
+                                                              rep['division_name'],
+
+                                                          style: const TextStyle(
+                                                            overflow: TextOverflow.ellipsis,
+                                                              fontSize: 14,
+                                                              color: Colors.grey,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
                                                       ),
                                                     ],
                                                   ),
@@ -1369,7 +1381,7 @@ class _LocationDetailsBottomSheetState
                               ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: widget.representatives.isEmpty
                             ? SizedBox(
                                 height: Get.height * 0.2,
@@ -1387,6 +1399,7 @@ class _LocationDetailsBottomSheetState
                                   print("rep is ${rep.toString()}");
                                   return Column(
                                     children: [
+                                      SizedBox(height: 10,),
                                       Container(
                                         // margin: EdgeInsets.only(bottom: 16),
                                         padding: const EdgeInsets.all(8),
@@ -1441,14 +1454,21 @@ class _LocationDetailsBottomSheetState
                                                         ],
                                                       ),
                                                       const SizedBox(height: 3),
-                                                      Text(
-                                                        rep['division_name'],
-                                                        style: const TextStyle(
-                                                            fontSize: 14,
-                                                            color: Colors.grey,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                      Container(
+                                                        width: width * 0.48,
+                                                        child: Text(
+                                                          rep['user_role_label'] +
+                                                              " " +
+                                                              rep['division_name'],
+
+                                                          style: const TextStyle(
+                                                              overflow: TextOverflow.ellipsis,
+                                                              fontSize: 14,
+                                                              color: Colors.grey,
+                                                              fontWeight:
+                                                              FontWeight
+                                                                  .bold),
+                                                        ),
                                                       ),
                                                     ],
                                                   ),
@@ -1570,6 +1590,7 @@ class RepresentativeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
     return Column(
       children: representatives.isEmpty
           ? [
@@ -1583,6 +1604,7 @@ class RepresentativeWidget extends StatelessWidget {
           : representatives.map((rep) {
               return Column(
                 children: [
+                  SizedBox(height:10),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -1614,10 +1636,21 @@ class RepresentativeWidget extends StatelessWidget {
                                 style: const TextStyle(fontSize: 14),
                               ),
                               const SizedBox(height: 5),
-                              Text(
-                                rep['division_name'],
-                                style: const TextStyle(
-                                    fontSize: 14, color: Colors.grey),
+                              Container(
+                                width: width * 0.48,
+                                child: Text(
+                                  rep['user_role_label'] +
+                                      " " +
+                                      rep['division_name'],
+
+                                  style: const TextStyle(
+                                      overflow: TextOverflow.ellipsis,
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                      fontWeight:
+                                      FontWeight
+                                          .bold),
+                                ),
                               ),
                             ],
                           ),
