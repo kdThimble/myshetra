@@ -11,6 +11,7 @@ import 'package:myshetra/Pages/Editprofile.dart';
 import 'package:myshetra/Pages/map_page.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:http/http.dart' as http;
+import 'package:myshetra/Upload/Uploadfile.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -153,6 +154,11 @@ class _HomePageState extends State<HomePage> {
                 Get.to(const MapPage(ishomescreen: true));
               },
               text: "Change Location"),
+          MyButton(
+              onTap: () {
+                Get.to( UploadScreen());
+              },
+              text: "Upload Files"),
           MyButton(
               onTap: () {
                 logout();

@@ -714,6 +714,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               _buildProfileField(
                                   'edit_profile_name_bio'.tr, bioController),
                               // _buildProfileField('Locality', localityController),
+                              Text("DOB"),
                               _buildProfileFieldWithSuffix(
                                   'edit_profile_dob_title'.tr, dobController,
                                   () {
@@ -721,6 +722,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 _selectDate(context);
                                 print("Change");
                               }),
+                              Text("Position"),
                               _buildProfileFieldWithSuffix(
                                   'edit_profile_position_title'.tr,
                                   positionController, () {
@@ -736,6 +738,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 // Add your change text functionality for Position here
                                 print("Change");
                               }),
+                              Text("Party"),
                               _buildProfileFieldWithSuffix(
                                   'edit_profile_organization_title'.tr,
                                   organizationController, () {

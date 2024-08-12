@@ -576,6 +576,7 @@ class _LoginFormState extends State<LoginForm> {
                                   '+91',
                                   style: const TextStyle(
                                       fontSize: 20.0,
+                                      color: Colors.black,
                                       fontWeight: FontWeight.w400),
                                 ),
                                 border: OutlineInputBorder(
