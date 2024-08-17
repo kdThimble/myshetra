@@ -14,7 +14,7 @@ import 'package:location/location.dart';
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Pages/AuthPage.dart';
 import 'package:myshetra/Pages/Editprofile.dart';
-import 'package:myshetra/Pages/HomePage.dart';
+import 'package:myshetra/Pages/HomePage/HomePage.dart';
 import 'package:myshetra/Pages/ManualPage.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
 import 'package:myshetra/Services/Authservices.dart';

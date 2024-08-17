@@ -14,7 +14,7 @@ import 'package:myshetra/Services/Authservices.dart';
 import 'package:myshetra/helpers/colors.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'HomePage.dart';
+import 'HomePage/HomePage.dart';
 import 'Positionproof.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;

@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Controller/loadingController.dart';
 import 'package:myshetra/Pages/Editprofile.dart';
-import 'package:myshetra/Pages/HomePage.dart';
+import 'package:myshetra/Pages/HomePage/HomePage.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';

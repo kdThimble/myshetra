@@ -8,6 +8,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:myshetra/Controller/loadingController.dart';
 import 'package:myshetra/Pages/SplashScreen.dart';
 import 'package:myshetra/Providers/AuthProvider.dart';
+import 'package:myshetra/Providers/user_provider.dart';
 import 'package:myshetra/Services/LanguaugeService.dart';
 import 'package:myshetra/bloc/login/login_bloc.dart';
 import 'package:myshetra/bloc/signup/signup_bloc.dart';
@@ -89,10 +90,11 @@ void main() async {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ChangeNotifierProvider(create: (_) => UserProfileProvider()),
           BlocProvider(create: (_) => LoginBloc()),
           BlocProvider(create: (_) => SignupBloc()),
         ],
-        child: MyApp(),
+        child: const MyApp(),
       ),
     );
     DependencyInjection.init();
@@ -118,14 +120,14 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       locale: Locale(Get.find<LocaleController>().locale.value,
           Get.find<LocaleController>().countryCode.value),
-      fallbackLocale: Locale('en', 'US'),
+      fallbackLocale: const Locale('en', 'US'),
       translations: Language(),
       theme: ThemeData(
-        textSelectionTheme: TextSelectionThemeData(
+        textSelectionTheme: const TextSelectionThemeData(
           cursorColor: Colors.black,
           // Set the cursor color to black
         ),
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF0E3D8B)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0E3D8B)),
         useMaterial3: true,
       ),
       home: const SplashScreen(),

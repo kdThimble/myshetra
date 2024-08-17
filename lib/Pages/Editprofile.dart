@@ -12,8 +12,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Models/UserModel.dart';
 import 'package:myshetra/Pages/AuthPage.dart';
-import 'package:myshetra/Pages/HomePage.dart';
+import 'package:myshetra/Pages/HomePage/HomePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -714,7 +715,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               _buildProfileField(
                                   'edit_profile_name_bio'.tr, bioController),
                               // _buildProfileField('Locality', localityController),
-                              Text("DOB"),
+                              const Text("DOB"),
                               _buildProfileFieldWithSuffix(
                                   'edit_profile_dob_title'.tr, dobController,
                                   () {
@@ -722,7 +723,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 _selectDate(context);
                                 print("Change");
                               }),
-                              Text("Position"),
+                              const Text("Position"),
                               _buildProfileFieldWithSuffix(
                                   'edit_profile_position_title'.tr,
                                   positionController, () {
@@ -738,7 +739,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 // Add your change text functionality for Position here
                                 print("Change");
                               }),
-                              Text("Party"),
+                              const Text("Party"),
                               _buildProfileFieldWithSuffix(
                                   'edit_profile_organization_title'.tr,
                                   organizationController, () {
@@ -887,56 +888,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ? const Text("Add")
             : Text('select_change_button_text'.tr),
       ),
-    );
-  }
-}
-
-class UserProfile {
-  final String? bannerImageUrl;
-  final String? profileImageUrl;
-  final String? handleName;
-  final String? name;
-  final String? bioInfo;
-  final DateTime? dateOfBirth;
-  final String? userOrganization;
-  final String? organizationSymbol;
-  final String? organizationAbbreviation;
-  final String? currentPosition;
-  final String? localDivisionName;
-  final String? regionalDivisionName;
-  final String? nationalDivisionName;
-
-  UserProfile({
-    this.bannerImageUrl,
-    this.profileImageUrl,
-    this.handleName,
-    this.name,
-    this.bioInfo,
-    this.dateOfBirth,
-    this.userOrganization,
-    this.organizationSymbol,
-    this.organizationAbbreviation,
-    this.currentPosition,
-    this.localDivisionName,
-    this.regionalDivisionName,
-    this.nationalDivisionName,
-  });
-
-  factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(
-      bannerImageUrl: json['banner_image_url'],
-      profileImageUrl: json['profile_image_url'],
-      handleName: json['handle_name'],
-      name: json['name'],
-      bioInfo: json['bio_info'],
-      dateOfBirth: DateTime.parse(json['date_of_birth']),
-      userOrganization: json['user_organization'],
-      organizationSymbol: json['organization_symbol'],
-      organizationAbbreviation: json['organization_abbreviation'],
-      currentPosition: json['current_position'],
-      localDivisionName: json['local_division_name'],
-      regionalDivisionName: json['regional_division_name'],
-      nationalDivisionName: json['national_division_name'],
     );
   }
 }

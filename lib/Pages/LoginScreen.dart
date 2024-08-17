@@ -13,7 +13,7 @@ import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Controller/loadingController.dart';
 import 'package:myshetra/Models/Authmodel.dart';
 import 'package:myshetra/Pages/AuthPage.dart';
-import 'package:myshetra/Pages/HomePage.dart';
+import 'package:myshetra/Pages/HomePage/HomePage.dart';
 import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
 import 'package:myshetra/Pages/Signup.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:myshetra/Pages/HomePage.dart';
+import 'package:myshetra/Pages/HomePage/HomePage.dart';
 import 'package:myshetra/Pages/LanguageSelectionScreen.dart';
 import 'package:myshetra/Pages/Oranisation.dart';
 import 'package:myshetra/Pages/map_page.dart';
