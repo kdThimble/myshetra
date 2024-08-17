@@ -125,61 +125,65 @@ class _UploadScreenState extends State<UploadScreen> {
       var fileSize = file.lengthSync();
 
       await _uploadFileToPreSignedUrl(url, file, mimeType, contentType, fileSize);
-      await _confirmFileUploads(Response);
+      await confirmPostFilesUploads(Response);
     }
   }
-  Future<void> _confirmFileUploads(Map<String, dynamic> confirmationData) async {
-    try {
-      var response = await http.post(
-        Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/confirmFileUploads'),
-        headers: {
-          'Authorization': '${authService.token.value}', // Ensure "Bearer" prefix
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(confirmationData),
-      );
-
-      if (response.statusCode == 200) {
-        print('File uploads confirmed successfully.');
-      } else {
-        print('Failed to confirm file uploads. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error confirming file uploads: $e');
-    }
-  }
-  // Future<bool> uploadFiles(List<File> files) async {
-  //   var headers = {
-  //     'Authorization': '${authService.token}',
-  //   };
-  //   if (files.length > 5) {
-  //     print('Cannot upload more than 5 files.');
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Cannot upload more than 5 files '),backgroundColor: Colors.red,),
+  // Future<void> _confirmFileUploads(Map<String, dynamic> confirmationData) async {
+  //   try {
+  //     var response = await http.post(
+  //       Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/confirmPostFilesUploads'),
+  //       headers: {
+  //         'Authorization': '${authService.token.value}', // Ensure "Bearer" prefix
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: jsonEncode(confirmationData),
   //     );
-  //     return false;
-  //   }
   //
-  //   var request = http.MultipartRequest(
-  //       'POST',
-  //       Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getPreSignedUrlToUploadFile'));
-  //
-  //   for (var file in files) {
-  //     request.files.add(await http.MultipartFile.fromPath('files_to_upload', file.path));
-  //   }
-  //
-  //   request.headers.addAll(headers);
-  //
-  //   http.StreamedResponse response = await request.send();
-  //
-  //   if (response.statusCode == 200) {
-  //     print(await response.stream.bytesToString());
-  //     return true;
-  //   } else {
-  //     print(response.reasonPhrase);
-  //     return false;
+  //     if (response.statusCode == 200) {
+  //       print('File uploads confirmed successfully.');
+  //     } else {
+  //       print('Failed to confirm file uploads. Status code: ${response.body}');
+  //     }
+  //   } catch (e) {
+  //     print('Error confirming file uploads: $e');
   //   }
   // }
+  @override
+  void initState() {
+    super.initState();
+    _loadFilesFromGallery();
+  }
+
+  // Function to load images and videos from the gallery
+  void _loadFilesFromGallery() async {
+    final picker = ImagePicker();
+
+    // Pick multiple images
+    final List<XFile>? images = await picker.pickMultiImage();
+    if (images != null) {
+      setState(() {
+        selectedFiles.addAll(images.map((image) => File(image.path)).toList());
+      });
+    }
+
+    // Pick a video
+    final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
+    if (video != null) {
+      setState(() {
+        selectedFiles.add(File(video.path));
+        _initializeVideoController(File(video.path));
+      });
+    }
+  }
+
+  // Function to initialize video controllers
+  void _initializeVideoController(File videoFile) {
+    final controller = VideoPlayerController.file(videoFile)
+      ..initialize().then((_) {
+        setState(() {});  // Refresh UI after initializing
+      });
+    _videoControllers.add(controller);
+  }
 
   @override
   void dispose() {
@@ -190,49 +194,84 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   void _pickImages() async {
-    final ImagePicker picker = ImagePicker();
-    final List<XFile>? pickedFiles = await picker.pickMultiImage();
-
-    if (pickedFiles != null) {
+    final picker = ImagePicker();
+    final List<XFile>? images = await picker.pickMultiImage();
+    if (images != null) {
       setState(() {
-        selectedFiles.addAll(pickedFiles.map((file) => File(file.path)));
+        selectedFiles.addAll(images.map((image) => File(image.path)).toList());
       });
     }
   }
 
   void _pickVideo() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? videoFile = await picker.pickVideo(source: ImageSource.gallery);
-
-    if (videoFile != null) {
-      File video = File(videoFile.path);
+    final picker = ImagePicker();
+    final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
+    if (video != null) {
       setState(() {
-        selectedFiles.add(video);
+        selectedFiles.add(File(video.path));
+        _initializeVideoController(File(video.path));
       });
-
-      // Initialize video controller
-      final VideoPlayerController videoController = VideoPlayerController.file(video)
-        ..initialize().then((_) {
-          setState(() {}); // Ensure the UI updates after the video is initialized
-        });
-      _videoControllers.add(videoController);
     }
   }
 
-  // void _uploadFiles() async {
-  //   bool success = await uploadFiles(selectedFiles);
-  //
-  //   if (success) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Files uploaded successfully!' ) ,backgroundColor: Colors.green,),
-  //     );
-  //     Get.to( HomePage());
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Failed to upload files')),
-  //     );
-  //   }
-  // }
+  Future<void> confirmPostFilesUploads(Map<String, dynamic> responseData) async {
+    // Extract data from the response
+    String postId = responseData['post_id'];
+    List<Map<String, dynamic>> files = List<Map<String, dynamic>>.from(responseData['files']);
+
+    // Define headers
+    var headers = {
+      'Authorization': '${authService.token.value}', // Ensure "Bearer" prefix
+      'Content-Type': 'multipart/form-data',
+    };
+
+    // Create the request
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/confirmPostFilesUploads'),
+    );
+
+    // Add fields to the request
+    request.fields['post_id'] = postId;
+    request.fields['content'] = Captioncontroller.text;
+    request.fields['user_mentions[0][token]'] = '{user1}';
+    request.fields['user_mentions[0][user_id]'] = '397948bb-80d0-499b-9d6e-778886075eae';
+    request.fields['hashtags[0]'] = 'hashtag';
+
+    // Add files to the request dynamically
+    for (int i = 0; i < files.length; i++) {
+      request.fields['files[$i][file_id]'] = files[i]['file_id'];
+      request.fields['files[$i][unique_name]'] = files[i]['unique_name'];
+      request.fields['files[$i][checksum]'] = files[i]['metadata']['checksum'];
+    }
+
+    // Add headers to the request
+    request.headers.addAll(headers);
+    // request.fields.addAll(fields);
+    print('Request Fields: ${request.fields}');
+    print('Request Headers: ${request.headers}');
+    // Send the request
+    http.StreamedResponse response = await request.send();
+    print(request);
+    // Handle the response
+    if (response.statusCode == 200) {
+      print('Success: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Files uploaded successfully!' ) ,backgroundColor: Colors.green,),
+              );
+              Get.to( HomePage());
+      print(await response.stream.bytesToString());
+    } else {
+      print('Error: ${response.statusCode}');
+      print('Response Reason: ${response.reasonPhrase}');
+      ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${response.reasonPhrase}')),
+            );
+      String responseBody = await response.stream.bytesToString();
+      print('Response Body: $responseBody');
+    }
+  }
+  final TextEditingController Captioncontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -240,23 +279,14 @@ class _UploadScreenState extends State<UploadScreen> {
       appBar: AppBar(title: Text('Upload Files')),
       body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: _pickImages,
-                child: Text('Pick Images'),
+          Expanded(
+            child: selectedFiles.isNotEmpty
+                ? GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 4.0,
+                mainAxisSpacing: 4.0,
               ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: _pickVideo,
-                child: Text('Pick Video'),
-              ),
-            ],
-          ),
-          selectedFiles.isNotEmpty
-              ? Expanded(
-            child: ListView.builder(
               itemCount: selectedFiles.length,
               itemBuilder: (context, index) {
                 final file = selectedFiles[index];
@@ -272,9 +302,30 @@ class _UploadScreenState extends State<UploadScreen> {
                   return Image.file(file);
                 }
               },
+            )
+                : Center(child: Text('No files selected')),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: InputDecoration(
+                labelText: 'Hashtags',
+                hintText: '#example',
+                border: OutlineInputBorder(),
+              ),
             ),
-          )
-              : Text('No files selected'),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: Captioncontroller,
+              decoration: InputDecoration(
+                labelText: 'Caption',
+                hintText: 'Write a caption...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
           ElevatedButton(
             onPressed: selectedFiles.isNotEmpty
                 ? () => _uploadFiles(selectedFiles)
