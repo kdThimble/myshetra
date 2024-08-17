@@ -64,6 +64,8 @@ dependencies:
   flutter_osm_plugin:
   video_player:
   mapmyindia_gl: 
+  extended_image: ^8.1.1
+  photo_manager: ^3.2.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
