@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
-import 'package:myshetra/Pages/HomePage.dart';
+import 'package:myshetra/Pages/HomePage/HomePage.dart';
+
 import 'package:video_player/video_player.dart';
 
 import '../Services/Authservices.dart';
@@ -14,8 +15,9 @@ import 'package:crypto/crypto.dart';
 import 'dart:io';
 import 'package:mime/mime.dart';
 
-
 class UploadScreen extends StatefulWidget {
+  const UploadScreen({super.key});
+
   @override
   _UploadScreenState createState() => _UploadScreenState();
 }
@@ -24,7 +26,7 @@ class _UploadScreenState extends State<UploadScreen> {
   final authService = Get.find<AuthService>();
   var Response;
   List<File> selectedFiles = [];
-  List<VideoPlayerController> _videoControllers = [];
+  final List<VideoPlayerController> _videoControllers = [];
   void _extractFileDetails(File file) {
     String fileName = file.path.split('/').last;
     int fileSize = file.lengthSync();
@@ -34,16 +36,18 @@ class _UploadScreenState extends State<UploadScreen> {
     print('File Size: $fileSize bytes');
     print('MIME Type: $mimeType');
   }
+
   String _generateChecksum(File file) {
     var bytes = file.readAsBytesSync();
     var checksum = md5.convert(bytes);
     return checksum.toString();
   }
+
   Future<List<dynamic>> _getPreSignedUrls(List<File> files) async {
     print("token: ${authService.token.value}");
 
     var headers = {
-      'Authorization': '${authService.token.value}', // Ensure "Bearer" prefix
+      'Authorization': authService.token.value, // Ensure "Bearer" prefix
       'Content-Type': 'application/json',
     };
 
@@ -55,12 +59,14 @@ class _UploadScreenState extends State<UploadScreen> {
       fields['files[$i][size]'] = file.lengthSync().toString();
       fields['files[$i][mimeType]'] = lookupMimeType(file.path) ?? '';
       fields['files[$i][contentType]'] = lookupMimeType(file.path) ?? '';
-      fields['files[$i][checksum]'] = _generateChecksum(file); // Assuming this function exists
+      fields['files[$i][checksum]'] =
+          _generateChecksum(file); // Assuming this function exists
     }
 
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getPreSignedUrlsFromFileMetaData'),
+      Uri.parse(
+          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getPreSignedUrlsFromFileMetaData'),
     );
 
     request.fields.addAll(fields);
@@ -83,7 +89,8 @@ class _UploadScreenState extends State<UploadScreen> {
     }
   }
 
-  Future<void> _uploadFileToPreSignedUrl(String url, File file, String mimeType, String contentType, int fileSize) async {
+  Future<void> _uploadFileToPreSignedUrl(String url, File file, String mimeType,
+      String contentType, int fileSize) async {
     var headers = {
       'Content-Type': mimeType,
       'x-amz-meta-contenttype': contentType,
@@ -109,9 +116,10 @@ class _UploadScreenState extends State<UploadScreen> {
     print('Response Reason: ${response.reasonPhrase}');
     print('Response Body: $responseBody');
   }
+
   Future<void> _uploadFiles(List<File> files) async {
     var preSignedUrls = await _getPreSignedUrls(files);
-     print(Response);
+    print(Response);
     if (preSignedUrls.isEmpty) {
       print('No pre-signed URLs received. Aborting upload.');
       return;
@@ -124,10 +132,12 @@ class _UploadScreenState extends State<UploadScreen> {
       var contentType = lookupMimeType(file.path) ?? '';
       var fileSize = file.lengthSync();
 
-      await _uploadFileToPreSignedUrl(url, file, mimeType, contentType, fileSize);
+      await _uploadFileToPreSignedUrl(
+          url, file, mimeType, contentType, fileSize);
       await confirmPostFilesUploads(Response);
     }
   }
+
   // Future<void> _confirmFileUploads(Map<String, dynamic> confirmationData) async {
   //   try {
   //     var response = await http.post(
@@ -159,12 +169,10 @@ class _UploadScreenState extends State<UploadScreen> {
     final picker = ImagePicker();
 
     // Pick multiple images
-    final List<XFile>? images = await picker.pickMultiImage();
-    if (images != null) {
-      setState(() {
-        selectedFiles.addAll(images.map((image) => File(image.path)).toList());
-      });
-    }
+    final List<XFile> images = await picker.pickMultiImage();
+    setState(() {
+      selectedFiles.addAll(images.map((image) => File(image.path)).toList());
+    });
 
     // Pick a video
     final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
@@ -180,7 +188,7 @@ class _UploadScreenState extends State<UploadScreen> {
   void _initializeVideoController(File videoFile) {
     final controller = VideoPlayerController.file(videoFile)
       ..initialize().then((_) {
-        setState(() {});  // Refresh UI after initializing
+        setState(() {}); // Refresh UI after initializing
       });
     _videoControllers.add(controller);
   }
@@ -195,12 +203,10 @@ class _UploadScreenState extends State<UploadScreen> {
 
   void _pickImages() async {
     final picker = ImagePicker();
-    final List<XFile>? images = await picker.pickMultiImage();
-    if (images != null) {
-      setState(() {
-        selectedFiles.addAll(images.map((image) => File(image.path)).toList());
-      });
-    }
+    final List<XFile> images = await picker.pickMultiImage();
+    setState(() {
+      selectedFiles.addAll(images.map((image) => File(image.path)).toList());
+    });
   }
 
   void _pickVideo() async {
@@ -214,28 +220,32 @@ class _UploadScreenState extends State<UploadScreen> {
     }
   }
 
-  Future<void> confirmPostFilesUploads(Map<String, dynamic> responseData) async {
+  Future<void> confirmPostFilesUploads(
+      Map<String, dynamic> responseData) async {
     // Extract data from the response
     String postId = responseData['post_id'];
-    List<Map<String, dynamic>> files = List<Map<String, dynamic>>.from(responseData['files']);
+    List<Map<String, dynamic>> files =
+        List<Map<String, dynamic>>.from(responseData['files']);
 
     // Define headers
     var headers = {
-      'Authorization': '${authService.token.value}', // Ensure "Bearer" prefix
+      'Authorization': authService.token.value, // Ensure "Bearer" prefix
       'Content-Type': 'multipart/form-data',
     };
 
     // Create the request
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/confirmPostFilesUploads'),
+      Uri.parse(
+          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/confirmPostFilesUploads'),
     );
 
     // Add fields to the request
     request.fields['post_id'] = postId;
     request.fields['content'] = Captioncontroller.text;
     request.fields['user_mentions[0][token]'] = '{user1}';
-    request.fields['user_mentions[0][user_id]'] = '397948bb-80d0-499b-9d6e-778886075eae';
+    request.fields['user_mentions[0][user_id]'] =
+        '397948bb-80d0-499b-9d6e-778886075eae';
     request.fields['hashtags[0]'] = 'hashtag';
 
     // Add files to the request dynamically
@@ -257,56 +267,63 @@ class _UploadScreenState extends State<UploadScreen> {
     if (response.statusCode == 200) {
       print('Success: ${response.statusCode}');
       ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Files uploaded successfully!' ) ,backgroundColor: Colors.green,),
-              );
-              Get.to( HomePage());
+        const SnackBar(
+          content: Text('Files uploaded successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Get.to(const HomePage());
       print(await response.stream.bytesToString());
     } else {
       print('Error: ${response.statusCode}');
       print('Response Reason: ${response.reasonPhrase}');
       ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${response.reasonPhrase}')),
-            );
+        SnackBar(content: Text('${response.reasonPhrase}')),
+      );
       String responseBody = await response.stream.bytesToString();
       print('Response Body: $responseBody');
     }
   }
+
   final TextEditingController Captioncontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Upload Files')),
+      appBar: AppBar(title: const Text('Upload Files')),
       body: Column(
         children: [
           Expanded(
             child: selectedFiles.isNotEmpty
                 ? GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 4.0,
-                mainAxisSpacing: 4.0,
-              ),
-              itemCount: selectedFiles.length,
-              itemBuilder: (context, index) {
-                final file = selectedFiles[index];
-                final isVideo = file.path.endsWith('.mp4') || file.path.endsWith('.mov');
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 4.0,
+                      mainAxisSpacing: 4.0,
+                    ),
+                    itemCount: selectedFiles.length,
+                    itemBuilder: (context, index) {
+                      final file = selectedFiles[index];
+                      final isVideo = file.path.endsWith('.mp4') ||
+                          file.path.endsWith('.mov');
 
-                if (isVideo) {
-                  final controller = _videoControllers[_videoControllers.length > index ? index : 0];
-                  return AspectRatio(
-                    aspectRatio: controller.value.aspectRatio,
-                    child: VideoPlayer(controller),
-                  );
-                } else {
-                  return Image.file(file);
-                }
-              },
-            )
-                : Center(child: Text('No files selected')),
+                      if (isVideo) {
+                        final controller = _videoControllers[
+                            _videoControllers.length > index ? index : 0];
+                        return AspectRatio(
+                          aspectRatio: controller.value.aspectRatio,
+                          child: VideoPlayer(controller),
+                        );
+                      } else {
+                        return Image.file(file);
+                      }
+                    },
+                  )
+                : const Center(child: Text('No files selected')),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
                 labelText: 'Hashtags',
@@ -319,7 +336,7 @@ class _UploadScreenState extends State<UploadScreen> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: Captioncontroller,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Caption',
                 hintText: 'Write a caption...',
                 border: OutlineInputBorder(),
@@ -330,7 +347,7 @@ class _UploadScreenState extends State<UploadScreen> {
             onPressed: selectedFiles.isNotEmpty
                 ? () => _uploadFiles(selectedFiles)
                 : null,
-            child: Text('Upload Files'),
+            child: const Text('Upload Files'),
           ),
         ],
       ),

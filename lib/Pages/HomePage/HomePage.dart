@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
       // Parse JSON response into UserProfile object
       var jsonResponse = json.decode(response.body);
       print("object $jsonResponse");
-      
+
       UserProfilePreference prefs = UserProfilePreference();
       print("saving in prefs");
       await prefs.saveUserProfile(UserProfile.fromJson(jsonResponse['data']));
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0);
-     
+
       return UserProfile.fromJson(jsonResponse['data']);
     } else {
       print(
@@ -250,7 +250,7 @@ class _HomePageState extends State<HomePage> {
                 text: "Change Location"),
             MyButton(
                 onTap: () {
-                  Get.to(const UploadScreen());
+                  Get.to(UploadScreen());
                 },
                 text: "Upload Files"),
             MyButton(
