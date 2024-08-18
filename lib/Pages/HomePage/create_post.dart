@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
+import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Models/UserModel.dart';
 import 'package:myshetra/Pages/HomePage/HomePage.dart';
+import 'package:myshetra/Pages/HomePage/upload_post.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:myshetra/Services/user_shared_pref.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -72,6 +74,7 @@ class _CreatePostState extends State<CreatePost> {
   final authService = Get.find<AuthService>();
   var Response;
   List<File> selectedFiles = [];
+  Set<AssetEntity> selectedImages = {};
   final List<VideoPlayerController> _videoControllers = [];
   void _extractFileDetails(File file) {
     String fileName = file.path.split('/').last;
@@ -81,6 +84,25 @@ class _CreatePostState extends State<CreatePost> {
     print('File Name: $fileName');
     print('File Size: $fileSize bytes');
     print('MIME Type: $mimeType');
+  }
+
+  Future<List<File>> _convertToFiles(List<AssetEntity> assets) async {
+    List<File> files = [];
+    for (var asset in assets) {
+      File? file = await asset.file;
+      if (file != null) {
+        files.add(file);
+      }
+    }
+    return files;
+  }
+
+  Future<void> _uploadSelectedFiles() async {
+    // Convert selected AssetEntity images to File objects
+    List<File> files = await _convertToFiles(selectedImages.toList());
+
+    // Call _uploadFiles with the selected files
+    await _uploadFiles(files);
   }
 
   String _generateChecksum(File file) {
@@ -184,25 +206,7 @@ class _CreatePostState extends State<CreatePost> {
     }
   }
 
-  // Function to load images and videos from the gallery
-  void _loadFilesFromGallery() async {
-    final picker = ImagePicker();
-
-    // Pick multiple images
-    final List<XFile> images = await picker.pickMultiImage();
-    setState(() {
-      selectedFiles.addAll(images.map((image) => File(image.path)).toList());
-    });
-
-    // Pick a video
-    final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
-    if (video != null) {
-      setState(() {
-        selectedFiles.add(File(video.path));
-        _initializeVideoController(File(video.path));
-      });
-    }
-  }
+  
 
   // Function to initialize video controllers
   void _initializeVideoController(File videoFile) {
@@ -426,27 +430,70 @@ class _CreatePostState extends State<CreatePost> {
             ),
             images.isEmpty
                 ? const Center(child: CircularProgressIndicator())
-                : GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3, // Number of columns in grid view
-                      crossAxisSpacing: 4.0,
-                      mainAxisSpacing: 4.0,
+                : Expanded(
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3, // Number of columns in grid view
+                        crossAxisSpacing: 4.0,
+                        mainAxisSpacing: 4.0,
+                      ),
+                      itemCount: images.length,
+                      itemBuilder: (context, index) {
+                        final image = images[index];
+                        final isSelected = selectedImages.contains(image);
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (isSelected) {
+                                selectedImages.remove(image);
+                              } else {
+                                selectedImages.add(image);
+                              }
+                            });
+                          },
+                          child: Stack(
+                            children: [
+                              FutureBuilder<Uint8List?>(
+                                future: image.thumbnailData,
+                                builder: (context, snapshot) {
+                                  final bytes = snapshot.data;
+                                  if (bytes == null) {
+                                    return Container(color: Colors.grey[300]);
+                                  }
+                                  return Image.memory(bytes, fit: BoxFit.cover);
+                                },
+                              ),
+                              if (isSelected)
+                                const Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                    itemCount: images.length,
-                    itemBuilder: (context, index) {
-                      return FutureBuilder<Uint8List?>(
-                        future: images[index].thumbnailData,
-                        builder: (context, snapshot) {
-                          final bytes = snapshot.data;
-                          if (bytes == null) {
-                            return Container(color: Colors.grey[300]);
-                          }
-                          return Image.memory(bytes, fit: BoxFit.cover);
-                        },
-                      );
-                    },
                   ),
+            if (selectedImages.isNotEmpty)
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: ElevatedButton(
+              //     onPressed: _uploadSelectedFiles,
+              //     child: const Text("Next"),
+              //   ),
+              // ),
+              MyButton(onTap: (){
+                if (selectedImages.isNotEmpty) {
+                      // Navigate to the new screen with selected images
+                      Get.to(SelectedImagesScreen(images: selectedImages));
+                    }
+              }, text: "Next")
           ],
         ),
       ),
