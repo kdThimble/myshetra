@@ -18,8 +18,9 @@ import 'package:crypto/crypto.dart';
 
 class SelectedImagesScreen extends StatefulWidget {
   final Set<AssetEntity> images;
+  String caption;
 
-  const SelectedImagesScreen({required this.images, Key? key})
+  SelectedImagesScreen({required this.images, required this.caption, Key? key})
       : super(key: key);
 
   @override
@@ -36,6 +37,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   void initState() {
     super.initState();
     selectedImages = widget.images;
+    captionController.text = widget.caption;
     _loadUserProfile();
   }
 
