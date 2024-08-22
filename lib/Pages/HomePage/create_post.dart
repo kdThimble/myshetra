@@ -190,23 +190,13 @@ class _CreatePostState extends State<CreatePost> {
                     ),
                   ),
                 ),
-                // const Padding(
-                //   padding: EdgeInsets.only(left: 10.0),
-                //   child: TextField(
-                //     decoration: InputDecoration(
-                //       labelText: 'Hashtags',
-                //       hintText: '#example',
-                //       contentPadding: EdgeInsets.all(10.0),
-                //       border: InputBorder.none,
-                //     ),
-                //   ),
-                // ),
               ],
             ),
             DraggableScrollableSheet(
-              initialChildSize: 0.66, // Adjust the initial height of the sheet
-              minChildSize: 0.66, // Minimum height of the sheet
+              initialChildSize: 0.56, // Adjust the initial height of the sheet
+              minChildSize: 0.56, // Minimum height of the sheet
               maxChildSize: 0.68, // Maximum height of the sheet
+
               builder: (context, scrollController) {
                 return Container(
                   decoration: BoxDecoration(

@@ -165,8 +165,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
 
       await _uploadFileToPreSignedUrl(
           url, file, mimeType, contentType, fileSize);
-      await confirmPostFilesUploads(Response);
     }
+    await confirmPostFilesUploads(Response);
   }
 
   void _pickImages() async {
@@ -275,9 +275,9 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     } else {
       print('Error: ${response.statusCode}');
       print('Response Reason: ${response.reasonPhrase}');
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('${response.reasonPhrase}')),
-      // );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${response.reasonPhrase}')),
+      );
       String responseBody = await response.stream.bytesToString();
       print('Response Body: $responseBody');
     }
@@ -293,22 +293,23 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
 
   final TextEditingController captionController = TextEditingController();
 
+  var width, height;
+
   @override
   Widget build(BuildContext context) {
     List<AssetEntity> imagesList = selectedImages.toList();
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
-    return Scaffold(
-      body: Column(
-        children: [
-          SizedBox(
-            height: height * 0.03,
-          ),
-          Row(
+    String dropdownValue = 'Water Issues';
+
+    return DefaultTabController(
+      length: 2, // Number of tabs
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false, // Removes the default back button
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(
-                width: width * 0.04,
-              ),
               GestureDetector(
                 onTap: () {
                   Get.back();
@@ -328,9 +329,6 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: width * 0.17,
-              ),
               Text(
                 "Create Post",
                 style: TextStyle(
@@ -339,169 +337,402 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                   fontSize: MediaQuery.of(context).size.width * 0.07,
                 ),
               ),
+              SizedBox(width: width * 0.1), // Add spacing to balance the title
             ],
           ),
-          if (profile != null) ...[
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: width * 0.136,
-                  backgroundColor: Colors.white, // Adjust as needed
-                  backgroundImage: _profileImage != null
-                      ? FileImage(_profileImage!) as ImageProvider<Object>
-                      : profile?.profileImageUrl !=
-                              "https://dev-my-shetra.blr1.cdn.digitaloceanspaces.com/admin_files/FallBackProfileImage.jpeg"
-                          ? NetworkImage(profile?.profileImageUrl ??
-                              "https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph")
-                          : const NetworkImage(
-                              'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph'),
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        body: Column(
+          children: [
+            // SizedBox(height: height * 0.01),
+            if (profile != null) ...[
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                child: Row(
                   children: [
-                    Text(
-                      profile?.name?.capitalize ?? "User",
-                      style: TextStyle(
-                          fontSize: height * 0.025,
-                          fontWeight: FontWeight.bold),
+                    CircleAvatar(
+                      radius: width * 0.1,
+                      backgroundColor: Colors.white, // Adjust as needed
+                      backgroundImage: _profileImage != null
+                          ? FileImage(_profileImage!) as ImageProvider<Object>
+                          : profile?.profileImageUrl !=
+                          "https://dev-my-shetra.blr1.cdn.digitaloceanspaces.com/admin_files/FallBackProfileImage.jpeg"
+                          ? NetworkImage(profile?.profileImageUrl ??
+                          "https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph")
+                          : const NetworkImage(
+                          'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph'),
                     ),
-                    Text(
-                      profile?.bioInfo != "" ? profile!.bioInfo! : "No bio",
-                      style: TextStyle(
-                          fontSize: height * 0.02,
-                          fontWeight: FontWeight.normal),
+                    SizedBox(width: width * 0.03),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          profile?.name?.capitalize ?? "User",
+                          style: TextStyle(
+                            fontSize: height * 0.025,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          profile?.bioInfo != "" ? profile!.bioInfo! : "No bio",
+                          style: TextStyle(
+                            fontSize: height * 0.02,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                )
-              ],
-            ) // Example usage of profile data
-          ],
-          Padding(
-            padding: const EdgeInsets.only(left: 10.0),
-            child: TextField(
-              controller: captionController,
-              decoration: const InputDecoration(
-                labelText: 'Write a caption...',
-                hintText: 'Write a caption...',
-                contentPadding: EdgeInsets.all(10.0),
-                border: InputBorder.none,
+                ),
+              )
+            ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: TextField(
+                controller: captionController,
+                maxLength: 256,
+                decoration: const InputDecoration(
+                  labelText: 'Write a Caption...',
+                  hintText: 'Write a Caption...',
+                  contentPadding: EdgeInsets.all(8.0),
+                  border: InputBorder.none,
+                  counterText: '', // This hides the default counter
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, // Number of columns in grid view
-                  crossAxisSpacing: 4.0,
-                  mainAxisSpacing: 15.0,
+            Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  "${captionController.text.length}/256",
+                  style: TextStyle(color: Colors.grey),
                 ),
-                itemCount: imagesList.length + selectedFiles.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == imagesList.length + selectedFiles.length) {
-                    // Last container for adding a new image
-                    return GestureDetector(
-                      onTap: _pickImages, // Open image picker when tapped
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            border: Border.all(color: primaryColor),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Icon(
-                          Icons.add,
-                          color: primaryColor,
-                          size: height * 0.05,
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3, // Number of columns in grid view
+                    crossAxisSpacing: 4.0,
+                    mainAxisSpacing: 12.0,
+                  ),
+                  itemCount: imagesList.length + selectedFiles.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == imagesList.length + selectedFiles.length) {
+                      // Last container for adding a new image
+                      return GestureDetector(
+                        onTap: _pickImages, // Open image picker when tapped
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              border: Border.all(color: primaryColor),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Icon(
+                            Icons.add,
+                            color: primaryColor,
+                            size: height * 0.04,
+                          ),
                         ),
-                      ),
-                    );
-                  } else if (index < imagesList.length) {
-                    // Display images from AssetEntity
-                    return Stack(
-                      children: [
-                        FutureBuilder<Uint8List?>(
-                          future: imagesList[index].thumbnailData,
-                          builder: (context, snapshot) {
-                            final bytes = snapshot.data;
-                            if (bytes == null) {
-                              return Container(color: Colors.grey[300]);
-                            }
-                            return ClipRRect(
+                      );
+                    } else if (index < imagesList.length) {
+                      // Display images from AssetEntity
+                      return Stack(
+                        children: [
+                          FutureBuilder<Uint8List?>(
+                            future: imagesList[index].thumbnailData,
+                            builder: (context, snapshot) {
+                              final bytes = snapshot.data;
+                              if (bytes == null) {
+                                return Container(color: Colors.grey[300]);
+                              }
+                              return ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.memory(
                                   bytes,
                                   fit: BoxFit.cover,
                                   width: width * 0.28,
                                   height: height * 0.16,
-                                ));
-                          },
-                        ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: GestureDetector(
-                            onTap: () {
-                              _unselectImage(imagesList[index]);
+                                ),
+                              );
                             },
-                            child: const Icon(
-                              Icons.cancel,
-                              color: Colors.red,
+                          ),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                _unselectImage(imagesList[index]);
+                              },
+                              child: const Icon(
+                                Icons.cancel,
+                                color: Colors.red,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    );
-                  } else {
-                    // Display images from File
-                    final fileIndex = index - imagesList.length;
-                    final file = selectedFiles[fileIndex];
-                    return Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            file,
-                            fit: BoxFit.cover,
-                            width: width * 0.28,
-                            height: height * 0.16,
-                          ),
-                        ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: GestureDetector(
-                            onTap: () {
-                              _unselectFile(file);
-                            },
-                            child: const Icon(
-                              Icons.cancel,
-                              color: Colors.red,
+                        ],
+                      );
+                    } else {
+                      // Display images from File
+                      final fileIndex = index - imagesList.length;
+                      final file = selectedFiles[fileIndex];
+                      return Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              file,
+                              fit: BoxFit.cover,
+                              width: width * 0.28,
+                              height: height * 0.16,
                             ),
                           ),
-                        ),
-                      ],
-                    );
-                  }
-                },
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                _unselectFile(file);
+                              },
+                              child: const Icon(
+                                Icons.cancel,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: MyButton(onTap: _uploadSelectedFiles, text: "Share"),
-          ),
-          const Center(
-            child: Text(
-              "*Post will be visible in your ward only*",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-            ),
-          ),
-          SizedBox(
-            height: height * 0.04,
-          )
-        ],
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                height: height * 0.45, // Adjust the height as needed (40-50%)
+                child: Column(
+                  children: [
+                    TabBar(
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Colors.black,
+                      tabs: const [
+                        Tab(text: "Post"),
+                        Tab(text: "Issues"),
+                      ],
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          // First tab content
+                          SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: ListTile(
+                                      leading: Icon(
+                                        Icons.person_add_alt_1,
+                                        color: primaryColor,
+                                      ),
+                                      title: Text("Tag people"),
+                                      onTap: () {
+                                        // Tag people action
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: MyButton(
+                                    onTap: _uploadSelectedFiles,
+                                    text: "Share",
+                                  ),
+                                ),
+                                const Center(
+                                  child: Text(
+                                    "*Post will be visible in your ward only*",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold, fontSize: 17),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Second tab content
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text("Tag people" , style: TextStyle(fontWeight: FontWeight.bold , fontSize: 16),),
+                                SizedBox(height: 10,),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: Colors.grey),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: dropdownValue,
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    isExpanded: true,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        dropdownValue = newValue!;
+                                      });
+                                    },
+                                    items: <String>[
+                                      'Water Issues',
+                                      'Electricity Issues',
+                                      'Drainage Issues',
+                                      'Transportation Issues'
+                                    ].map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(value),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                Expanded(
+                                  child: ListView(
+                                    children: <Widget>[
+                                      _buildComplaintTile('assets/person1.jpg'),
+                                      _buildComplaintTile('assets/person2.jpg'),
+                                      _buildComplaintTile('assets/person3.jpg'),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: MyButton(
+                                    onTap: _uploadSelectedFiles,
+                                    text: "Share",
+                                  ),
+                                ),
+                                // const Center(
+                                //   child: Text(
+                                //     "*Post will be visible in your ward only*",
+                                //     style: TextStyle(
+                                //         fontWeight: FontWeight.bold, fontSize: 17),
+                                //   ),
+                                // ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
+
+
+  Widget _buildComplaintTile(String imagePath) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage: AssetImage(imagePath),
+        ),
+        title: Text('Manoj Bajaj'),
+        subtitle: Text('Member of Legislative Assembly'),
+        trailing: Image.asset('assets/icons/Frame 6.png'), // Replace with your icon
+      ),
+    );
+  }
+
+  Widget _buildPostTab() {
+    return Column(
+      children: [
+        // Tag People Container
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: GestureDetector(
+            onTap: (){}
+            // _tagPeople
+            ,
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.person_add, color: primaryColor),
+                  SizedBox(width: 10),
+                  Text("Tag People", style: TextStyle(color: primaryColor)),
+                ],
+              ),
+            ),
+          ),
+        ),
+        // Post Creation UI
+      ],
+    );
+  }
+
+  Widget _buildIssuesTab() {
+    return Column(
+      children: [
+        // Dropdown for selecting issue
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: DropdownButton<String>(
+            hint: Text("Select an issue"),
+            items: ["Issue 1", "Issue 2", "Issue 3"]
+                .map((issue) => DropdownMenuItem(
+              value: issue,
+              child: Text(issue),
+            ))
+                .toList(),
+            onChanged: (value) {
+              setState(() {
+                // Handle dropdown change
+              });
+            },
+          ),
+        ),
+        // List of Containers based on the selected issue
+        Expanded(
+          child: ListView(
+            children: [
+              ListTile(
+                title: Text("Issue Detail 1"),
+                subtitle: Text("Details of Issue 1"),
+              ),
+              ListTile(
+                title: Text("Issue Detail 2"),
+                subtitle: Text("Details of Issue 2"),
+              ),
+              ListTile(
+                title: Text("Issue Detail 3"),
+                subtitle: Text("Details of Issue 3"),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+// Other Widget methods like _buildHeader(), _buildProfileRow(), _buildCaptionInput(), _buildImagesGrid(), _buildShareButton(), _buildWardNotice() remain the same as in your code.
 }
