@@ -10,6 +10,7 @@ import 'package:myshetra/Models/UserModel.dart';
 import 'package:myshetra/Pages/AuthPage.dart';
 import 'package:myshetra/Pages/Editprofile.dart';
 import 'package:myshetra/Pages/HomePage/create_post.dart';
+import 'package:myshetra/Pages/HomePage/feed_view.dart';
 import 'package:myshetra/Pages/map_page.dart';
 import 'package:myshetra/Providers/user_provider.dart';
 import 'package:myshetra/Services/Authservices.dart';
@@ -250,7 +251,7 @@ class _HomePageState extends State<HomePage> {
                 text: "Change Location"),
             MyButton(
                 onTap: () {
-                  Get.to(UploadScreen());
+                  Get.to(const FeedView());
                 },
                 text: "Upload Files"),
             MyButton(
