@@ -16,6 +16,8 @@ import 'package:video_player/video_player.dart';
 import 'package:mime/mime.dart';
 import 'package:crypto/crypto.dart';
 
+import '../SearchPage/Tagscreen.dart';
+
 class SelectedImagesScreen extends StatefulWidget {
   final Set<AssetEntity> images;
   String caption;
@@ -101,8 +103,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     var checksum = md5.convert(bytes);
     return checksum.toString();
   }
-
-  Future<List<dynamic>> _getPreSignedUrls(List<File> files) async {
+  String postId = '';
+  Future<List<dynamic>> _getPreSignedUrls(List<File> files , String content) async {
     print("token: ${authService.token.value}");
 
     var headers = {
@@ -120,8 +122,9 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       fields['files[$i][contentType]'] = lookupMimeType(file.path) ?? '';
       fields['files[$i][checksum]'] =
           _generateChecksum(file); // Assuming this function exists
+      fields['files[$i][orderID]'] = i.toString();
     }
-
+    fields['content'] = content;
     var request = http.MultipartRequest(
       'POST',
       Uri.parse(
@@ -140,6 +143,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       print("Response: $decodedResponse");
       setState(() {
         Response = decodedResponse['data']['response'];
+         postId = Response['post_id'];
       });
       return decodedResponse['data']['response']['files'];
     } else {
@@ -149,7 +153,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   }
 
   Future<void> _uploadFiles(List<File> files) async {
-    var preSignedUrls = await _getPreSignedUrls(files);
+    var preSignedUrls = await _getPreSignedUrls(files, captionController.text);
     print(Response);
     if (preSignedUrls.isEmpty) {
       print('No pre-signed URLs received. Aborting upload.');
@@ -166,9 +170,31 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       await _uploadFileToPreSignedUrl(
           url, file, mimeType, contentType, fileSize);
     }
+    await _callWebSocketBeforeConfirming();
     await confirmPostFilesUploads(Response);
   }
+  Future<void> _callWebSocketBeforeConfirming() async {
+    var headers = {
+      'Authorization': authService.token.value
+    };
 
+    var request = http.Request(
+        'GET',
+        Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/pubsub/subscribeChannel?channel=post_creation&post_id=$postId')
+    );
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var responseBody = await response.stream.bytesToString();
+      print('WebSocket call passed: ${responseBody}');
+      print(responseBody);
+    } else {
+      print('WebSocket call failed: ${response.reasonPhrase}');
+    }
+  }
   void _pickImages() async {
     final picker = ImagePicker();
     final List<XFile> images = await picker.pickMultiImage();
@@ -251,6 +277,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       request.fields['files[$i][file_id]'] = files[i]['file_id'];
       request.fields['files[$i][unique_name]'] = files[i]['unique_name'];
       request.fields['files[$i][checksum]'] = files[i]['metadata']['checksum'];
+      request.fields['files[$i][order_id]'] = files[i]['metadata']['order_id'].toString();
     }
 
     // Add headers to the request
@@ -544,7 +571,13 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                       ),
                                       title: Text("Tag people"),
                                       onTap: () {
-                                        // Tag people action
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                             SearchScreen(),
+                                          ),
+                                        );
                                       },
                                     ),
                                   ),

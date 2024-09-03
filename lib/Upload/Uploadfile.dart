@@ -59,8 +59,8 @@ class _UploadScreenState extends State<UploadScreen> {
       fields['files[$i][size]'] = file.lengthSync().toString();
       fields['files[$i][mimeType]'] = lookupMimeType(file.path) ?? '';
       fields['files[$i][contentType]'] = lookupMimeType(file.path) ?? '';
-      fields['files[$i][checksum]'] =
-          _generateChecksum(file); // Assuming this function exists
+      fields['files[$i][checksum]'] = _generateChecksum(file); // Assuming this function exists
+      fields['files[$i][orderID]'] = i.toString();
     }
 
     var request = http.MultipartRequest(
@@ -70,6 +70,7 @@ class _UploadScreenState extends State<UploadScreen> {
     );
 
     request.fields.addAll(fields);
+    print("body of files");
     print(fields);
     request.headers.addAll(headers);
 
@@ -84,7 +85,7 @@ class _UploadScreenState extends State<UploadScreen> {
       });
       return decodedResponse['data']['response']['files'];
     } else {
-      print("Error: ${response.reasonPhrase}");
+      print("Error1234: ${response.reasonPhrase}");
       return [];
     }
   }
@@ -134,7 +135,7 @@ class _UploadScreenState extends State<UploadScreen> {
 
       await _uploadFileToPreSignedUrl(
           url, file, mimeType, contentType, fileSize);
-      await confirmPostFilesUploads(Response);
+      // await confirmPostFilesUploads(Response);
     }
   }
 
@@ -275,7 +276,7 @@ class _UploadScreenState extends State<UploadScreen> {
       Get.to(const HomePage());
       print(await response.stream.bytesToString());
     } else {
-      print('Error: ${response.statusCode}');
+      print('Error567: ${response.statusCode}');
       print('Response Reason: ${response.reasonPhrase}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${response.reasonPhrase}')),
