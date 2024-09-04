@@ -35,6 +35,10 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   List<File> selectedFiles = []; // Store picked files here
   final List<VideoPlayerController> _videoControllers = [];
   UserProfile? profile;
+  List<String> issueNames = [];
+  List<Map<String, dynamic>> representatives = [];
+  String? dropdownValue;
+
 
   @override
   void initState() {
@@ -42,7 +46,54 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     selectedImages = widget.images;
     captionController.text = widget.caption;
     _loadUserProfile();
+    fetchIssueData();
   }
+  Future<Map<String, dynamic>> fetchIssueStatus() async {
+    var headers = {
+      'Authorization': authService.token.value,
+    };
+
+    var request = http.Request(
+        'GET',
+        Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/post/getIssueStatus')
+    );
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseString = await response.stream.bytesToString();
+      return json.decode(responseString);
+    } else {
+      throw Exception('Failed to load issue status');
+    }
+  }
+
+  Future<void> fetchIssueData() async {
+    try {
+      final data = await fetchIssueStatus();
+      setState(() {
+        // Extract issue names without indices
+        issueNames = (data['data']['issues'] as List<dynamic>)
+            .map((issue) => issue['name'] as String)
+            .toSet()
+            .toList(); // Convert to Set first to remove any duplicates
+        print("issuenames");
+        print(issueNames);
+
+        // Set the initial dropdown value to the first unique item
+        dropdownValue = issueNames.isNotEmpty ? issueNames[0] : null;
+
+        // Extract representatives
+        representatives = (data['data']['representatives'] as List<dynamic>)
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
+      });
+    } catch (e) {
+      print('Error fetching issue status: $e');
+    }
+  }
+
 
   File? _profileImage;
 
@@ -246,28 +297,6 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     }
   }
 
-// Method to show an error dialog
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Error'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-
 
   Future<void> _uploadFiles(List<File> files) async {
     var preSignedUrls = await _getPreSignedUrls(files, captionController.text);
@@ -467,7 +496,6 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   }
 
   final TextEditingController captionController = TextEditingController();
-
   var width, height;
   List<dynamic> _selectedUsers = [];
   List<dynamic> _selectedHashtags = [];
@@ -495,8 +523,6 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     List<AssetEntity> imagesList = selectedImages.toList();
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
-    String dropdownValue = 'Water Issues';
-
     return DefaultTabController(
       length: 2, // Number of tabs
       child: Scaffold(
@@ -858,7 +884,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 const Text(
-                                  "Tag people",
+                                  "Complaints",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
@@ -866,6 +892,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                 const SizedBox(
                                   height: 10,
                                 ),
+                                issueNames.isNotEmpty?
                                 Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20),
@@ -875,18 +902,12 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                     value: dropdownValue,
                                     icon: const Icon(Icons.arrow_drop_down),
                                     isExpanded: true,
-                                    onChanged: (String? newValue) {
+                                    onChanged: issueNames.isEmpty ? null : (String? newValue) {
                                       setState(() {
                                         dropdownValue = newValue!;
                                       });
                                     },
-                                    items: <String>[
-                                      'Water Issues',
-                                      'Electricity Issues',
-                                      'Drainage Issues',
-                                      'Transportation Issues'
-                                    ].map<DropdownMenuItem<String>>(
-                                        (String value) {
+                                    items:issueNames.map<DropdownMenuItem<String>>((String value) {
                                       return DropdownMenuItem<String>(
                                         value: value,
                                         child: Padding(
@@ -896,17 +917,23 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                       );
                                     }).toList(),
                                   ),
-                                ),
+                                ):
+                                Container(
+                                  height: 80,
+                                    child: Center(child: Text("No issues Found in your Area" , style: TextStyle(color: Colors.black , fontSize: 18),))),
+
                                 const SizedBox(height: 20),
+                                representatives.isNotEmpty?
                                 Expanded(
-                                  child: ListView(
-                                    children: <Widget>[
-                                      _buildComplaintTile('assets/person1.jpg'),
-                                      _buildComplaintTile('assets/person2.jpg'),
-                                      _buildComplaintTile('assets/person3.jpg'),
-                                    ],
+                                  child: ListView.builder(
+                                    itemCount: representatives.length,
+                                    itemBuilder: (context, index) {
+                                      final representative = representatives[index];
+                                      return _buildRepresentativeTile(representative);
+                                    },
                                   ),
-                                ),
+                                ):
+                                    SizedBox(),
                                 Padding(
                                   padding: const EdgeInsets.all(10.0),
                                   child: MyButton(
@@ -937,17 +964,16 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     );
   }
 
-  Widget _buildComplaintTile(String imagePath) {
+  Widget _buildRepresentativeTile(Map<String, dynamic> representative) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundImage: AssetImage(imagePath),
+          backgroundImage: NetworkImage(representative['org_symbol_url']),
         ),
-        title: const Text('Manoj Bajaj'),
-        subtitle: const Text('Member of Legislative Assembly'),
-        trailing:
-            Image.asset('assets/icons/Frame 6.png'), // Replace with your icon
+        title: Text(representative['name']),
+        subtitle: Text(representative['user_role_label']),
+        trailing: Text(representative['org_abbreviation_name']),
       ),
     );
   }
