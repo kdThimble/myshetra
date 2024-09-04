@@ -21,6 +21,8 @@ import 'package:myshetra/helpers/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Previousscreen.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -251,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                 text: "Change Location"),
             MyButton(
                 onTap: () {
-                  Get.to(const FeedView());
+                  Get.to( PreviousScreen());
                 },
                 text: "Upload Files"),
             MyButton(
