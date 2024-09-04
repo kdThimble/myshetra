@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:myshetra/Components/MyButton.dart';
+import 'package:myshetra/Controller/user_selector_controller.dart';
 import 'package:myshetra/Models/UserModel.dart';
 import 'package:myshetra/Pages/HomePage/HomePage.dart';
 import 'package:myshetra/Services/Authservices.dart';
@@ -87,6 +88,26 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     return files;
   }
 
+  void printMentions() async {
+    final searchScreenController = Get.find<SelectionController>();
+
+    // Get user mentions and hashtags from the controller
+    List<Map<String, dynamic>> userMentions =
+        searchScreenController.selectedUsers.map((user) {
+      return {
+        'token': '@${user["user_name"]}',
+        'user_id': user["user_id"],
+      };
+    }).toList();
+
+    List<String> hashtags =
+        searchScreenController.selectedHashtags.map((hashtag) {
+      return '${hashtag['hashtag_name']}';
+    }).toList();
+    print("User ${userMentions[0].toString()}");
+    print("Hashtag ${hashtags[0]}");
+  }
+
   Future<void> _uploadSelectedFiles() async {
     // Convert selected AssetEntity images to File objects
     List<File> convertedFiles = await _convertToFiles(selectedImages.toList());
@@ -103,8 +124,10 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     var checksum = md5.convert(bytes);
     return checksum.toString();
   }
+
   String postId = '';
-  Future<List<dynamic>> _getPreSignedUrls(List<File> files , String content) async {
+  Future<List<dynamic>> _getPreSignedUrls(
+      List<File> files, String content) async {
     print("token: ${authService.token.value}");
 
     var headers = {
@@ -113,6 +136,21 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     };
 
     var fields = <String, String>{};
+    final searchScreenController = Get.find<SelectionController>();
+
+    // Get user mentions and hashtags from the controller
+    List<Map<String, dynamic>> userMentions =
+        searchScreenController.selectedUsers.map((user) {
+      return {
+        'token': '@${user["user_name"]}',
+        'user_id': user["user_id"],
+      };
+    }).toList();
+
+    List<String> hashtags =
+        searchScreenController.selectedHashtags.map((hashtag) {
+      return '${hashtag['hashtag_name']}';
+    }).toList();
 
     for (var i = 0; i < files.length; i++) {
       var file = files[i];
@@ -125,6 +163,15 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       fields['files[$i][orderID]'] = i.toString();
     }
     fields['content'] = content;
+    for (int i = 0; i < userMentions.length; i++) {
+      fields['user_mentions[$i][token]'] = userMentions[i]['token']!;
+      fields['user_mentions[$i][user_id]'] = userMentions[i]['user_id']!;
+    }
+
+    // Add hashtags to the form data
+    for (int i = 0; i < hashtags.length; i++) {
+      fields['hashtags[$i]'] = hashtags[i];
+    }
     var request = http.MultipartRequest(
       'POST',
       Uri.parse(
@@ -143,7 +190,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       print("Response: $decodedResponse");
       setState(() {
         Response = decodedResponse['data']['response'];
-         postId = Response['post_id'];
+        postId = Response['post_id'];
       });
       return decodedResponse['data']['response']['files'];
     } else {
@@ -170,18 +217,17 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       await _uploadFileToPreSignedUrl(
           url, file, mimeType, contentType, fileSize);
     }
-    await _callWebSocketBeforeConfirming();
+    // await _callWebSocketBeforeConfirming();
     await confirmPostFilesUploads(Response);
   }
+
   Future<void> _callWebSocketBeforeConfirming() async {
-    var headers = {
-      'Authorization': authService.token.value
-    };
+    var headers = {'Authorization': authService.token.value};
 
     var request = http.Request(
         'GET',
-        Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/pubsub/subscribeChannel?channel=post_creation&post_id=$postId')
-    );
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/pubsub/subscribeChannel?channel=post_creation&post_id=$postId'));
 
     request.headers.addAll(headers);
 
@@ -189,12 +235,13 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
 
     if (response.statusCode == 200) {
       var responseBody = await response.stream.bytesToString();
-      print('WebSocket call passed: ${responseBody}');
+      print('WebSocket call passed: $responseBody');
       print(responseBody);
     } else {
       print('WebSocket call failed: ${response.reasonPhrase}');
     }
   }
+
   void _pickImages() async {
     final picker = ImagePicker();
     final List<XFile> images = await picker.pickMultiImage();
@@ -277,7 +324,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       request.fields['files[$i][file_id]'] = files[i]['file_id'];
       request.fields['files[$i][unique_name]'] = files[i]['unique_name'];
       request.fields['files[$i][checksum]'] = files[i]['metadata']['checksum'];
-      request.fields['files[$i][order_id]'] = files[i]['metadata']['order_id'].toString();
+      request.fields['files[$i][order_id]'] =
+          files[i]['metadata']['order_id'].toString();
     }
 
     // Add headers to the request
@@ -382,11 +430,11 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                       backgroundImage: _profileImage != null
                           ? FileImage(_profileImage!) as ImageProvider<Object>
                           : profile?.profileImageUrl !=
-                          "https://dev-my-shetra.blr1.cdn.digitaloceanspaces.com/admin_files/FallBackProfileImage.jpeg"
-                          ? NetworkImage(profile?.profileImageUrl ??
-                          "https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph")
-                          : const NetworkImage(
-                          'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph'),
+                                  "https://dev-my-shetra.blr1.cdn.digitaloceanspaces.com/admin_files/FallBackProfileImage.jpeg"
+                              ? NetworkImage(profile?.profileImageUrl ??
+                                  "https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph")
+                              : const NetworkImage(
+                                  'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?size=626&ext=jpg&ga=GA1.1.101892706.1718654435&semt=sph'),
                     ),
                     SizedBox(width: width * 0.03),
                     Column(
@@ -427,12 +475,12 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(right: 8.0),
+              padding: const EdgeInsets.only(right: 8.0),
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   "${captionController.text.length}/256",
-                  style: TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ),
             ),
@@ -537,15 +585,15 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
             ),
             Padding(
               padding: const EdgeInsets.all(10.0),
-              child: Container(
+              child: SizedBox(
                 height: height * 0.45, // Adjust the height as needed (40-50%)
                 child: Column(
                   children: [
-                    TabBar(
+                    const TabBar(
                       labelColor: Colors.black,
                       unselectedLabelColor: Colors.grey,
                       indicatorColor: Colors.black,
-                      tabs: const [
+                      tabs: [
                         Tab(text: "Post"),
                         Tab(text: "Issues"),
                       ],
@@ -569,13 +617,13 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                         Icons.person_add_alt_1,
                                         color: primaryColor,
                                       ),
-                                      title: Text("Tag people"),
+                                      title: const Text("Tag people"),
                                       onTap: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                             SearchScreen(),
+                                                const SearchScreen(),
                                           ),
                                         );
                                       },
@@ -593,7 +641,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                   child: Text(
                                     "*Post will be visible in your ward only*",
                                     style: TextStyle(
-                                        fontWeight: FontWeight.bold, fontSize: 17),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17),
                                   ),
                                 ),
                               ],
@@ -605,8 +654,15 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text("Tag people" , style: TextStyle(fontWeight: FontWeight.bold , fontSize: 16),),
-                                SizedBox(height: 10,),
+                                const Text(
+                                  "Tag people",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
                                 Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20),
@@ -614,7 +670,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                   ),
                                   child: DropdownButton<String>(
                                     value: dropdownValue,
-                                    icon: Icon(Icons.arrow_drop_down),
+                                    icon: const Icon(Icons.arrow_drop_down),
                                     isExpanded: true,
                                     onChanged: (String? newValue) {
                                       setState(() {
@@ -626,7 +682,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                       'Electricity Issues',
                                       'Drainage Issues',
                                       'Transportation Issues'
-                                    ].map<DropdownMenuItem<String>>((String value) {
+                                    ].map<DropdownMenuItem<String>>(
+                                        (String value) {
                                       return DropdownMenuItem<String>(
                                         value: value,
                                         child: Padding(
@@ -637,7 +694,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                     }).toList(),
                                   ),
                                 ),
-                                SizedBox(height: 20),
+                                const SizedBox(height: 20),
                                 Expanded(
                                   child: ListView(
                                     children: <Widget>[
@@ -677,17 +734,17 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     );
   }
 
-
   Widget _buildComplaintTile(String imagePath) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
         leading: CircleAvatar(
           backgroundImage: AssetImage(imagePath),
         ),
-        title: Text('Manoj Bajaj'),
-        subtitle: Text('Member of Legislative Assembly'),
-        trailing: Image.asset('assets/icons/Frame 6.png'), // Replace with your icon
+        title: const Text('Manoj Bajaj'),
+        subtitle: const Text('Member of Legislative Assembly'),
+        trailing:
+            Image.asset('assets/icons/Frame 6.png'), // Replace with your icon
       ),
     );
   }
@@ -699,11 +756,11 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: GestureDetector(
-            onTap: (){}
+            onTap: () {}
             // _tagPeople
             ,
             child: Container(
-              padding: EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(10.0),
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(10),
@@ -711,7 +768,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
               child: Row(
                 children: [
                   Icon(Icons.person_add, color: primaryColor),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text("Tag People", style: TextStyle(color: primaryColor)),
                 ],
               ),
@@ -730,12 +787,12 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: DropdownButton<String>(
-            hint: Text("Select an issue"),
+            hint: const Text("Select an issue"),
             items: ["Issue 1", "Issue 2", "Issue 3"]
                 .map((issue) => DropdownMenuItem(
-              value: issue,
-              child: Text(issue),
-            ))
+                      value: issue,
+                      child: Text(issue),
+                    ))
                 .toList(),
             onChanged: (value) {
               setState(() {
@@ -747,7 +804,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
         // List of Containers based on the selected issue
         Expanded(
           child: ListView(
-            children: [
+            children: const [
               ListTile(
                 title: Text("Issue Detail 1"),
                 subtitle: Text("Details of Issue 1"),

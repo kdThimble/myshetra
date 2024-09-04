@@ -2,19 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
+import 'package:myshetra/Controller/user_selector_controller.dart';
 import 'dart:convert';
 
 import '../../Services/Authservices.dart';
 
 class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _currentTab = 'Users';
   List<dynamic> _results = [];
+
+  final SelectionController selectionController =
+      Get.put(SelectionController());
   bool _isLoading = false;
   String _errorMessage = '';
   final authService = Get.find<AuthService>();
@@ -22,12 +28,12 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // Number of tabs
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Search'),
+          title: const Text('Search'),
           bottom: TabBar(
-            tabs: [
+            tabs: const [
               Tab(text: 'Users'),
               Tab(text: 'Hashtags'),
             ],
@@ -43,40 +49,90 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         body: Column(
           children: [
+            // Search Bar
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
+                onChanged: _search,
                 controller: _searchController,
                 decoration: InputDecoration(
                   labelText: 'Search $_currentTab',
                   suffixIcon: IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: _search,
+                    icon: const Icon(Icons.search),
+                    onPressed: () {},
                   ),
                 ),
               ),
             ),
+            // Selected Items Display
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Obx(() => Wrap(
+                    spacing: 8.0,
+                    children: _currentTab == 'Users'
+                        ? selectionController.selectedUsers
+                            .map((user) =>
+                                _buildSelectedItem(user['user_name'], () {
+                                  selectionController.removeUser(user);
+                                }))
+                            .toList()
+                        : selectionController.selectedHashtags
+                            .map((hashtag) =>
+                                _buildSelectedItem(hashtag['hashtag_name'], () {
+                                  selectionController.removeHashtag(hashtag);
+                                }))
+                            .toList(),
+                  )),
+            ),
+            // Search Results
             Expanded(
               child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
                   : _results.isEmpty
-                  ? Center(child: Text(_errorMessage.isEmpty ? 'No $_currentTab found' : _errorMessage))
-                  : ListView.builder(
-                itemCount: _results.length,
-                itemBuilder: (context, index) {
-                  if (_currentTab == 'Users') {
-                    return ListTile(
-                      title: Text(_results[index]['user_name']),
-                      subtitle: Text(_results[index]['handle_name']),
-                    );
-                  } else {
-                    return ListTile(
-                      title: Text(_results[index]['hashtag_name']),
-                      subtitle: Text('Usage count: ${_results[index]['hashtag_usage_count']}'),
-                    );
-                  }
-                },
-              ),
+                      ? Center(
+                          child: Text(_errorMessage.isEmpty
+                              ? 'No $_currentTab found'
+                              : _errorMessage))
+                      : ListView.builder(
+                          itemCount: _results.length,
+                          itemBuilder: (context, index) {
+                            final item = _results[index];
+                            final isSelected = _currentTab == 'Users'
+                                ? selectionController.selectedUsers
+                                    .contains(item)
+                                : selectionController.selectedHashtags
+                                    .contains(item);
+
+                            return ListTile(
+                              title: Text(_currentTab == 'Users'
+                                  ? item['user_name']
+                                  : item['hashtag_name']),
+                              subtitle: Text(_currentTab == 'Users'
+                                  ? item['handle_name']
+                                  : 'Usage count: ${item['hashtag_usage_count']}'),
+                              trailing: isSelected
+                                  ? const Icon(Icons.check_box)
+                                  : const Icon(Icons.check_box_outline_blank),
+                              onTap: () {
+                                setState(() {
+                                  if (_currentTab == 'Users') {
+                                    if (isSelected) {
+                                      selectionController.removeUser(item);
+                                    } else {
+                                      selectionController.addUser(item);
+                                    }
+                                  } else {
+                                    if (isSelected) {
+                                      selectionController.removeHashtag(item);
+                                    } else {
+                                      selectionController.addHashtag(item);
+                                    }
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
             ),
           ],
         ),
@@ -84,8 +140,24 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Future<void> _search() async {
-    if (_searchController.text.isEmpty) return;
+  Widget _buildSelectedItem(String text, VoidCallback onRemove) {
+    return Chip(
+      label: Text(text),
+      backgroundColor: Colors.lightBlue.shade100,
+      deleteIcon: const Icon(Icons.clear, size: 18),
+      onDeleted: onRemove,
+    );
+  }
+
+  void _search(String text) async {
+    if (_searchController.text.isEmpty) {
+      setState(() {
+        _isLoading = false;
+        _results = [];
+        _errorMessage = '';
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = true;
