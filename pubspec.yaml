@@ -65,8 +65,6 @@ dependencies:
   flutter_osm_plugin:
   video_player:
   web_socket_channel:
-  smooth_page_indicator: ^1.2.0+3
-  timeago: ^3.7.0
   mapmyindia_gl: 
   extended_image: ^8.1.1
   photo_manager: ^3.2.3
