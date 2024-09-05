@@ -159,6 +159,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     print("Hashtag ${hashtags[0]}");
   }
 
+  final searchScreenController = Get.put(SelectionController());
+
   Future<void> _uploadSelectedFiles() async {
     // Convert selected AssetEntity images to File objects
     List<File> convertedFiles = await _convertToFiles(selectedImages.toList());
@@ -419,7 +421,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     // Add fields to the request
     request.fields['post_id'] = postId;
     request.fields['content'] = captionController.text;
-    final searchScreenController = Get.find<SelectionController>();
+
     List<String> hashtags =
         searchScreenController.selectedHashtags.map((hashtag) {
       return '${hashtag['hashtag_name']}';
@@ -563,8 +565,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   }
 
   void _onSuggestionTap(dynamic user) {
-    final searchScreenController = Get.find<SelectionController>();
     searchScreenController.addUser(user);
+    setState(() {});
     final atIndex = captionController.text.lastIndexOf('@');
     if (atIndex != -1) {
       final newText =
