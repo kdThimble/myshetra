@@ -16,6 +16,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:mime/mime.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter_mentions/flutter_mentions.dart';
 
 import '../SearchPage/Tagscreen.dart';
 
@@ -39,7 +40,6 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   List<Map<String, dynamic>> representatives = [];
   String? dropdownValue;
 
-
   @override
   void initState() {
     super.initState();
@@ -48,6 +48,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     _loadUserProfile();
     fetchIssueData();
   }
+
   Future<Map<String, dynamic>> fetchIssueStatus() async {
     var headers = {
       'Authorization': authService.token.value,
@@ -55,8 +56,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
 
     var request = http.Request(
         'GET',
-        Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/post/getIssueStatus')
-    );
+        Uri.parse(
+            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/post/getIssueStatus'));
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -93,7 +94,6 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       print('Error fetching issue status: $e');
     }
   }
-
 
   File? _profileImage;
 
@@ -177,7 +177,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   }
 
   String postId = '';
-  String _replaceMentionsInContent(String content, List<Map<String, dynamic>> userMentions) {
+  String _replaceMentionsInContent(
+      String content, List<Map<String, dynamic>> userMentions) {
     // Use a regular expression to find all occurrences of @ followed by words or spaces
     final mentionRegex = RegExp(r'@(\w+[\w\s]*)', caseSensitive: false);
 
@@ -195,7 +196,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       if (mention != null) {
         // Get the user mention token (e.g., @user1) or use a placeholder if not enough users are provided
         final userIndex = i < userMentions.length ? i : userMentions.length - 1;
-        final userToken = '@user${userIndex + 1}'; // Generate user token as @user1, @user2, etc.
+        final userToken =
+            '@user${userIndex + 1}'; // Generate user token as @user1, @user2, etc.
 
         // Map mention to user token
         replacements[mention] = userToken;
@@ -211,7 +213,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     return updatedContent;
   }
 
-  Future<List<dynamic>> _getPreSignedUrls(List<File> files, String content) async {
+  Future<List<dynamic>> _getPreSignedUrls(
+      List<File> files, String content) async {
     print("token: ${authService.token.value}");
 
     var headers = {
@@ -223,14 +226,16 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     final searchScreenController = Get.find<SelectionController>();
 
     // Get user mentions and hashtags from the controller
-    List<Map<String, dynamic>> userMentions = searchScreenController.selectedUsers.map((user) {
+    List<Map<String, dynamic>> userMentions =
+        searchScreenController.selectedUsers.map((user) {
       return {
         'token': '@${user["user_name"]}',
         'user_id': user["user_id"],
       };
     }).toList();
 
-    List<String> hashtags = searchScreenController.selectedHashtags.map((hashtag) {
+    List<String> hashtags =
+        searchScreenController.selectedHashtags.map((hashtag) {
       return '${hashtag['hashtag_name']}';
     }).toList();
     final updatedContent = _replaceMentionsInContent(content, userMentions);
@@ -242,7 +247,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       fields['files[$i][size]'] = file.lengthSync().toString();
       fields['files[$i][mimeType]'] = lookupMimeType(file.path) ?? '';
       fields['files[$i][contentType]'] = lookupMimeType(file.path) ?? '';
-      fields['files[$i][checksum]'] = _generateChecksum(file); // Assuming this function exists
+      fields['files[$i][checksum]'] =
+          _generateChecksum(file); // Assuming this function exists
       fields['files[$i][orderID]'] = i.toString();
     }
 
@@ -265,7 +271,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     // Create the request
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getPreSignedUrlsFromFileMetaData'),
+      Uri.parse(
+          'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/getPreSignedUrlsFromFileMetaData'),
     );
 
     request.fields.addAll(fields);
@@ -297,7 +304,6 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     }
   }
 
-
   Future<void> _uploadFiles(List<File> files) async {
     var preSignedUrls = await _getPreSignedUrls(files, captionController.text);
     print(Response);
@@ -317,7 +323,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
           url, file, mimeType, contentType, fileSize);
     }
     // await _callWebSocketBeforeConfirming();
-    await confirmPostFilesUploads(Response,captionController.text);
+    await confirmPostFilesUploads(Response, captionController.text);
   }
 
   Future<void> _callWebSocketBeforeConfirming() async {
@@ -391,7 +397,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   }
 
   Future<void> confirmPostFilesUploads(
-      Map<String, dynamic> responseData ,String content) async {
+      Map<String, dynamic> responseData, String content) async {
     // Extract data from the response
     String postId = responseData['post_id'];
     List<Map<String, dynamic>> files =
@@ -414,17 +420,18 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     request.fields['post_id'] = postId;
     request.fields['content'] = captionController.text;
     final searchScreenController = Get.find<SelectionController>();
-    List<String> hashtags = searchScreenController.selectedHashtags.map((hashtag) {
+    List<String> hashtags =
+        searchScreenController.selectedHashtags.map((hashtag) {
       return '${hashtag['hashtag_name']}';
     }).toList();
 
-    List<Map<String, dynamic>> userMentions = searchScreenController.selectedUsers.map((user) {
+    List<Map<String, dynamic>> userMentions =
+        searchScreenController.selectedUsers.map((user) {
       return {
         'token': '@${user["user_name"]}',
         'user_id': user["user_id"],
       };
     }).toList();
-
 
     final updatedContent = _replaceMentionsInContent(content, userMentions);
 
@@ -434,7 +441,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       request.fields['files[$i][file_id]'] = files[i]['file_id'];
       request.fields['files[$i][unique_name]'] = files[i]['unique_name'];
       request.fields['files[$i][checksum]'] = files[i]['metadata']['checksum'];
-      request.fields['files[$i][order_id]'] = files[i]['metadata']['order_id'].toString();
+      request.fields['files[$i][order_id]'] =
+          files[i]['metadata']['order_id'].toString();
     }
 
     // Add content
@@ -445,7 +453,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       String formattedToken = '{user${i + 1}}';
 
       request.fields['user_mentions[$i][token]'] = formattedToken;
-      request.fields['user_mentions[$i][user_id]'] = userMentions[i]['user_id']!;
+      request.fields['user_mentions[$i][user_id]'] =
+          userMentions[i]['user_id']!;
     }
 
     // Add hashtags to the form data
@@ -487,6 +496,91 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     }
   }
 
+  bool _isMentioning = false;
+  List<dynamic> _results = [];
+  String _searchQuery = '';
+  void onChng(String text) {
+    print("In on change");
+  }
+
+  void _onChanged(String text) {
+    final atIndex = text.lastIndexOf('@');
+    print("in on changed");
+    if (atIndex != -1) {
+      setState(() {
+        _isMentioning = true;
+        _searchQuery = text.substring(atIndex + 1);
+      });
+      _search(_searchQuery);
+    } else {
+      setState(() {
+        _isMentioning = false;
+        _results = [];
+      });
+    }
+  }
+
+  void _search(String text) async {
+    if (text.isEmpty) {
+      setState(() {
+        _results = [];
+      });
+      return;
+    }
+
+    setState(() {
+      _results = [];
+    });
+    print("In search");
+
+    var headers = {
+      'Authorization': authService.token.value,
+    };
+    var uri =
+        'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/searchUsersForUserMention?search_query=$text';
+
+    var request = http.Request('POST', Uri.parse(uri));
+    request.headers.addAll(headers);
+
+    try {
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var responseBody = await response.stream.bytesToString();
+        var jsonResponse = json.decode(responseBody);
+
+        setState(() {
+          _results = jsonResponse['data']['users'];
+        });
+
+        print("userr :${_results[0]}");
+      } else {}
+    } catch (e) {
+      setState(() {
+        _results = [];
+      });
+    }
+  }
+
+  void _onSuggestionTap(dynamic user) {
+    final searchScreenController = Get.find<SelectionController>();
+    searchScreenController.addUser(user);
+    final atIndex = captionController.text.lastIndexOf('@');
+    if (atIndex != -1) {
+      final newText =
+          captionController.text.substring(0, atIndex + 1) + user['user_name'];
+      captionController.text = newText;
+      captionController.selection = TextSelection.fromPosition(
+        TextPosition(offset: newText.length),
+      );
+    }
+
+    setState(() {
+      _isMentioning = false;
+      _results = [];
+    });
+  }
+
   @override
   void dispose() {
     for (var controller in _videoControllers) {
@@ -495,7 +589,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     super.dispose();
   }
 
-  final TextEditingController captionController = TextEditingController();
+  TextEditingController captionController = TextEditingController();
+
   var width, height;
   List<dynamic> _selectedUsers = [];
   List<dynamic> _selectedHashtags = [];
@@ -511,9 +606,9 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     final selectedHashtagsText = _selectedHashtags
         .map((hashtag) => '${hashtag['hashtag_name']}')
         .join(' '); // Add a space after each hashtag
-     print("hashtag n users");
-     print(selectedUsersText);
-     print(selectedHashtagsText);
+    print("hashtag n users");
+    print(selectedUsersText);
+    print(selectedHashtagsText);
     // Combine the caption with selected users and hashtags
     return '$captionText $selectedUsersText $selectedHashtagsText';
   }
@@ -611,15 +706,18 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
               child: TextField(
                 controller: captionController,
                 maxLength: 256,
+                onChanged: (value) =>
+                    _onChanged(value), // Ensure this is properly connected
                 decoration: const InputDecoration(
                   labelText: 'Write a Caption...',
                   hintText: 'Write a Caption...',
                   contentPadding: EdgeInsets.all(8.0),
                   border: InputBorder.none,
-                  counterText: '', // This hides the default counter
+                  counterText: '', // Hide counter
                 ),
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.only(right: 8.0, top: 10.0),
               child: Align(
@@ -630,6 +728,20 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                 ),
               ),
             ),
+            if (_isMentioning)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _results.length,
+                  itemBuilder: (context, index) {
+                    final result = _results[index];
+                    return ListTile(
+                      title: Text(result['user_name']),
+                      subtitle: Text('@${result['handle_name']}'),
+                      onTap: () => _onSuggestionTap(result),
+                    );
+                  },
+                ),
+              ),
 
             // Display selected users and hashtags
 
@@ -783,32 +895,44 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                     children: [
                                       Container(
                                         decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.grey),
-                                          borderRadius: BorderRadius.circular(10),
+                                          border:
+                                              Border.all(color: Colors.grey),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                         child: ListTile(
-                                          leading: Icon(
+                                          leading: const Icon(
                                             Icons.person_add_alt_1,
-                                            color: Colors.blue, // replace with your primaryColor
+                                            color: Colors
+                                                .blue, // replace with your primaryColor
                                           ),
                                           title: const Text("Tag people"),
                                           onTap: () async {
                                             final result = await Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (context) => const SearchScreen(),
+                                                builder: (context) =>
+                                                    const SearchScreen(),
                                               ),
                                             );
 
                                             if (result != null) {
                                               setState(() {
-                                                _selectedUsers = result['selectedUsers'] ?? [];
-                                                _selectedHashtags = result['selectedHashtags'] ?? [];
+                                                _selectedUsers =
+                                                    result['selectedUsers'] ??
+                                                        [];
+                                                _selectedHashtags = result[
+                                                        'selectedHashtags'] ??
+                                                    [];
                                                 // Update the TextField with combined text
-                                                captionController.text = _buildCombinedText();
+                                                captionController.text =
+                                                    _buildCombinedText();
                                                 // Move the cursor to the end of the text
-                                                captionController.selection = TextSelection.fromPosition(
-                                                  TextPosition(offset: captionController.text.length),
+                                                captionController.selection =
+                                                    TextSelection.fromPosition(
+                                                  TextPosition(
+                                                      offset: captionController
+                                                          .text.length),
                                                 );
                                               });
                                             }
@@ -816,13 +940,17 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                         ),
                                       ),
                                       // Display selected users and hashtags
-                                      if (_selectedUsers.isNotEmpty || _selectedHashtags.isNotEmpty)
+                                      if (_selectedUsers.isNotEmpty ||
+                                          _selectedHashtags.isNotEmpty)
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10.0),
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              if (_selectedUsers.isNotEmpty) ...[
+                                              if (_selectedUsers
+                                                  .isNotEmpty) ...[
                                                 // const Text(
                                                 //   'Selected Users:',
                                                 //   style: TextStyle(fontWeight: FontWeight.bold),
@@ -831,13 +959,17 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                                   spacing: 8.0,
                                                   children: _selectedUsers
                                                       .map((user) => Chip(
-                                                    label: Text(user['user_name']),
-                                                    backgroundColor: Colors.lightBlue.shade100,
-                                                  ))
+                                                            label: Text(user[
+                                                                'user_name']),
+                                                            backgroundColor:
+                                                                Colors.lightBlue
+                                                                    .shade100,
+                                                          ))
                                                       .toList(),
                                                 ),
                                               ],
-                                              if (_selectedHashtags.isNotEmpty) ...[
+                                              if (_selectedHashtags
+                                                  .isNotEmpty) ...[
                                                 const SizedBox(height: 10),
                                                 // const Text(
                                                 //   'Selected Hashtags:',
@@ -847,9 +979,13 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                                   spacing: 8.0,
                                                   children: _selectedHashtags
                                                       .map((hashtag) => Chip(
-                                                    label: Text('${hashtag['hashtag_name']}'),
-                                                    backgroundColor: Colors.lightGreen.shade100,
-                                                  ))
+                                                            label: Text(
+                                                                '${hashtag['hashtag_name']}'),
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .lightGreen
+                                                                    .shade100,
+                                                          ))
                                                       .toList(),
                                                 ),
                                               ],
@@ -892,48 +1028,64 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                issueNames.isNotEmpty?
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: Colors.grey),
-                                  ),
-                                  child: DropdownButton<String>(
-                                    value: dropdownValue,
-                                    icon: const Icon(Icons.arrow_drop_down),
-                                    isExpanded: true,
-                                    onChanged: issueNames.isEmpty ? null : (String? newValue) {
-                                      setState(() {
-                                        dropdownValue = newValue!;
-                                      });
-                                    },
-                                    items:issueNames.map<DropdownMenuItem<String>>((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(value),
+                                issueNames.isNotEmpty
+                                    ? Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border:
+                                              Border.all(color: Colors.grey),
                                         ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ):
-                                Container(
-                                  height: 80,
-                                    child: Center(child: Text("No issues Found in your Area" , style: TextStyle(color: Colors.black , fontSize: 18),))),
+                                        child: DropdownButton<String>(
+                                          value: dropdownValue,
+                                          icon:
+                                              const Icon(Icons.arrow_drop_down),
+                                          isExpanded: true,
+                                          onChanged: issueNames.isEmpty
+                                              ? null
+                                              : (String? newValue) {
+                                                  setState(() {
+                                                    dropdownValue = newValue!;
+                                                  });
+                                                },
+                                          items: issueNames
+                                              .map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Text(value),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      )
+                                    : const SizedBox(
+                                        height: 80,
+                                        child: Center(
+                                            child: Text(
+                                          "No issues Found in your Area",
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 18),
+                                        ))),
 
                                 const SizedBox(height: 20),
-                                representatives.isNotEmpty?
-                                Expanded(
-                                  child: ListView.builder(
-                                    itemCount: representatives.length,
-                                    itemBuilder: (context, index) {
-                                      final representative = representatives[index];
-                                      return _buildRepresentativeTile(representative);
-                                    },
-                                  ),
-                                ):
-                                    SizedBox(),
+                                representatives.isNotEmpty
+                                    ? Expanded(
+                                        child: ListView.builder(
+                                          itemCount: representatives.length,
+                                          itemBuilder: (context, index) {
+                                            final representative =
+                                                representatives[index];
+                                            return _buildRepresentativeTile(
+                                                representative);
+                                          },
+                                        ),
+                                      )
+                                    : const SizedBox(),
                                 Padding(
                                   padding: const EdgeInsets.all(10.0),
                                   child: MyButton(

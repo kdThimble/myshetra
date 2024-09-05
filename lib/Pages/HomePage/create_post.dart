@@ -60,7 +60,7 @@ class _CreatePostState extends State<CreatePost> {
     }
   }
 
-  TextEditingController Captioncontroller = TextEditingController();
+  TextEditingController captionController = TextEditingController();
 
   final authService = Get.find<AuthService>();
   Set<AssetEntity> selectedImages = {};
@@ -181,7 +181,7 @@ class _CreatePostState extends State<CreatePost> {
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: TextField(
-                    controller: Captioncontroller,
+                    controller: captionController,
                     decoration: const InputDecoration(
                       labelText: 'Write a caption...',
                       hintText: 'Write a caption...',
@@ -334,7 +334,7 @@ class _CreatePostState extends State<CreatePost> {
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: MyButton(
                     onTap: () {
-                      if (Captioncontroller.text.isEmpty) {
+                      if (captionController.text.isEmpty) {
                         Fluttertoast.showToast(
                             msg: "Caption can not be empty",
                             gravity: ToastGravity.TOP,
@@ -345,7 +345,7 @@ class _CreatePostState extends State<CreatePost> {
                           // Navigate to the new screen with selected images
                           Get.to(SelectedImagesScreen(
                             images: selectedImages,
-                            caption: Captioncontroller.text,
+                            caption: captionController.text,
                           ));
                         }
                       }

@@ -39,7 +39,7 @@ dependencies:
   webview_flutter: ^2.0.13
   cupertino_icons: ^1.0.2
   shared_preferences: ^2.0.6
-  flutter_mentions:
+  flutter_mentions: ^2.0.1
   http:
   intl:
   file_picker:
