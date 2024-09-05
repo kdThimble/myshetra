@@ -499,6 +499,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   }
 
   bool _isMentioning = false;
+  bool _isHashTagging = false;
   List<dynamic> _results = [];
   String _searchQuery = '';
   void onChng(String text) {
@@ -507,19 +508,109 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
 
   void _onChanged(String text) {
     final atIndex = text.lastIndexOf('@');
+    final hashIndex = text.lastIndexOf('#');
+    
     print("in on changed");
     if (atIndex != -1) {
       setState(() {
         _isMentioning = true;
+        _isHashTagging = false;
         _searchQuery = text.substring(atIndex + 1);
       });
       _search(_searchQuery);
+    } else if (hashIndex != -1) {
+      setState(() {
+        _isMentioning = false; // Disable mentioning
+        _isHashTagging = true;
+        _searchQuery = text.substring(hashIndex + 1);
+      });
+      _searchHashtags(_searchQuery);
+      // Call hashtag search function
     } else {
       setState(() {
         _isMentioning = false;
         _results = [];
+        _isHashTagging = false;
       });
     }
+  }
+
+  void _searchHashtags(String text) async {
+    if (text.isEmpty) {
+      setState(() {
+        _results = [];
+      });
+      return;
+    }
+
+    setState(() {
+      _results = [];
+    });
+    print("In hashtag search");
+
+    var headers = {
+      'Authorization': authService.token.value,
+    };
+    var uri =
+        'https://seal-app-eq6ra.ondigitalocean.app/myshetra/users/searchHashTagsForTagging?search_query=$text';
+
+    var request = http.Request('POST', Uri.parse(uri));
+    request.headers.addAll(headers);
+
+    try {
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var responseBody = await response.stream.bytesToString();
+        var jsonResponse = json.decode(responseBody);
+
+        setState(() {
+          _results = jsonResponse['data']['hashtags'];
+        });
+
+        print("hashtag: ${_results[0]}");
+      }
+    } catch (e) {
+      setState(() {
+        _results = [];
+      });
+    }
+  }
+
+  void _onSuggestionTap(dynamic suggestion) {
+    // Add user or hashtag depending on the context
+    if (_isMentioning) {
+      searchScreenController.addUser(suggestion);
+      final atIndex = captionController.text.lastIndexOf('@');
+      if (atIndex != -1) {
+        final newText = captionController.text.substring(0, atIndex + 1) +
+            suggestion['user_name'];
+        captionController.text = newText;
+        captionController.selection = TextSelection.fromPosition(
+          TextPosition(offset: newText.length),
+        );
+      }
+    } else if (_isHashTagging) {
+      searchScreenController.addHashtag(suggestion);
+      final hashIndex = captionController.text.lastIndexOf('#');
+      if (hashIndex != -1) {
+        final newText = captionController.text.substring(0, hashIndex + 1) +
+            suggestion['hashtag_name'];
+        captionController.text = newText;
+        captionController.selection = TextSelection.fromPosition(
+          TextPosition(offset: newText.length),
+        );
+      }
+      setState(() {
+        _results = [];
+      });
+    }
+
+    setState(() {
+      _isMentioning = false;
+      _isHashTagging = false;
+      _results = [];
+    });
   }
 
   void _search(String text) async {
@@ -564,24 +655,24 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     }
   }
 
-  void _onSuggestionTap(dynamic user) {
-    searchScreenController.addUser(user);
-    setState(() {});
-    final atIndex = captionController.text.lastIndexOf('@');
-    if (atIndex != -1) {
-      final newText =
-          captionController.text.substring(0, atIndex + 1) + user['user_name'];
-      captionController.text = newText;
-      captionController.selection = TextSelection.fromPosition(
-        TextPosition(offset: newText.length),
-      );
-    }
+  // void _onSuggestionTap(dynamic user) {
+  // searchScreenController.addUser(user);
+  // setState(() {});
+  // final atIndex = captionController.text.lastIndexOf('@');
+  // if (atIndex != -1) {
+  //   final newText =
+  //       captionController.text.substring(0, atIndex + 1) + user['user_name'];
+  //   captionController.text = newText;
+  //   captionController.selection = TextSelection.fromPosition(
+  //     TextPosition(offset: newText.length),
+  //   );
+  // }
 
-    setState(() {
-      _isMentioning = false;
-      _results = [];
-    });
-  }
+  // setState(() {
+  //   _isMentioning = false;
+  //   _results = [];
+  // });
+  // }
 
   @override
   void dispose() {
@@ -739,6 +830,20 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
                     return ListTile(
                       title: Text(result['user_name']),
                       subtitle: Text('@${result['handle_name']}'),
+                      onTap: () => _onSuggestionTap(result),
+                    );
+                  },
+                ),
+              ),
+            if (_isHashTagging)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _results.length,
+                  itemBuilder: (context, index) {
+                    final result = _results[index];
+                    return ListTile(
+                      title: Text(result['hashtag_name']),
+                      subtitle: Text('@${result['hashtag_usage_count']}'),
                       onTap: () => _onSuggestionTap(result),
                     );
                   },
