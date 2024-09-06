@@ -253,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                 text: "Change Location"),
             MyButton(
                 onTap: () {
-                  Get.to( PreviousScreen());
+                  Get.to( FeedView());
                 },
                 text: "Upload Files"),
             MyButton(

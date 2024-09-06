@@ -324,28 +324,31 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       await _uploadFileToPreSignedUrl(
           url, file, mimeType, contentType, fileSize);
     }
-    // await _callWebSocketBeforeConfirming();
-    await confirmPostFilesUploads(Response, captionController.text);
+    await _callWebSocketBeforeConfirming();
+    // await confirmPostFilesUploads(Response, captionController.text);
   }
 
   Future<void> _callWebSocketBeforeConfirming() async {
-    var headers = {'Authorization': authService.token.value};
+    try {
+      var headers = {'Authorization': authService.token.value};
 
-    var request = http.Request(
-        'GET',
-        Uri.parse(
-            'https://seal-app-eq6ra.ondigitalocean.app/myshetra/pubsub/subscribeChannel?channel=post_creation&post_id=$postId'));
+      var request = http.Request(
+          'GET',
+          Uri.parse(
+              'https://seal-app-eq6ra.ondigitalocean.app/myshetra/pubsub/subscribeChannel?channel=post_creation'));
 
-    request.headers.addAll(headers);
+      request.headers.addAll(headers);
 
-    http.StreamedResponse response = await request.send();
+      http.StreamedResponse response = await request.send().timeout(Duration(seconds: 30));
 
-    if (response.statusCode == 200) {
-      var responseBody = await response.stream.bytesToString();
-      print('WebSocket call passed: $responseBody');
-      print(responseBody);
-    } else {
-      print('WebSocket call failed: ${response.reasonPhrase}');
+      if (response.statusCode == 200) {
+        var responseBody = await response.stream.bytesToString();
+        print('WebSocket call passed: $responseBody');
+      } else {
+        print('WebSocket call failed: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error in WebSocket connection: $e');
     }
   }
 
