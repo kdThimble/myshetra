@@ -12,6 +12,7 @@ import 'package:myshetra/Pages/Editprofile.dart';
 import 'package:myshetra/Pages/HomePage/create_post.dart';
 import 'package:myshetra/Pages/HomePage/feed_view.dart';
 import 'package:myshetra/Pages/map_page.dart';
+import 'package:myshetra/Providers/pubsub_chanel.dart';
 import 'package:myshetra/Providers/user_provider.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:http/http.dart' as http;
@@ -165,12 +166,14 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  final PubSubService pubSubService = PubSubService();
   // Call the API here
   @override
   void initState() {
     // TODO: implement initState
     refreshAuthToken();
     fetchUserProfile();
+    // pubSubService.startListening();
     super.initState();
   }
 
@@ -253,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                 text: "Change Location"),
             MyButton(
                 onTap: () {
-                  Get.to( FeedView());
+                  Get.to(const FeedView());
                 },
                 text: "Upload Files"),
             MyButton(

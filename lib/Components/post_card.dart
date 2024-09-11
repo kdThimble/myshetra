@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
+import 'package:myshetra/Components/collage_widget.dart';
 import 'package:myshetra/Components/like_animation.dart';
 import 'package:myshetra/Models/UserModel.dart';
 import 'package:myshetra/Models/post_model.dart';
@@ -53,6 +54,13 @@ class _PostCardState extends State<PostCard> {
     final width = MediaQuery.of(context).size.width;
     DateTime postDate = DateTime.parse(post.createdAt);
     String timeAgo = timeago.format(postDate, locale: 'en_long');
+    var mediaList = post;
+    List<String> filePaths = [];
+
+    for (var media in mediaList.media) {
+      filePaths.add(media.filePath);
+    }
+
     return Container(
       // boundary needed for web
       decoration: const BoxDecoration(
@@ -168,20 +176,23 @@ class _PostCardState extends State<PostCard> {
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.35,
-                  width: double.infinity,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: post.media.length,
-                    itemBuilder: (context, index) {
-                      final mediaItem = post.media[index];
-                      return Image.network(
-                        mediaItem.filePath,
-                        fit: BoxFit.cover,
-                      );
-                    },
-                  ),
-                ),
+                    height: MediaQuery.of(context).size.height * 0.35,
+                    width: double.infinity,
+                    child: TwitterStyleCollage(
+                      imageUrls: filePaths,
+                    )
+                    // PageView.builder(
+                    //   controller: _pageController,
+                    //   itemCount: post.media.length,
+                    //   itemBuilder: (context, index) {
+                    //     final mediaItem = post.media[index];
+                    //     return Image.network(
+                    //       mediaItem.filePath,
+                    //       fit: BoxFit.cover,
+                    //     );
+                    //   },
+                    // ),
+                    ),
                 Positioned(
                   bottom: 15,
                   child: SmoothPageIndicator(

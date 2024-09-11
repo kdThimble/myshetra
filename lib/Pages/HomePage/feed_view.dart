@@ -1,8 +1,10 @@
 import 'dart:convert';
-
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:myshetra/Components/post_card.dart';
 import 'package:myshetra/Models/post_model.dart';
+import 'package:myshetra/Services/Authservices.dart';
 
 class FeedView extends StatefulWidget {
   const FeedView({super.key});
@@ -12,110 +14,54 @@ class FeedView extends StatefulWidget {
 }
 
 class _FeedViewState extends State<FeedView> {
+  final authService = Get.find<AuthService>();
+  Map<String, dynamic> jsonResponse = {};
+  Future<void> getUserAreaFeeds() async {
+    print("in function");
+    const String url =
+        'https://seal-app-eq6ra.ondigitalocean.app/myshetra/post/getContentForUserArea';
+
+    try {
+      final response = await http.get(Uri.parse(url),
+          headers: {'Authorization': '${authService.token}'});
+      print("token ${authService.token}");
+      if (response.statusCode == 200) {
+        jsonResponse = jsonDecode(response.body);
+        print('Request successful:');
+        print("jsonResponse $jsonResponse");
+        setState(() {});
+      } else {
+        print('Failed to load data: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error occurred: $error');
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getUserAreaFeeds();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    String responseString = '''
-  {
-    "page": 1,
-    "pageSize": 10,
-    "totalPosts": 9,
-    "posts": [
-      {
-        "ID": 11,
-        "Title": "hello post23",
-        "SubTitle": "",
-        "Content": "",
-        "AddedBy": "00000000-0000-0000-0000-000000000000",
-        "UpdatedBy": "00000000-0000-0000-0000-000000000000",
-        "CreatedAt": "2024-08-19T10:44:24.806495Z",
-        "UpdatedAt": "0001-01-01T00:00:00Z",
-        "Tagging": [],
-        "Media": [
-          {
-            "ID": 2,
-            "FilePath": "https://media.istockphoto.com/id/517188688/photo/mountain-landscape.jpg?s=1024x1024&w=0&k=20&c=z8_rWaI8x4zApNEEG9DnWlGXyDIXe-OmsAyQ5fGPVV8=",
-            "MediaType": "PHOTO",
-            "CreatedAt": "2024-08-19T10:28:16.151155Z",
-            "AddedBy": "00000000-0000-0000-0000-000000000000",
-            "UpdatedBy": "00000000-0000-0000-0000-000000000000"
-          },
-          {
-            "ID": 3,
-            "FilePath": "dmeo.jpg",
-            "MediaType": "PHOTO",
-            "CreatedAt": "2024-08-19T10:33:11.247568Z",
-            "AddedBy": "00000000-0000-0000-0000-000000000000",
-            "UpdatedBy": "00000000-0000-0000-0000-000000000000"
-          }
-        ],
-        "PostInteractions": {
-          "ID": 0,
-          "PostID": 0,
-          "Likes": 0,
-          "Views": 0,
-          "Comments": 0,
-          "Shares": 0,
-          "CreatedAt": "0001-01-01T00:00:00Z",
-          "UpdatedAt": "0001-01-01T00:00:00Z"
-        }
-      },
-      {
-        "ID": 11,
-        "Title": "hello post23",
-        "SubTitle": "",
-        "Content": "",
-        "AddedBy": "00000000-0000-0000-0000-000000000000",
-        "UpdatedBy": "00000000-0000-0000-0000-000000000000",
-        "CreatedAt": "2024-08-19T10:44:24.806495Z",
-        "UpdatedAt": "0001-01-01T00:00:00Z",
-        "Tagging": [],
-        "Media": [
-          {
-            "ID": 2,
-            "FilePath": "https://media.istockphoto.com/id/517188688/photo/mountain-landscape.jpg?s=1024x1024&w=0&k=20&c=z8_rWaI8x4zApNEEG9DnWlGXyDIXe-OmsAyQ5fGPVV8=",
-            "MediaType": "PHOTO",
-            "CreatedAt": "2024-08-19T10:28:16.151155Z",
-            "AddedBy": "00000000-0000-0000-0000-000000000000",
-            "UpdatedBy": "00000000-0000-0000-0000-000000000000"
-          },
-          {
-            "ID": 3,
-            "FilePath": "dmeo.jpg",
-            "MediaType": "PHOTO",
-            "CreatedAt": "2024-08-19T10:33:11.247568Z",
-            "AddedBy": "00000000-0000-0000-0000-000000000000",
-            "UpdatedBy": "00000000-0000-0000-0000-000000000000"
-          }
-        ],
-        "PostInteractions": {
-          "ID": 0,
-          "PostID": 0,
-          "Likes": 0,
-          "Views": 0,
-          "Comments": 0,
-          "Shares": 0,
-          "CreatedAt": "0001-01-01T00:00:00Z",
-          "UpdatedAt": "0001-01-01T00:00:00Z"
-        }
-      }
-    ]
-  }
-  ''';
-
     // Step 2: Parse the response string into a Map
-    Map<String, dynamic> jsonResponse = jsonDecode(responseString);
 
     // Step 3: Convert the JSON response to the ApiResponse model
-    ApiResponse apiResponse = ApiResponse.fromJson(jsonResponse);
+    ApiResponse apiResponse = ApiResponse.fromJson(jsonResponse["data"]);
     print("post ${apiResponse.posts[0].title}");
     print("Length ${apiResponse.posts.length}");
     return Scaffold(
-      body: ListView.builder(
-        itemCount: apiResponse.posts.length,
-        itemBuilder: (context, index) {
-          return PostCard(post: apiResponse.posts[index]);
-        },
-      ),
+      body: apiResponse.posts.isNotEmpty
+          ? ListView.builder(
+              itemCount: apiResponse.posts.length,
+              itemBuilder: (context, index) {
+                return PostCard(post: apiResponse.posts[index]);
+              },
+            )
+          : const Text("No post"),
     );
   }
 }

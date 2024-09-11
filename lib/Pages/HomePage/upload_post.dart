@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +10,7 @@ import 'package:myshetra/Components/MyButton.dart';
 import 'package:myshetra/Controller/user_selector_controller.dart';
 import 'package:myshetra/Models/UserModel.dart';
 import 'package:myshetra/Pages/HomePage/HomePage.dart';
+import 'package:myshetra/Providers/pubsub_chanel.dart';
 import 'package:myshetra/Services/Authservices.dart';
 import 'package:myshetra/Services/user_shared_pref.dart';
 import 'package:myshetra/helpers/colors.dart';
@@ -256,7 +258,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
 
     // Add content
     fields['content'] = updatedContent;
-
+    fields['post_type'] = "general";
     // Add user mentions to the form data
     for (int i = 0; i < userMentions.length; i++) {
       String formattedToken = '{user${i + 1}}';
@@ -324,8 +326,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
       await _uploadFileToPreSignedUrl(
           url, file, mimeType, contentType, fileSize);
     }
-    await _callWebSocketBeforeConfirming();
-    // await confirmPostFilesUploads(Response, captionController.text);
+    // await _callWebSocketBeforeConfirming();
+    await confirmPostFilesUploads(Response, captionController.text);
   }
 
   Future<void> _callWebSocketBeforeConfirming() async {
@@ -339,7 +341,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
 
       request.headers.addAll(headers);
 
-      http.StreamedResponse response = await request.send().timeout(Duration(seconds: 30));
+      http.StreamedResponse response =
+          await request.send().timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         var responseBody = await response.stream.bytesToString();
@@ -403,6 +406,8 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
 
   Future<void> confirmPostFilesUploads(
       Map<String, dynamic> responseData, String content) async {
+    final PubSubService pubSubService = PubSubService();
+    pubSubService.startListening();
     // Extract data from the response
     String postId = responseData['post_id'];
     List<Map<String, dynamic>> files =
@@ -424,6 +429,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     // Add fields to the request
     request.fields['post_id'] = postId;
     request.fields['content'] = captionController.text;
+    request.fields['post_type'] = "general";
 
     List<String> hashtags =
         searchScreenController.selectedHashtags.map((hashtag) {
@@ -473,6 +479,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
     // request.fields.addAll(fields);
     print('Request Fields: ${request.fields}');
     print('Request Headers: ${request.headers}');
+    print("Payload ${request.fields}");
     // Send the request
     http.StreamedResponse response = await request.send();
     print(request);
@@ -485,6 +492,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
           backgroundColor: Colors.green,
         ),
       );
+      pubSubService.stopListening();
       Get.to(const HomePage());
       print(await response.stream.bytesToString());
     } else {
@@ -512,7 +520,7 @@ class _SelectedImagesScreenState extends State<SelectedImagesScreen> {
   void _onChanged(String text) {
     final atIndex = text.lastIndexOf('@');
     final hashIndex = text.lastIndexOf('#');
-    
+
     print("in on changed");
     if (atIndex != -1) {
       setState(() {
